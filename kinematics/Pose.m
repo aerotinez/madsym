@@ -19,7 +19,7 @@ function obj = Pose(N,P)
         ];
     obj.Ad = [
         N.dcm, zeros(3,3);
-        vec2skew(P.posFrom()), N.dcm
+        vec2skew(P.posFrom())*N.dcm, N.dcm
         ];
 end
 function inv_pose = inv(obj)

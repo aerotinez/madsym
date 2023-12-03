@@ -2,6 +2,7 @@ classdef Body < handle
 properties (GetAccess = public, SetAccess = private)
     q (:,1) sym;
     qd (:,1) sym;
+    qdd (:,1) sym;
     R (3,3) sym = eye(3,'sym');
     p (3,1) sym = zeros(3,1,'sym');
     V (6,1) sym = zeros(6,1,'sym');
@@ -26,6 +27,7 @@ function obj = Body(q,pose,mass,inertia)
     end
     obj.q = q;
     obj.qd = diff(q);
+    obj.qdd = diff(obj.qd);
     obj.R = pose.N.dcm;
     obj.p = pose.P.posFrom();
     twist = Twist(pose);
