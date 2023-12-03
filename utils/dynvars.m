@@ -14,7 +14,10 @@ function varargout = dynvars(varargin)
         x = varargin{1};
         xstr = arrayfun(@(i)sprintf("%s_%d",x,i),1:n).';
         varargout = {cell2sym(cellfun(@helper,xstr,'uniform',0))};
+        return
     end
+    error('Invalid input type');
 
 function x = helper(xstr)
-    x = symfun(sprintf('%s(t)',xstr),sym('t'));
+    f = symfun(sprintf('%s(t)',xstr),sym('t'));
+    x = f(sym('t'));

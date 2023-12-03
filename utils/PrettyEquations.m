@@ -9,7 +9,7 @@ properties (GetAccess = public, SetAccess = private)
     params sym = sym.empty;
 end
 properties (Access = private)
-    eq_in (:,1) sym;
+    eq_in sym;
     q_in (:,1) sym;
     v_in (:,1) sym;
     a_in (:,1) sym;

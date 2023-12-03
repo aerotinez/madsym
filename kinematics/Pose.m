@@ -2,8 +2,8 @@ classdef Pose
 properties (GetAccess = public, SetAccess = private)
     N Frame;
     P Point;
-    T (4,4) sym;
-    Ad (6,6) sym;
+    T (4,4) sym = eye(4,'sym');
+    Ad (6,6) sym = eye(6,'sym');
 end
 methods
 function obj = Pose(N,P)
@@ -23,7 +23,7 @@ function obj = Pose(N,P)
         ];
 end
 function inv_pose = inv(obj)
-    Ni = Frame(obj.N.dcm');
+    Ni = Frame(obj.N.dcm.');
     Pi = Point(simplify(expand(-Ni.dcm*obj.P.posFrom())));
     inv_pose = Pose(Ni,Pi);
 end

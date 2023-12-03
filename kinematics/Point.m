@@ -23,7 +23,7 @@ end
 function d = posFrom(obj,P,N)
     arguments
         obj (1,1) Point;
-        P (1,1) Point;
+        P (1,1) Point = Point();
         N (1,1) Frame = Frame();
     end
     d = simplify(expand(N.dcm.'*([obj.x;obj.y;obj.z] - [P.x;P.y;P.z])));
