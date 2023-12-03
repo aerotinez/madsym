@@ -23,11 +23,12 @@ function obj = EquationsOfMotion(eomk,bodies,friction_coeffs)
     obj.eomk = eomk;
     obj.bodies = bodies;
     obj.Lagrangian = obj.mapsum(@(b)b.L,1);
-    obj.SpatialInertia = obj.mapsum(@(b)b.G,3);
-    obj.MassMatrix = obj.mapsum(@(b)b.M,3);
-    obj.Jacobian = obj.mapsum(@(b)b.J,3);
-    obj.JacobianRate = obj.mapsum(@(b)b.Jd,3);
-    obj.TwistAdjoint = obj.mapsum(@(b)b.ad,3);
+    obj.SpatialInertia = obj.blkdiag(@(b)b.G);
+    obj.Jacobian = cell2sym(arrayfun(@(b)b.J,bodies,'uniform',0).');
+    obj.MassMatrix = obj.Jacobian.'*obj.SpatialInertia*obj.Jacobian;
+    obj.MassMatrix = simplify(expand(obj.MassMatrix));
+    obj.JacobianRate = cell2sym(arrayfun(@(b)b.Jd,bodies,'uniform',0).');
+    obj.TwistAdjoint = obj.blkdiag(@(b)b.ad);
     obj.ActiveForces = obj.mapsum(@(b)b.Q,2);
     if friction_coeffs == sym(0)
         obj.FrictionForces = zeros(size(obj.eomk.q));
@@ -40,9 +41,7 @@ function eomd = derive(obj,f)
         obj (1,1) EquationsOfMotion;
         f (1,1) function_handle;
     end
-    eomd = f(obj);
-    Q = eomd.ActiveForces + eomd.InertialForces + eomd.FrictionForces;
-    eomd.ForcingVector = simplify(expand(Q));
+    eomd = f(obj); 
 end
 end
 methods (Access = private)
@@ -64,6 +63,12 @@ function out = mapsum(obj,f,n)
         error('n must be 1, 2, or 3');
     end
     out = simplify(expand(out));
+end
+function out = blkdiag(obj,f)
+    out = zeros(6*numel(obj.bodies),'sym');
+    for i = 1:numel(obj.bodies)
+        out(6*(i-1)+(1:6),6*(i-1)+(1:6)) = f(obj.bodies(i));
+    end
 end
 end
 end

@@ -16,9 +16,11 @@ ad = f(eomd.TwistAdjoint);
 Vbar = simplify(expand(J*W));
 Vdbar = simplify(expand(Jd*W + J*Wd));
 
-eomd.MassMatrix = simplify(expand(Vbar.'*G*Vbar));
+eomd.MassMatrix = simplify(expand(W.'*eomd.MassMatrix*W));
 Qi = -Vbar.'*(G*Vdbar - ad.'*G*Vbar)*u;
 eomd.InertialForces = simplify(expand(Qi));
 eomd.ActiveForces = simplify(expand(W.'*eomd.ActiveForces));
 eomd.FrictionForces = f(W.'*eomd.FrictionForces);
+Q = eomd.InertialForces + eomd.ActiveForces + eomd.FrictionForces;
+eomd.ForcingVector = simplify(expand(Q));
 out = eomd;
