@@ -30,7 +30,7 @@ eoms = [
     diff(eomd.eomk.nhc)
     ];
 
-M = jacobian(eoms,[qdd;lm]);
+M = simplify(expand(jacobian(eoms,[qdd;lm])));
 f = simplify(expand(-subs(eoms,[qdd;lm],0.*[qdd;lm])));
 
 out.MassMatrix = M;

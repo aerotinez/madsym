@@ -1,9 +1,11 @@
 classdef EquationsOfMotion < handle 
 properties (Access = public)
     eomk KinematicEquations = KinematicEquations.empty;
-    bodies (1,:) Body;
+    bodies (:,1) Body;
+    Inputs sym; 
     Lagrangian (1,1) sym = sym(0);
     SpatialInertia sym;
+    FrictionCoefficients sym;
     MassMatrix sym;
     Jacobian sym;
     JacobianRate sym;
@@ -14,11 +16,12 @@ properties (Access = public)
     FrictionForces sym;
 end
 methods (Access = public)
-function obj = EquationsOfMotion(eomk,bodies,friction_coeffs)
+function obj = EquationsOfMotion(eomk,bodies,options)
     arguments
         eomk (1,1) KinematicEquations;
         bodies (1,:) Body;
-        friction_coeffs sym = sym(0);
+        options.Inputs sym = sym.empty;
+        options.FrictionCoeffs sym = zeros([numel(eomk.q),1],'sym');
     end
     obj.eomk = eomk;
     obj.bodies = bodies;
@@ -30,11 +33,8 @@ function obj = EquationsOfMotion(eomk,bodies,friction_coeffs)
     obj.JacobianRate = cell2sym(arrayfun(@(b)b.Jd,bodies,'uniform',0).');
     obj.TwistAdjoint = obj.blkdiag(@(b)b.ad);
     obj.ActiveForces = obj.mapsum(@(b)b.Q,2);
-    if friction_coeffs == sym(0)
-        obj.FrictionForces = zeros(size(obj.eomk.q));
-        return
-    end
-    obj.FrictionForces = -diag(friction_coeffs)*obj.eomk.qd;
+    obj.FrictionCoefficients = options.FrictionCoeffs; 
+    obj.FrictionForces = -diag(obj.FrictionCoefficients)*obj.eomk.qd;
 end
 function eomd = derive(obj,f)
     arguments
