@@ -2,7 +2,9 @@ classdef EquationsOfMotion < handle
 properties (Access = public)
     eomk KinematicEquations = KinematicEquations.empty;
     bodies (:,1) Body;
-    Inputs sym; 
+    Inputs (:,1) sym;
+    AuxilarySpeeds (:,1) sym;
+    AuxilaryEquations (:,1) sym; 
     Lagrangian (1,1) sym = sym(0);
     SpatialInertia sym;
     FrictionCoefficients sym;
@@ -19,18 +21,23 @@ methods (Access = public)
 function obj = EquationsOfMotion(eomk,bodies,options)
     arguments
         eomk (1,1) KinematicEquations;
-        bodies (1,:) Body;
-        options.Inputs sym = sym.empty;
+        bodies (:,1) Body;
+        options.Inputs (:,1) sym = sym.empty;
         options.FrictionCoeffs sym = zeros([numel(eomk.q),1],'sym');
+        options.AuxilarySpeeds (:,1) sym = sym.empty;
+        options.AuxilaryEquations (:,1) sym = sym.empty;
     end
     obj.eomk = eomk;
     obj.bodies = bodies;
+    obj.Inputs = options.Inputs;
+    obj.AuxilarySpeeds = options.AuxilarySpeeds;
+    obj.AuxilaryEquations = options.AuxilaryEquations;
     obj.Lagrangian = obj.mapsum(@(b)b.L,1);
     obj.SpatialInertia = obj.blkdiag(@(b)b.G);
-    obj.Jacobian = cell2sym(arrayfun(@(b)b.J,bodies,'uniform',0).');
+    obj.Jacobian = cell2sym(arrayfun(@(b)b.J,bodies,'uniform',0));
     obj.MassMatrix = obj.Jacobian.'*obj.SpatialInertia*obj.Jacobian;
     obj.MassMatrix = simplify(expand(obj.MassMatrix));
-    obj.JacobianRate = cell2sym(arrayfun(@(b)b.Jd,bodies,'uniform',0).');
+    obj.JacobianRate = cell2sym(arrayfun(@(b)b.Jd,bodies,'uniform',0));
     obj.TwistAdjoint = obj.blkdiag(@(b)b.ad);
     obj.ActiveForces = obj.mapsum(@(b)b.Q,2);
     obj.FrictionCoefficients = options.FrictionCoeffs; 
@@ -55,7 +62,7 @@ function out = mapsum(obj,f,n)
     case 1
         out = sum(arrayfun(@(b)f(b),obj.bodies));
     case 2
-        out = sum(cell2sym(arrayfun(@(b)f(b),obj.bodies,'uniform',0)),2);
+        out = sum(cell2sym(arrayfun(@(b)f(b),obj.bodies.','uniform',0)),2);
     case 3
         outc = arrayfun(@(b)f(b),obj.bodies,'uniform',0);
         out = sum(cell2sym(reshape(outc,1,1,[])),3);

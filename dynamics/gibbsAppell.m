@@ -15,12 +15,34 @@ Jd = f(eomd.JacobianRate);
 ad = f(eomd.TwistAdjoint);
 Vbar = simplify(expand(J*W));
 Vdbar = simplify(expand(Jd*W + J*Wd));
+p = numel(eomd.AuxilarySpeeds);
 
-eomd.MassMatrix = simplify(expand(W.'*eomd.MassMatrix*W));
-Qi = -Vbar.'*(G*Vdbar - ad.'*G*Vbar)*u;
+eomaux = f(eomd.AuxilaryEquations);
+M = simplify(expand(W.'*eomd.MassMatrix*W));
+Maux = simplify(expand(jacobian(eomaux,diff(eomd.AuxilarySpeeds))));
+
+eomd.MassMatrix = [
+    M,zeros(eomd.eomk.k,p);
+    zeros(p,eomd.eomk.k),Maux
+    ];
+
+Qi = [
+    -Vbar.'*(G*Vdbar - ad.'*G*Vbar)*u;
+    -subs(eomaux,diff(eomd.AuxilarySpeeds),zeros(p,1))
+    ];
+
 eomd.InertialForces = simplify(expand(Qi));
-eomd.ActiveForces = simplify(expand(W.'*eomd.ActiveForces));
-eomd.FrictionForces = f(W.'*eomd.FrictionForces);
+
+eomd.ActiveForces = [
+    simplify(expand(W.'*eomd.ActiveForces))
+    zeros(p,1)
+    ];
+
+eomd.FrictionForces = [
+    f(W.'*eomd.FrictionForces);
+    zeros(p,1)
+    ];
+
 Q = eomd.InertialForces + eomd.ActiveForces + eomd.FrictionForces;
 eomd.ForcingVector = simplify(expand(Q));
 out = eomd;

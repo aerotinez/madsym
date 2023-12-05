@@ -21,6 +21,8 @@ function eomd = solveMultipliers(obj)
     lm = simplify(expand(sol(end-obj.eomk.m+1:end)));
     obj.ConstraintForces = simplify(expand(obj.eomk.A.'*lm));
     qdd = obj.eomk.qdd;
+    eomaux = obj.AuxilaryEquations;
+    p = numel(obj.AuxilarySpeeds);
 
     x = [
         qdd;
@@ -33,11 +35,25 @@ function eomd = solveMultipliers(obj)
     eom = simplify(expand(M*x - f));
     
     eomd = EquationsOfMotion(obj.eomk,obj.bodies);
-    eomd.MassMatrix = jacobian(eom,qdd);
-    eomd.ForcingVector = -subs(eom,qdd,0.*qdd);
-    eomd.FrictionForces = obj.FrictionForces(1:obj.eomk.n);
-    eomd.ActiveForces = obj.ActiveForces(1:obj.eomk.n);
-    eomd.InertialForces = eomd.ForcingVector - eomd.FrictionForces - eomd.ActiveForces;
+
+    Maux = jacobian(eomaux,diff(obj.AuxilarySpeeds));
+    eomd.MassMatrix = [
+        jacobian(eom,qdd),zeros(obj.eomk.n,p);
+        zeros(p,obj.eomk.n),Maux
+        ];
+
+    eomd.ForcingVector = [
+        -subs(eom,qdd,0.*qdd);
+        -subs(eomaux,diff(obj.AuxilarySpeeds),0.*obj.AuxilarySpeeds)
+        ];
+    
+    if ~isempty(symvar(obj.FrictionCoefficients))
+        Qf = jacobian(eom,obj.FrictionCoefficients)*obj.FrictionCoefficients;
+        eomd.FrictionForces = Qf;
+    end
+    eomd.ActiveForces = jacobian(eom,obj.Inputs)*obj.Inputs;
+    Qi = eomd.ForcingVector - eomd.ActiveForces;
+    eomd.InertialForces = simplify(expand(Qi));
 end
 end
 end
