@@ -37,7 +37,7 @@ function obj = KinematicEquations(q,u,kdes,options)
     obj.ud = diff(obj.u);
     obj.hc = options.hc;
     obj.nhc = [
-        simplify(expand(diff(obj.hc)));
+        simplify(expand(diff(obj.hc,sym('t'))));
         options.nhc
     ];
     obj.A = jacobian(obj.nhc,obj.qd);
@@ -53,7 +53,7 @@ function obj = KinematicEquations(q,u,kdes,options)
         error('Invalid number of quasi-velocities');
     end
     obj.Ju = simplify(expand(inv(obj.Jqd)));
-    obj.Jdqd = simplify(expand(diff(obj.Jqd)));
+    obj.Jdqd = simplify(expand(diff(obj.Jqd,sym('t'))));
     obj.Jdu = simplify(expand(-obj.Ju*obj.Jdqd*obj.Ju));
 end
 end

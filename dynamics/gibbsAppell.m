@@ -7,19 +7,22 @@ qd = eomd.eomk.qd;
 u = eomd.eomk.u;
 W = eomd.eomk.Ju(:,1:eomd.eomk.k);
 qds = W*u;
-f = @(x)simplify(expand(subs(x,qd,qds)));
-Wd = f(eomd.eomk.Jdu(:,1:eomd.eomk.k));
+f = @(x)subs(x,qd,qds);
+Ju = eomd.eomk.Ju;
+Jdqd = subs(eomd.eomk.Jdqd,qd,qds);
+Jdu = -Ju*Jdqd*Ju;
+Wd = Jdu(:,1:eomd.eomk.k);
 G = eomd.SpatialInertia;
 J = eomd.Jacobian;
 Jd = f(eomd.JacobianRate);
 ad = f(eomd.TwistAdjoint);
-Vbar = simplify(expand(J*W));
-Vdbar = simplify(expand(Jd*W + J*Wd));
+Vbar = J*W;
+Vdbar = Jd*W + J*Wd;
 p = numel(eomd.AuxiliarySpeeds);
 
 eomaux = f(eomd.AuxiliaryEquations);
-M = simplify(expand(W.'*eomd.MassMatrix*W));
-Maux = simplify(expand(jacobian(eomaux,diff(eomd.AuxiliarySpeeds))));
+M = W.'*eomd.MassMatrix*W;
+Maux = jacobian(eomaux,diff(eomd.AuxiliarySpeeds));
 
 eomd.MassMatrix = [
     M,zeros(eomd.eomk.k,p);
@@ -31,10 +34,10 @@ Qi = [
     -subs(eomaux,diff(eomd.AuxiliarySpeeds),zeros(p,1))
     ];
 
-eomd.InertialForces = simplify(expand(Qi));
+eomd.InertialForces = Qi;
 
 eomd.ActiveForces = [
-    simplify(expand(W.'*eomd.ActiveForces))
+    W.'*eomd.ActiveForces
     zeros(p,1)
     ];
 
@@ -44,5 +47,5 @@ eomd.FrictionForces = [
     ];
 
 Q = eomd.InertialForces + eomd.ActiveForces + eomd.FrictionForces;
-eomd.ForcingVector = simplify(expand(Q));
+eomd.ForcingVector = Q;
 out = eomd;

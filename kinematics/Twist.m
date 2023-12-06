@@ -12,7 +12,7 @@ function obj = Twist(pose)
     arguments
         pose (1,1) Pose = Pose();
     end
-    obj.S = simplify(expand(pose.inv().T*diff(pose.T)));
+    obj.S = simplify(expand(pose.inv().T*diff(pose.T,sym('t'))));
     obj.w = skew2vec(obj.S(1:3,1:3));
     obj.v = obj.S(1:3,4);
 
@@ -21,7 +21,7 @@ function obj = Twist(pose)
         obj.v
         ];
 
-    obj.Vd = simplify(expand(diff(obj.V)));
+    obj.Vd = simplify(expand(diff(obj.V,sym('t'))));
 
     obj.ad = [
         vec2skew(obj.w),zeros(3);
