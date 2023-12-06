@@ -3,8 +3,8 @@ properties (Access = public)
     eomk KinematicEquations = KinematicEquations.empty;
     bodies (:,1) Body;
     Inputs (:,1) sym;
-    AuxilarySpeeds (:,1) sym;
-    AuxilaryEquations (:,1) sym; 
+    AuxiliarySpeeds (:,1) sym;
+    AuxiliaryEquations (:,1) sym; 
     Lagrangian (1,1) sym = sym(0);
     SpatialInertia sym;
     FrictionCoefficients sym;
@@ -24,14 +24,14 @@ function obj = EquationsOfMotion(eomk,bodies,options)
         bodies (:,1) Body;
         options.Inputs (:,1) sym = sym.empty;
         options.FrictionCoeffs sym = zeros([numel(eomk.q),1],'sym');
-        options.AuxilarySpeeds (:,1) sym = sym.empty;
-        options.AuxilaryEquations (:,1) sym = sym.empty;
+        options.AuxiliarySpeeds (:,1) sym = sym.empty;
+        options.AuxiliaryEquations (:,1) sym = sym.empty;
     end
     obj.eomk = eomk;
     obj.bodies = bodies;
     obj.Inputs = options.Inputs;
-    obj.AuxilarySpeeds = options.AuxilarySpeeds;
-    obj.AuxilaryEquations = options.AuxilaryEquations;
+    obj.AuxiliarySpeeds = options.AuxiliarySpeeds;
+    obj.AuxiliaryEquations = options.AuxiliaryEquations;
     obj.Lagrangian = obj.mapsum(@(b)b.L,1);
     obj.SpatialInertia = obj.blkdiag(@(b)b.G);
     obj.Jacobian = cell2sym(arrayfun(@(b)b.J,bodies,'uniform',0));
