@@ -13,6 +13,14 @@ function obj = Velocities(u,options)
     end
     obj.Quasi = Coordinates(u);
     obj.Auxiliary = Coordinates(options.Auxiliary);
+    obj.States = [
+        obj.Quasi.States
+        obj.Auxiliary.States
+    ];
+    obj.Rates = [
+        obj.Quasi.Rates
+        obj.Auxiliary.Rates
+    ];
 end
 end
 end

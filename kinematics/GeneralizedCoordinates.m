@@ -1,15 +1,15 @@
 classdef GeneralizedCoordinates
 properties (GetAccess = public, SetAccess = private)
-    States (:,1) sym;
-    Rates (:,1) sym;
-    Independent (1,1) Coordinates;
-    Dependent (1,1) Coordinates;
+    States (:,1) sym = sym.empty([0,1]);
+    Rates (:,1) sym = sym.empty([0,1]);
+    Independent Coordinates;
+    Dependent Coordinates;
 end
 methods (Access = public)
 function obj = GeneralizedCoordinates(q,options)
     arguments
-        q (:,1) sym;
-        options.Dependent (:,1) sym = sym.empty;
+        q (:,1) sym = sym.empty([0,1]);
+        options.Dependent (:,1) sym = sym.empty([0,1]);
     end
     obj.Independent = Coordinates(q);
     obj.Dependent = Coordinates(options.Dependent);
