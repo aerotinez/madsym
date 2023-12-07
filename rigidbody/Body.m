@@ -1,76 +1,59 @@
 classdef Body < handle
 properties (GetAccess = public, SetAccess = private)
-    q (:,1) sym;
-    qd (:,1) sym;
-    qdd (:,1) sym;
-    R (3,3) sym = eye(3,'sym');
-    p (3,1) sym = zeros(3,1,'sym');
-    V (6,1) sym = zeros(6,1,'sym');
-    J (6,:) sym;
-    ad (6,6) sym = zeros(6,6,'sym');
-    Vd (6,1) sym = zeros(6,1,'sym');
-    Jd (6,:) sym;
-    m (1,1) sym = sym(0);
-    I (3,3) sym = zeros(3,3,'sym');
-    G (6,6) sym = zeros(6,6,'sym');
-    L (1,1) sym = sym(0);
-    M sym;
-    Q (:,1) sym;
+    ReferenceFrame (1,1) Frame;
+    MassCenter (1,1) Point; 
+    Inertia (3,3) sym = zeros(3,3,'sym');
+    Mass (1,1) sym = sym(0); 
+    InertialForces (:,1) sym;
+    ActiveForces (:,1) sym;
 end
 methods
-function obj = Body(q,pose,mass,inertia)
+function obj = Body(reference_frame,mass_center,inertia,mass)
     arguments
-        q (:,1) sym;
-        pose (1,1) Pose = Pose();
-        mass (1,1) sym = sym(0);
+        reference_frame (1,1) Frame = Frame();
+        mass_center (1,1) Point = Point();
         inertia (3,3) sym = zeros(3,3,'sym');
+        mass (1,1) sym = sym(0);
     end
-    obj.q = q;
-    obj.qd = diff(q);
-    obj.qdd = diff(obj.qd);
-    obj.R = pose.N.dcm;
-    obj.p = pose.P.posFrom();
-    twist = Twist(pose);
-    obj.V = twist.V;
-    obj.J = twist.jacobian(obj.qd);
-    obj.ad = twist.ad;
-    obj.Vd = twist.Vd;
-    obj.Jd = twist.jacobianRate(obj.qd);
-    obj.m = mass;
-    obj.I = inertia;
-    obj.G = blkdiag(obj.I,obj.m*eye(3));
-    obj.L = simplify(expand((1/2)*obj.V.'*obj.G*obj.V));
-    obj.M = simplify(expand(obj.J.'*obj.G*obj.J));
-    obj.Q = zeros(size(obj.q));
+    obj.ReferenceFrame = reference_frame;
+    obj.MassCenter = mass_center;
+    obj.Inertia = inertia;
+    obj.Mass = mass;
+    obj.InertialForces = obj.inertialForces();
+    obj.ActiveForces = sym(zeros(6,1));
 end
-function applyForce(obj,frame,point,force,reacting_body)
+function applyForce(obj,frame,point,force)
     arguments
         obj (1,1) Body;
         frame (1,1) Frame;
         point (1,1) Point;
         force (3,1) sym;
-        reacting_body (1,1) Body = Body(obj.q);
     end
-    obj.applyWrench(frame,point,[0;0;0;force],reacting_body);
+    obj.applyWrench(frame,point,[0;0;0;force]);
 end
-function applyMoment(obj,frame,moment,reacting_body)
+function applyMoment(obj,frame,moment)
     arguments
         obj (1,1) Body;
         frame (1,1) Frame;
         moment (3,1) sym;
-        reacting_body (1,1) Body = Body(obj.q);
     end
-    obj.applyWrench(frame,Point(obj.p),[moment;0;0;0],reacting_body);
+    obj.applyWrench(frame,Point(obj.p),[moment;0;0;0]);
 end
 end
 methods (Access = private)
-function W = wrench(~,frame,point,twist)
-    W = Pose(frame,point).inv.Ad.'*twist; 
+function Qi = inertialForces(obj)
+    G = blkdiag(obj.Inertia,obj.Mass*eye(3));
+    twist = Twist(Pose(obj.ReferenceFrame,obj.MassCenter));
+    V = twist.Vector;
+    ad = twist.Adjoint;
+    Vd = twist.Rate;
+    Qi = simplify(expand(G*Vd - ad.'*G*V));
 end
-function applyWrench(obj,frame,point,wrench,reacting_body) 
-    w = obj.wrench(frame,point,wrench);
-    fJ = @(b)Pose(Frame(b.R),Point(b.p)).Ad*b.J;
-    obj.Q = obj.Q + simplify(expand(fJ(obj).'*w - fJ(reacting_body).'*w));
+function W = applyWrench(obj,frame,point,twist)
+    Adspace = Pose(frame,point).inv.Adjoint;
+    Adbody = Pose(obj.ReferenceFrame,obj.MassCenter).Adjoint;
+    W = simplify(expand(Adbody*Adspace.'*twist));
+    obj.ActiveForces = simplify(expand(obj.ActiveForces + W));
 end
 end
 end

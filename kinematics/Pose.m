@@ -1,31 +1,33 @@
 classdef Pose
 properties (GetAccess = public, SetAccess = private)
-    N Frame;
-    P Point;
-    T (4,4) sym = eye(4,'sym');
-    Ad (6,6) sym = eye(6,'sym');
+    ReferenceFrame Frame;
+    Position Point;
+    Matrix (4,4) sym = eye(4,'sym');
+    Adjoint (6,6) sym = eye(6,'sym');
 end
-methods
-function obj = Pose(N,P)
+methods (Access = public)
+function obj = Pose(reference_frame,position)
     arguments
-        N (1,1) Frame = Frame();
-        P (1,1) Point = Point();
+        reference_frame (1,1) Frame = Frame();
+        position (1,1) Point = Point();
     end
-    obj.N = N;
-    obj.P = P;
-    obj.T = [
-        N.dcm,P.posFrom();
+    obj.ReferenceFrame = reference_frame;
+    obj.Position = position;
+    obj.Matrix = [
+        obj.ReferenceFrame.dcm,obj.Position.posFrom();
         0,0,0,1
         ];
-    obj.Ad = [
-        N.dcm, zeros(3,3);
-        vec2skew(P.posFrom())*N.dcm, N.dcm
+    R = obj.ReferenceFrame.dcm;
+    p = obj.Position.posFrom();
+    obj.Adjoint = [
+        R, zeros(3,3);
+        vec2skew(p)*R,R
         ];
 end
 function inv_pose = inv(obj)
-    Ni = Frame(obj.N.dcm.');
-    Pi = Point(simplify(expand(-Ni.dcm*obj.P.posFrom())));
-    inv_pose = Pose(Ni,Pi);
+    R = obj.ReferenceFrame.dcm;
+    p = obj.Position.posFrom(); 
+    inv_pose = Pose(Frame(R.'),Point(simplify(expand(-R.'*p))));
 end
 end
 end

@@ -1,60 +1,47 @@
 classdef KinematicEquations
 properties (GetAccess = public, SetAccess = private)
-    n; % number of generalized coordinates
-    l; % number of holonomic constraints
-    m; % number of nonholonomic constraints
-    k; % number of independent equations
-    q; % generalized coordinates
-    qd; % generalized rates
-    qdd; % generalized accelerations
-    u; % quasi-velocities
-    ud; % quasi-accelerations
-    Jqd; % kinematic Jacobian
-    Ju; % quasi-velocity Jacobian
-    Jdqd; % kinematic Jacobian derivative
-    Jdu; % quasi-acceleration Jacobian
-    hc; % holonomic constraints
-    nhc; % nonholonomic constraints
-    A; % constraint matrix
+    HolonomicConstraints (:,1) sym = sym.empty();
+    NonholonomicConstraints (:,1) sym = sym.empty();
+    KinematicJacobian sym;
+    ConstraintJacobian sym;
+    GeneralizedRateJacobian sym;
+    QuasiVelocityJacobian sym;
+    GeneralizedRateJacobianRate sym;
+    QuasiVelocityJacobianRate sym;
 end
 methods (Access = public)
-function obj = KinematicEquations(q,u,kdes,options)
+function obj = KinematicEquations(coordinates,velocities,equations,options)
     arguments
-        q (:,1) sym;
-        u (:,1) sym;
-        kdes (:,1) sym;
-        options.hc (:,1) sym = sym.empty();
-        options.nhc (:,1) sym = sym.empty();
+        coordinates (1,1) GeneralizedCoordinates;
+        velocities (:,1) Velocities;
+        equations (:,1) sym;
+        options.HolonomicConstraints (:,1) sym = sym.empty();
+        options.NonholonomicConstraints (:,1) sym = sym.empty();
     end
-    obj.q = q;
-    obj.u = u;
-    obj.n = numel(q);
-    obj.l = numel(options.hc);
-    obj.m = numel([options.hc;options.nhc]);
-    obj.k = obj.n - obj.m;
-    obj.qd = diff(obj.q);
-    obj.qdd = diff(obj.qd);
-    obj.ud = diff(obj.u);
-    obj.hc = options.hc;
-    obj.nhc = [
-        simplify(expand(diff(obj.hc,sym('t'))));
-        options.nhc
+    hc = options.HolonomicConstraints;
+    nhc = options.NonholonomicConstraints;
+    obj.HolonomicConstraints = simplify(expand(hc));
+    obj.NonholonomicConstraints = simplify(expand(nhc));
+    sys = [
+        velocities.States - equations;
+        diff(obj.HolonomicConstraints,sym('t'));
+        obj.NonholonomicConstraints
     ];
-    obj.A = jacobian(obj.nhc,obj.qd);
-    switch length(obj.u)
-    case obj.n
-        obj.Jqd = jacobian(obj.u - kdes,obj.qd);
-    case obj.k
-        obj.Jqd = [
-            jacobian(obj.u - kdes,obj.qd);
-            obj.A;
-        ];
-    otherwise
-        error('Invalid number of quasi-velocities');
+    obj.GeneralizedRateJacobian = jacobian(sys,coordinates.Rates);
+    obj.validate(obj);
+    Jqd = simplify(expand(obj.GeneralizedRateJacobian));
+    obj.KinematicJacobian = Jqd(1:numel(velocities.Quasi.States),:);
+    obj.ConstraintJacobian = Jqd(numel(velocities.Quasi.States) + 1:end,:);
+    obj.GeneralizedRateJacobianRate = simplify(expand(diff(Jqd,sym('t'))));
+    obj.QuasiVelocityJacobian = Jqd\
+end
+end
+methods (Access = private)
+function validate(obj)
+    Jqd = obj.GeneralizedRateJacobian;
+    if rank(Jqd) < size(Jqd,2)
+        error('KinematicJacobian is not full rank');
     end
-    obj.Ju = simplify(expand(inv(obj.Jqd)));
-    obj.Jdqd = simplify(expand(diff(obj.Jqd,sym('t'))));
-    obj.Jdu = simplify(expand(-obj.Ju*obj.Jdqd*obj.Ju));
 end
 end
 end
