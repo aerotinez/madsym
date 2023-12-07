@@ -10,16 +10,16 @@ properties (GetAccess = public, SetAccess = private)
     QuasiVelocityJacobianRate sym;
 end
 methods (Access = public)
-function obj = KinematicEquations(coordinates,velocities,equations,options)
+function obj = KinematicEquations(coordinates,quasi_velocities,equations,options)
     arguments
         coordinates (1,1) GeneralizedCoordinates;
-        velocities (1,1) Velocities;
+        quasi_velocities (:,1) QuasiVariable;
         equations (:,1) sym;
         options.HolonomicConstraints (:,1) sym = sym.empty();
         options.NonholonomicConstraints (:,1) sym = sym.empty();
     end
-    qd = coordinates.Rates;
-    u = velocities.Quasi.States;
+    qd = [coordinates.All.Velocity].';
+    u = [quasi_velocities.Velocity].';
     hc = options.HolonomicConstraints;
     nhc = options.NonholonomicConstraints;
     obj.validateCoodinateDimensions(qd,u,hc,nhc);

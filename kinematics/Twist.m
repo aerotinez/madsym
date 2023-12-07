@@ -12,7 +12,8 @@ function obj = Twist(pose)
     arguments
         pose (1,1) Pose = Pose();
     end
-    obj.Matrix = simplify(expand(pose.inv().Matrix*diff(pose.Matrix,sym('t'))));
+    V = pose.inv().Transform*diff(pose.Transform,sym('t'));
+    obj.Matrix = simplify(expand(V));
     obj.AngularVelocity = skew2vec(obj.Matrix(1:3,1:3));
     obj.TranslationalVelocity = obj.Matrix(1:3,4);
     obj.Vector = [

@@ -2,7 +2,7 @@ classdef Pose
 properties (GetAccess = public, SetAccess = private)
     ReferenceFrame Frame;
     Position Point;
-    Matrix (4,4) sym = eye(4,'sym');
+    Transform (4,4) sym = eye(4,'sym');
     Adjoint (6,6) sym = eye(6,'sym');
 end
 methods (Access = public)
@@ -13,7 +13,7 @@ function obj = Pose(reference_frame,position)
     end
     obj.ReferenceFrame = reference_frame;
     obj.Position = position;
-    obj.Matrix = [
+    obj.Transform = [
         obj.ReferenceFrame.dcm,obj.Position.posFrom();
         0,0,0,1
         ];

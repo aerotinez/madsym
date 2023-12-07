@@ -49,11 +49,9 @@ function Qi = inertialForces(obj)
     Vd = twist.Rate;
     Qi = simplify(expand(G*Vd - ad.'*G*V));
 end
-function W = applyWrench(obj,frame,point,twist)
-    Adspace = Pose(frame,point).inv.Adjoint;
-    Adbody = Pose(obj.ReferenceFrame,obj.MassCenter).Adjoint;
-    W = simplify(expand(Adbody*Adspace.'*twist));
-    obj.ActiveForces = simplify(expand(obj.ActiveForces + W));
+function W = applyWrench(obj,frame,point,wrench) 
+    W = Wrench(frame,point,wrench).transform(obj.ReferenceFrame,obj.MassCenter);
+    obj.ActiveForces = simplify(expand(obj.ActiveForces + W.Vector));
 end
 end
 end
