@@ -26,21 +26,21 @@ function obj = Twist(pose)
         ];
     obj.Rate = simplify(expand(diff(obj.Vector,sym('t'))));
 end
-function J = jacobian(obj,q,pose)
+function J = jacobian(obj,qd,pose)
     arguments
         obj (1,1) Twist;
-        q (1,1) GeneralizedCoordinates;
+        qd (:,1) sym;
         pose (1,1) Pose = Pose();
     end
-    J = simplify(expand(pose.Adjoint*jacobian(obj.Vector,q.Rates)));
+    J = simplify(expand(pose.Adjoint*jacobian(obj.Vector,qd)));
 end
-function Jd = jacobianRate(obj,q,pose)
+function Jd = jacobianRate(obj,qd,pose)
     arguments
         obj (1,1) Twist;
-        q (1,1) GeneralizedCoordinates;
+        qd (:,1) sym;
         pose (1,1) Pose = Pose();
     end
-    Jd = simplify(expand(diff(obj.jacobian(q.Rates,pose),sym('t'))));
+    Jd = simplify(expand(diff(obj.jacobian(qd,pose),sym('t'))));
 end
 end
 end

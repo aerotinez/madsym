@@ -37,7 +37,7 @@ function applyMoment(obj,frame,moment)
         frame (1,1) Frame;
         moment (3,1) sym;
     end
-    obj.applyWrench(frame,Point(obj.p),[moment;0;0;0]);
+    obj.applyWrench(frame,obj.MassCenter,[moment;0;0;0]);
 end
 end
 methods (Access = private)

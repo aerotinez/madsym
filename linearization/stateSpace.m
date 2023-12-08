@@ -1,7 +1,10 @@
-function varargout = stateSpace(eoml)
-varargout{1} = simplify(expand(eoml.P.'*(eoml.M\eoml.F)));
-if ~isempty(eoml.G)
-    varargout{2} = simplify(expand(eoml.P.'*(eoml.M\eoml.G)));
-else
-    varargout{2} = [];
+function [A,B] = stateSpace(linearized_equations)
+arguments
+    linearized_equations (1,1) LinearizedEquations
 end
+P = linearized_equations.PermutationMatrix;
+M = linearized_equations.MassMatrix;
+H = linearized_equations.ForcingMatrix;
+G = linearized_equations.InputMatrix;
+A = simplify(expand(P.'*(M\H)));
+B = simplify(expand(P.'*(M\G)));

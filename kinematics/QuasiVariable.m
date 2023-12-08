@@ -6,7 +6,7 @@ end
 methods (Access = public)
 function obj = QuasiVariable(variable)
     arguments
-        variable (1,1) sym;
+        variable sym {mustBeScalarOrEmpty} = sym.empty();
     end
     obj.Velocity = variable;
     obj.validateVariable();

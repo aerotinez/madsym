@@ -1,23 +1,27 @@
 classdef KinematicEquations
 properties (GetAccess = public, SetAccess = private)
+    Coordinates GeneralizedCoordinates;
+    QuasiVelocities QuasiVariable;
     HolonomicConstraints (:,1) sym = sym.empty();
     NonholonomicConstraints (:,1) sym = sym.empty();
     KinematicJacobian sym;
     ConstraintJacobian sym;
-    GeneralizedRateJacobian sym;
+    GeneralizedVelocityJacobian sym;
     QuasiVelocityJacobian sym;
-    GeneralizedRateJacobianRate sym;
+    GeneralizedVelocityJacobianRate sym;
     QuasiVelocityJacobianRate sym;
 end
 methods (Access = public)
 function obj = KinematicEquations(coordinates,quasi_velocities,equations,options)
     arguments
-        coordinates (1,1) GeneralizedCoordinates;
-        quasi_velocities (:,1) QuasiVariable;
-        equations (:,1) sym;
+        coordinates (1,1) GeneralizedCoordinates = GeneralizedCoordinates();
+        quasi_velocities (:,1) QuasiVariable = QuasiVariable();
+        equations (:,1) sym = sym.empty([0,1]);
         options.HolonomicConstraints (:,1) sym = sym.empty();
         options.NonholonomicConstraints (:,1) sym = sym.empty();
     end
+    obj.Coordinates = coordinates;
+    obj.QuasiVelocities = quasi_velocities;
     qd = [coordinates.All.Velocity].';
     u = [quasi_velocities.Velocity].';
     hc = options.HolonomicConstraints;
@@ -33,14 +37,14 @@ function obj = KinematicEquations(coordinates,quasi_velocities,equations,options
         obj.NonholonomicConstraints
     ];
     obj.ConstraintJacobian = simplify(expand(jacobian(c,qd)));
-    obj.GeneralizedRateJacobian = [
+    obj.GeneralizedVelocityJacobian = [
         obj.KinematicJacobian;
         obj.ConstraintJacobian
     ];
-    Ju = obj.GeneralizedRateJacobian\eye(numel(qd));
+    Ju = obj.GeneralizedVelocityJacobian\eye(numel(qd));
     obj.QuasiVelocityJacobian = simplify(expand(Ju));
-    Jdqd = diff(obj.GeneralizedRateJacobian,sym('t'));
-    obj.GeneralizedRateJacobianRate = simplify(expand(Jdqd));
+    Jdqd = diff(obj.GeneralizedVelocityJacobian,sym('t'));
+    obj.GeneralizedVelocityJacobianRate = simplify(expand(Jdqd));
     qds = simplify(expand(Ju(:,1:numel(u))*u));
     Jdu = -Ju*subs(Jdqd,qd,qds)*Ju;
     obj.QuasiVelocityJacobianRate = simplify(expand(Jdu));
