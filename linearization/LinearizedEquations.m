@@ -38,13 +38,7 @@ properties (Access = private)
 end
 properties (Access = private)
     Mkqd;
-    Mkud;
-    Mkvd;
-    Mdqd;
     Mdud;
-    Mdvd;
-    Maqd;
-    Maud;
     Mavd;
 end
 properties (Access = private)
@@ -63,7 +57,7 @@ properties (Access = private)
     Gdf;
     Gaf;
 end
-properties (Access = public)
+properties (GetAccess = public, SetAccess = private)
     Trim TrimPoint {mustBeScalarOrEmpty} = TrimPoint.empty([0,1]);
     PermutationMatrix;
     MassMatrix;
@@ -138,34 +132,19 @@ function expr_sub = trimSub(obj,expr)
     expr_sub = simplify(expand(subs(expr,x,xs)));
 end
 function massMatrixJacobians(obj)
-    obj.Mkqd = eye(obj.n,'sym');
-    obj.Mkud = zeros(obj.n,obj.k,'sym');
-    obj.Mkvd = zeros(obj.n,obj.p,'sym');
-    obj.Mdqd = zeros(obj.k,obj.n,'sym');
-    obj.Mdud = jacobian(obj.fd0,obj.ud);
-    obj.Mdvd = zeros(obj.k,obj.p,'sym');
-    obj.Maqd = zeros(obj.p,obj.n,'sym');
-    obj.Maud = zeros(obj.p,obj.k,'sym');
+    obj.Mkqd = eye(obj.n,'sym'); 
+    obj.Mdud = jacobian(obj.fd0,obj.ud); 
     obj.Mavd = jacobian(obj.fv0,obj.vd);
 end
 function massMatrix(obj)
-    M = [
-        obj.Mkqd, obj.Mkud, obj.Mkvd;
-        obj.Mdqd, obj.Mdud, obj.Mdvd;
-        obj.Maqd, obj.Maud, obj.Mavd;
-    ];
-
+    M = blkdiag(obj.Mkqd,obj.Mdud,obj.Mavd);
     obj.MassMatrix = obj.trimSub(M);
 end
-function J = jacobianHelper(~,expr,var_rate)
-    fJ = @(f)jacobian(diff(f,sym('t')),var_rate);
-    J = cell2sym(arrayfun(fJ,expr,'uniform',0));
-end
 function forcingMatrixJacobians(obj)
-    obj.Hkq = -obj.jacobianHelper(obj.fk1,obj.qd);
+    obj.Hkq = -jacobian(obj.fk1,obj.q);
     obj.Hku = -jacobian(obj.fk1,obj.u);
     obj.Hkv = zeros(obj.n,obj.p,'sym');
-    obj.Hdq = -obj.jacobianHelper(obj.fd1,obj.qd);
+    obj.Hdq = -jacobian(obj.fd1,obj.q);
     obj.Hdu = -jacobian(obj.fd0 + obj.fd1,obj.u);
     obj.Hdv = -jacobian(obj.fd0 + obj.fd1,obj.v);
     obj.Haq = -jacobian(obj.fv0 + obj.fv1,obj.q);

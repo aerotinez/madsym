@@ -14,7 +14,7 @@ function obj = AuxiliaryEquations(variables,equations,kinematic_equations)
     obj.Variables = variables;
     vd = [obj.Variables.Acceleration].';
     if ~isempty(kinematic_equations)
-        qd = [kinematic_equations.Coordinates.Velocity].';
+        qd = [kinematic_equations.Coordinates.All.Velocity].';
         u = [kinematic_equations.QuasiVelocities.Velocity].';
         Ju = kinematic_equations.QuasiVelocityJacobian(:,1:numel(u));
         qds = Ju*u;

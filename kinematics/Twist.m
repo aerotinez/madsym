@@ -13,7 +13,7 @@ function obj = Twist(pose)
         pose (1,1) Pose = Pose();
     end
     V = pose.inv().Transform*diff(pose.Transform,sym('t'));
-    obj.Matrix = simplify(expand(V));
+    obj.Matrix = V;
     obj.AngularVelocity = skew2vec(obj.Matrix(1:3,1:3));
     obj.TranslationalVelocity = obj.Matrix(1:3,4);
     obj.Vector = [
@@ -24,7 +24,7 @@ function obj = Twist(pose)
         vec2skew(obj.AngularVelocity),zeros(3);
         vec2skew(obj.TranslationalVelocity),vec2skew(obj.AngularVelocity)
         ];
-    obj.Rate = simplify(expand(diff(obj.Vector,sym('t'))));
+    obj.Rate = diff(obj.Vector,sym('t'));
 end
 function J = jacobian(obj,qd,pose)
     arguments
@@ -32,7 +32,7 @@ function J = jacobian(obj,qd,pose)
         qd (:,1) sym;
         pose (1,1) Pose = Pose();
     end
-    J = simplify(expand(pose.Adjoint*jacobian(obj.Vector,qd)));
+    J = pose.Adjoint*jacobian(obj.Vector,qd);
 end
 function Jd = jacobianRate(obj,qd,pose)
     arguments
@@ -40,7 +40,7 @@ function Jd = jacobianRate(obj,qd,pose)
         qd (:,1) sym;
         pose (1,1) Pose = Pose();
     end
-    Jd = simplify(expand(diff(obj.jacobian(qd,pose),sym('t'))));
+    Jd = diff(obj.jacobian(qd,pose),sym('t'));
 end
 end
 end

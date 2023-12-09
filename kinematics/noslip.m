@@ -6,4 +6,4 @@ arguments
 end
 R = b.ReferenceFrame.dcm;
 V = Twist(Pose(b.ReferenceFrame,b.MassCenter)).Vector;
-v = simplify(expand(N.dcm.'*([-R*vec2skew(r),R]*V)));
+v = N.dcm.'*([-R*vec2skew(r),R]*V);

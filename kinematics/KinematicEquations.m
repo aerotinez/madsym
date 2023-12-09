@@ -42,12 +42,12 @@ function obj = KinematicEquations(coordinates,quasi_velocities,equations,options
         obj.ConstraintJacobian
     ];
     Ju = obj.GeneralizedVelocityJacobian\eye(numel(qd));
-    obj.QuasiVelocityJacobian = simplify(expand(Ju));
+    obj.QuasiVelocityJacobian = Ju;
     Jdqd = diff(obj.GeneralizedVelocityJacobian,sym('t'));
-    obj.GeneralizedVelocityJacobianRate = simplify(expand(Jdqd));
-    qds = simplify(expand(Ju(:,1:numel(u))*u));
+    obj.GeneralizedVelocityJacobianRate = Jdqd;
+    qds = Ju(:,1:numel(u))*u;
     Jdu = -Ju*subs(Jdqd,qd,qds)*Ju;
-    obj.QuasiVelocityJacobianRate = simplify(expand(Jdu));
+    obj.QuasiVelocityJacobianRate = Jdu;
 end
 end
 methods (Access = private)
