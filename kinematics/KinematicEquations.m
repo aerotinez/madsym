@@ -1,22 +1,28 @@
 classdef KinematicEquations < EquationsOfMotion 
     properties (GetAccess = public, SetAccess = private)
-        Jqd sym;
-        Ju sym;
-        Jdqd sym;
-        Jdu sym;
-    end
+        Jacobian KinematicJacobian;
+        JacobianRate KinematicJacobianRate; 
+    end 
     methods (Access = public)
-        function obj = KinematicEquations(coordinates,equations)
+        function obj = KinematicEquations(equations,q,u,v)
             arguments
-                coordinates (1,1) GeneralizedCoordinates;
                 equations (:,1) sym;
+                q (:,1) sym;
+                u (:,1) sym;
+                v (:,1) sym = sym.empty(0,1);
             end
-            obj.Jqd = jacobian(equations,coordinates.qd);
-            obj.Ju = simplify(expand(syminv(Jqd)));
-            obj.MassMatrix = eye(coordinates.n,'sym');
-            obj.ForcingVector = obj.Ju*coordinates.u;
-            obj.Jdqd = jacobianRate(obj.Jqd,coordinates.q,coordinates.qd);
-            obj.Jdu = jacobianRate(obj.Ju,coordinates.q,obj.ForcingVector);
-        end
-    end
+            qd = diff(q); 
+            obj.Jacobian = KinematicJacobian(equations,qd);
+            J = obj.Jacobian;
+            obj.MassMatrix = eye(numel(qd),'sym');
+            obj.ForcingVector = simplify(expand(J.u*u));
+            obj.JacobianRate = KinematicJacobianRate(J,q,qd,obj.ForcingVector);
+            x = [q;u;v];
+            x = x(has(x,sym('t')));
+            xd = diff(x);
+            M = jacobian(obj.MassMatrix*qd,xd);
+            f = -jacobian(obj.MassMatrix*qd - obj.ForcingVector,x);
+            obj.Linearized = LinearizedEquations(M,simplify(expand(f)));
+        end 
+    end 
 end

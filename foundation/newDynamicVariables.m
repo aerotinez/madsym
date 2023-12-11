@@ -12,9 +12,8 @@ if isequal(c,'char') || isequal(c,'string')
 end
 narginchk(2,2);
 if isequal(c,'double')
-    n = numel(varargin{end});
     x = varargin{1};
-    xstr = arrayfun(@(i)sprintf("%s_%d",x,i),1:n).';
+    xstr = arrayfun(@(i)sprintf("%s_%d",x,i),varargin{end}).';
     outc = cellfun(f,xstr,'UniformOutput',false);
     varargout{1} = cellfun(@(x)x,outc);
     return

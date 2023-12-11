@@ -41,6 +41,9 @@ function applyMoment(obj,frame,moment)
     end
     obj.applyWrench(frame,obj.MassCenter,[moment;0;0;0]);
 end
+function eomd = dynamics(strategy,coodrinates,kinematic_equations)
+    
+end
 end
 methods (Access = private)
 function Qi = inertialForces(obj)
