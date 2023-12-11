@@ -16,8 +16,8 @@ function obj = AuxiliaryEquations(variables,equations,kinematic_equations)
     if ~isempty(kinematic_equations)
         qd = [kinematic_equations.Coordinates.All.Velocity].';
         u = [kinematic_equations.QuasiVelocities.Velocity].';
-        Ju = kinematic_equations.QuasiVelocityJacobian(:,1:numel(u));
-        qds = Ju*u;
+        Ju = kinematic_equations.Jacobians.Quasi(:,1:numel(u));
+        qds = simplify(expand(Ju*u));
         eom = subs(equations,qd,qds);
     else
         eom = equations;

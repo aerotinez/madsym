@@ -1,17 +1,9 @@
 classdef GibbsAppell
-properties (GetAccess = public, SetAccess = private)
-    qd sym;
-    qdd sym;
-    K sym;
-    u sym;
-    ud sym;
-    Ju sym;
-    Jdu sym;
-    qds sym;
-    qdds sym;
-    eom sym;
-    M sym;
-    f sym;
+properties (GetAccess = public, SetAccess = private) 
+    Bodies (:,1) GibbsAppellBodyEquations;
+    MassMatrix sym;
+    ForcingVector sym;
+    Linearized LinearizedDynamicEquations = LinearizedDynamicEquations();
 end
 methods (Access = public)
 function obj = GibbsAppell(kinematic_equations,bodies)
@@ -19,48 +11,31 @@ function obj = GibbsAppell(kinematic_equations,bodies)
         kinematic_equations (1,1) KinematicEquations;
         bodies (:,1) Body;
     end
-    obj.qd = [kinematic_equations.Coordinates.All.Velocity].';
-    obj.qdd = [kinematic_equations.Coordinates.All.Acceleration].';
-    obj.K = [kinematic_equations.Coordinates.All.Stiffness].';
-    obj.u = [kinematic_equations.QuasiVelocities.Velocity].';
-    obj.ud = [kinematic_equations.QuasiVelocities.Acceleration].';
-    obj.Ju = kinematic_equations.QuasiVelocityJacobian(:,1:numel(obj.u));
-    obj.Jdu = kinematic_equations.QuasiVelocityJacobianRate(:,1:numel(obj.u));
-    obj.qds = obj.Ju*obj.u;
-    obj.qdds = obj.Jdu*obj.u + obj.Ju*obj.ud;
-
-    J = obj.jacobians(bodies);
-    Fi = obj.inertialForces(bodies);
-    Fa = obj.activeForces(bodies);
-    fQ = @(J,F)J.'*F;
-    Qi = sum(cell2sym(cellfun(fQ,J,Fi,'UniformOutput',false).'),2);
-    Qa = -sum(cell2sym(cellfun(fQ,J,Fa,'UniformOutput',false).'),2);
-    Qf = diag(obj.K)*obj.qds;
-    obj.eom = obj.Ju.'*(Qi + Qa + Qf);
-    obj.M = jacobian(obj.eom,obj.ud);
-    obj.f = -subs(obj.eom,obj.ud,zeros(size(obj.ud)));
+    q = [kinematic_equations.Coordinates.All.Position].';
+    qd = [kinematic_equations.Coordinates.All.Velocity].';
+    u = [kinematic_equations.QuasiVelocities.Velocity].';
+    ud = [kinematic_equations.QuasiVelocities.Acceleration].';
+    Ju = kinematic_equations.Jacobians.Quasi(:,1:numel(u));
+    qds = kinematic_equations.ForcingVector;
+    Jdu = kinematic_equations.Jacobians.QuasiRate(:,1:numel(u));
+    K = [kinematic_equations.Coordinates.All.Stiffness].';
+    obj.Bodies = obj.bodies(q,qd,u,ud,Ju,qds,Jdu); 
+    obj.MassMatrix = obj.reduce(@(b)b.MassMatrix);
+    Qf = Ju.'*diag(K)*qds;
+    obj.ForcingVector = obj.reduce(@(b)b.ForcingVector) - Qf;
+    obj.Linearized.setMassMatrix(obj.reduce(@(b)b.Linearized.MassMatrix));
+    Hfl = -[jacobian(Qf,q),jacobian(Qf,u)];
+    Hl = obj.reduce(@(b)b.Linearized.ForcingMatrix) + Hfl;
+    obj.Linearized.setForcingMatrix(Hl); 
 end
 end
 methods (Access = private)
-function J = jacobians(obj,bodies)
-    fJ = @(b)Twist(Pose(b.ReferenceFrame,b.MassCenter)).jacobian(obj.qd);
-    J = arrayfun(fJ,bodies,'UniformOutput',false);
+function B = bodies(obj,q,qd,u,ud,Ju,qds,Jdu)
+    fB = @(b)GibbsAppellBodyEquations(q,qd,u,ud,Ju,qds,Jdu,b);
+    B = obj.arrayfun(fB,obj.Bodies);
 end
-function Qi = inertialForces(obj,bodies)
-    x = [
-        obj.qdd;
-        obj.qd;
-    ];
-
-    xs = [
-        obj.qdds;
-        obj.qds;
-    ];
-
-    Qi = arrayfun(@(b)subs(b.InertialForces,x,xs),bodies,'UniformOutput',false);
-end
-function Qa = activeForces(~,bodies)
-    Qa = arrayfun(@(b)b.ActiveForces,bodies,'UniformOutput',false);
+function b = reduce(obj,f)
+    b = sum(cell2sym(arrayfun(f,reshape(obj.Bodies,1,1,[]),'uniform',0)),3);
 end
 end
 end

@@ -1,7 +1,8 @@
 classdef Body < handle
 properties (GetAccess = public, SetAccess = private)
     ReferenceFrame (1,1) Frame;
-    MassCenter (1,1) Point; 
+    MassCenter (1,1) Point;
+    Twist (1,1) Twist; 
     Inertia (3,3) sym = zeros(3,3,'sym');
     Mass (1,1) sym = sym(0); 
     InertialForces (:,1) sym;
@@ -16,6 +17,7 @@ function obj = Body(reference_frame,mass_center,inertia,mass)
         mass (1,1) sym = sym(0);
     end
     obj.ReferenceFrame = reference_frame;
+    obj.Twist = Twist(Pose(reference_frame,mass_center));
     obj.MassCenter = mass_center;
     obj.Inertia = inertia;
     obj.Mass = mass;
@@ -43,11 +45,10 @@ end
 methods (Access = private)
 function Qi = inertialForces(obj)
     G = blkdiag(obj.Inertia,obj.Mass*eye(3));
-    twist = Twist(Pose(obj.ReferenceFrame,obj.MassCenter));
-    V = twist.Vector;
-    ad = twist.Adjoint;
-    Vd = twist.Rate;
-    Qi = G*Vd - ad.'*G*V;
+    V = obj.Twist.Vector;
+    ad = obj.Twist.Adjoint;
+    Vd = obj.Twist.Rate;
+    Qi = simplify(expand(G*Vd - ad.'*G*V));
 end
 function W = applyWrench(obj,frame,point,wrench) 
     W = Wrench(frame,point,wrench).transform(obj.ReferenceFrame,obj.MassCenter);
