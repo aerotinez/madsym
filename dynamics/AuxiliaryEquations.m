@@ -1,29 +1,25 @@
-classdef AuxiliaryEquations
-properties (GetAccess = public, SetAccess = private)
-    Variables (:,1) QuasiVariable = QuasiVariable.empty([0,1]);
-    MassMatrix sym = sym.empty();
-    ForcingVector sym = sym.empty();
-end
-methods (Access = public)
-function obj = AuxiliaryEquations(variables,equations,kinematic_equations)
-    arguments
-        variables (:,1) QuasiVariable = QuasiVariable.empty([0,1]);
-        equations (:,1) sym = sym.empty([0,1]);
-        kinematic_equations KinematicEquations {mustBeScalarOrEmpty} = KinematicEquations.empty();
+classdef AuxiliaryEquations < EquationsOfMotion
+    methods (Access = public)
+        function obj = AuxiliaryEquations(v,equations,q,u,kinematics)
+            arguments
+                v (:,1) sym;
+                equations (:,1) sym;
+                q (:,1) sym;
+                u (:,1) sym;
+                kinematics KinematicEquations;
+            end
+            vd = diff(v);
+            obj.MassMatrix = jacobian(equations,vd);
+            fk = kinematics.ForcingVector;
+            fv = -subs(equations,vd,0.*vd);
+            qd = diff(q);
+            obj.ForcingVector = subs(fv,qd,fk);
+            x = [q;u;v];
+            x = x(has(x,sym('t')));
+            xd = diff(x);
+            M = simplify(expand(jacobian(obj.MassMatrix*vd,xd)));
+            f = -jacobian(obj.MassMatrix*vd + obj.ForcingVector,x);
+            obj.Linearized = LinearizedEquations(M,f);
+        end
     end
-    obj.Variables = variables;
-    vd = [obj.Variables.Acceleration].';
-    if ~isempty(kinematic_equations)
-        qd = [kinematic_equations.Coordinates.All.Velocity].';
-        u = [kinematic_equations.QuasiVelocities.Velocity].';
-        Ju = kinematic_equations.Jacobians.Quasi(:,1:numel(u));
-        qds = simplify(expand(Ju*u));
-        eom = subs(equations,qd,qds);
-    else
-        eom = equations;
-    end
-    obj.MassMatrix = jacobian(eom,vd);
-    obj.ForcingVector = -subs(eom,vd,0.*vd);
-end
-end
 end
