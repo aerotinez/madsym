@@ -1,25 +1,28 @@
-classdef AuxiliaryEquations < EquationsOfMotion
+classdef AuxiliaryEquations < MechanicalEquations
     methods (Access = public)
-        function obj = AuxiliaryEquations(v,equations,q,u,kinematics)
+        function obj = AuxiliaryEquations(kinematics,equations,inputs)
             arguments
-                v (:,1) sym;
-                equations (:,1) sym;
-                q (:,1) sym;
-                u (:,1) sym;
                 kinematics KinematicEquations;
+                equations (:,1) sym; 
+                inputs (:,1) sym = sym.empty(0,1);
             end
-            vd = diff(v);
-            obj.MassMatrix = jacobian(equations,vd);
+            obj.q = kinematics.q;
+            obj.u = kinematics.u;
+            obj.v = kinematics.v;
+            obj.qd = kinematics.qd;
+            obj.ud = kinematics.ud;
+            obj.vd = kinematics.vd;
+            obj.MassMatrix = jacobian(equations,obj.vd);
             fk = kinematics.ForcingVector;
-            fv = -subs(equations,vd,0.*vd);
-            qd = diff(q);
-            obj.ForcingVector = subs(fv,qd,fk);
-            x = [q;u;v];
+            fv = -subs(equations,obj.vd,0.*obj.vd);
+            obj.ForcingVector = subs(fv,obj.qd,fk);
+            x = [obj.q;obj.u;obj.v];
             x = x(has(x,sym('t')));
             xd = diff(x);
-            M = simplify(expand(jacobian(obj.MassMatrix*vd,xd)));
-            f = -jacobian(obj.MassMatrix*vd + obj.ForcingVector,x);
-            obj.Linearized = LinearizedEquations(M,f);
+            M = simplify(expand(jacobian(obj.MassMatrix*obj.vd,xd)));
+            H = -jacobian(obj.MassMatrix*obj.vd + obj.ForcingVector,x);
+            G = -jacobian(obj.MassMatrix*obj.vd + obj.ForcingVector,inputs);
+            obj.Linearized = LinearizedEquations(x,M,H,G);
         end
     end
 end

@@ -67,7 +67,7 @@ end
 methods (Access = public)
 function obj = LinearizedEquationsOfMotion(equations,trim_point)
     arguments
-        equations (1,1) EquationsOfMotion = EquationsOfMotion();
+        equations (1,1) EquationsOfMotion = MechanicalEquations();
         trim_point (1,1) TrimPoint = TrimPoint(); 
     end
     obj.Trim = trim_point;

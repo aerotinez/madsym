@@ -18,7 +18,7 @@ end
 methods
 function obj = TrimPoint(equations,inputs,q0,u0,v0,f0)
     arguments
-        equations EquationsOfMotion {mustBeScalarOrEmpty} = EquationsOfMotion.empty([0,1]);
+        equations EquationsOfMotion {mustBeScalarOrEmpty} = MechanicalEquations.empty([0,1]);
         inputs (:,1) sym = sym.empty([0,1]);
         q0 (:,1) sym = sym.empty([0,1]);
         u0 (:,1) sym = sym.empty([0,1]);

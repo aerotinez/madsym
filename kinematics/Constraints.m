@@ -13,7 +13,7 @@ classdef Constraints
             obj.Nonholonomic = [
                 simplify(expand(diff(holonomic,sym('t'))));    
                 nonholonomic;
-                ];
+                ]; 
         end
     end
 end
