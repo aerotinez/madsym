@@ -70,14 +70,28 @@ classdef GibbsAppell
 
             eomd = DynamicEquations(obj.q,obj.u,obj.v,M,f,eoml);
         end
-        function eoml = linearize(obj,eomk,eomd,eomv)
+        function eoml = linearize(obj,eom,trim_point)
             arguments
                 obj (1,1) GibbsAppell;
-                eomk (1,1) KinematicEquations;
-                eomd (1,1) DynamicEquations;
-                eomv (1,1) AuxiliaryEquations;
+                eom (1,1) EquationsOfMotion;
+                trim_point (1,1) TrimPoint;
             end
-            
+            P = PermutationMatrices(obj.Coordinates);
+            C = dependentCoordinateProjection(obj.Coordinates,obj.Constraints);
+
+            ovals = [diff(trim_point.x,sym('t'));trim_point.x];
+            nvals = [diff(trim_point.x0,sym('t'));trim_point.x0];
+            f = @(eq)simplify(expand(subs(eq,ovals,nvals)));
+
+            M = f(eom.Linearized.MassMatrix);
+
+            Hq = eom.Linearized.ForcingMatrix(:,1:numel(obj.q))*C;
+            Huv = eom.Linearized.ForcingMatrix(:,numel(obj.q)+1:end);
+            H = f([Hq,Huv]);
+
+            G = f(eom.Linearized.InputMatrix);
+
+            eoml = LinearizedEquations([obj.q;obj.u;obj.v],M,H,G);
         end
     end
 end
