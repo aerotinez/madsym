@@ -1,5 +1,5 @@
-function varargout = newDynamicVariables(varargin)
-f = @DynamicVariable;
+function varargout = dynamicVariables(varargin)
+f = @dynamicVariable;
 if nargout > 1
     varargout = cellfun(f,varargin,'UniformOutput',false);
     return

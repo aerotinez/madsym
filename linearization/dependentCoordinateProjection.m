@@ -1,11 +1,11 @@
-function C = dependentCoordinateProjection(coordinates,constraints)
+function C = dependentCoordinateProjection(states,constraints)
     arguments
-        coordinates (1,1) GeneralizedCoordinates;
+        states (1,1) StateVector;
         constraints (1,1) Constraints;
     end
-    X = coordinates;
-    P = PermutationMatrices(X);
+    P = PermutationMatrices(states);
     hc = constraints.Holonomic;
-    J = simplify(expand(jacobian(hc,X.q)));
-    C = (eye(X.n) - P.Pq_dep*syminv(J*P.Pq_dep)*J)*P.Pq_ind;
+    q = states.Coordinates.All;
+    J = simplify(expand(jacobian(hc,q)));
+    C = (eye(numel(q)) - P.q_dep*syminv(J*P.q_dep)*J)*P.q_ind;
 end

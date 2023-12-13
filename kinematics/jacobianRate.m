@@ -4,5 +4,5 @@ arguments
     q sym;
     qd sym;
 end
-f = @(j)simplify(expand(jacobian(j,q)))*qd;
+f = @(j)jacobian(j,q)*qd;
 Jd = reshape(arrayfun(f,reshape(J,[],1)),size(J));

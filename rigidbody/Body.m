@@ -41,21 +41,6 @@ function applyMoment(obj,frame,moment)
     end
     obj.applyWrench(frame,obj.MassCenter,[moment;0;0;0]);
 end
-function eomd = dynamics(obj,strategy,coordinates,kinematic_equations,constraints,inputs)
-    arguments
-        obj (1,1) Body;
-        strategy function_handle;
-        coordinates (1,1) GeneralizedCoordinates;
-        kinematic_equations (1,1) KinematicEquations;
-        constraints (1,1) Constraints;
-        inputs (:,1) sym = sym.empty(0,1);
-    end
-    K = kinematic_equations;
-    G = blkdiag(obj.Inertia,obj.Mass*eye(3));
-    J = obj.Twist.jacobian(coordinates.qd);
-    F = obj.ActiveForces;
-    eomd = strategy(coordinates,constraints,inputs).dynamics(K,G,J,F);
-end
 end
 methods (Access = private)
 function Qi = inertialForces(obj)

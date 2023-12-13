@@ -1,41 +1,53 @@
 classdef PermutationMatrices
     properties (GetAccess = public, SetAccess = private)
-        Pq_ind;
-        Pq_dep;
-        Pu_ind;
-        Pu_dep;
+        q_ind;
+        q_dep;
+        u_ind;
+        u_dep;
     end
     methods (Access = public)
-        function obj = PermutationMatrices(coordinates)
+        function obj = PermutationMatrices(states)
             arguments
-                coordinates (1,1) GeneralizedCoordinates;
+                states (1,1) StateVector;
             end
-            X = coordinates;
+            q = states.Coordinates.All;
+            qind = states.Coordinates.Independent;
+            qdep = states.Coordinates.Dependent;
+
+            u = states.Speeds.All;
+            uind = states.Speeds.Independent;
+            udep = states.Speeds.Dependent;
+
+            n = states.n;
+            l = states.l;
+            m = states.m;
+            k = states.k;
+
             f = @(q,x)double(has(q,x).');
-            fPq = @(x)cell2mat(arrayfun(@(x)f(X.q,x),x,'uniform',0));
-            Pq = fPq([X.q_ind;X.q_dep])\eye(X.n);
+            fPq = @(x)cell2mat(arrayfun(@(x)f(q,x),x,'uniform',0));
+            Pq = fPq([qind;qdep])\eye(n);
 
-            obj.Pq_ind = Pq*[
-                eye(X.n - X.l); 
-                zeros(X.l,X.n - X.l)
+            obj.q_ind = Pq*[
+                eye(n - l); 
+                zeros(l,n - l)
                 ];
 
-            obj.Pq_dep = Pq*[
-                zeros(X.n - X.l,X.l); 
-                eye(X.l)
+            obj.q_dep = Pq*[
+                zeros(n - l,l); 
+                eye(l)
                 ];
 
-            fPu = @(x)cell2mat(arrayfun(@(x)f(X.u,x),x,'uniform',0));
-            Pu = fPu([X.u_ind;X.u_dep])\eye(X.n);
+            fPu = @(x)cell2mat(arrayfun(@(x)f(u,x),x,'uniform',0));
+            Pu = fPu([uind;udep])\eye(n);
 
-            obj.Pu_ind = Pu*[
-                eye(X.k); 
-                zeros(X.m,X.k)
+            obj.u_ind = Pu*[
+                eye(k); 
+                zeros(m,k)
                 ];
 
-            obj.Pu_dep = Pu*[
-                zeros(X.k,X.m); 
-                eye(X.m)
+            obj.u_dep = Pu*[
+                zeros(k,m); 
+                eye(m)
                 ];
         end
     end
