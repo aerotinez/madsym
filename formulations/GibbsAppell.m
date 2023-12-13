@@ -80,13 +80,17 @@ classdef GibbsAppell < handle
         function equations(obj)
             Mk = obj.Kinematics.MassMatrix;
             Md = obj.Dynamics.MassMatrix;
-            Mv = obj.Auxiliary.MassMatrix;
-            M = blkdiag(Mk,Md,Mv);
+            M = blkdiag(Mk,Md); 
 
             fk = obj.Kinematics.ForcingVector;
             fd = obj.Dynamics.ForcingVector;
-            fv = obj.Auxiliary.ForcingVector;
-            f = [fk;fd;fv];
+            f = [fk;fd];
+            if ~isempty(obj.Auxiliary)
+                Mv = obj.Auxiliary.MassMatrix;
+                M = blkdiag(M,Mv);
+                fv = obj.Auxiliary.ForcingVector;
+                f = [f;fv];
+            end
 
             x = obj.LinearizationStates;
             obj.Equations = MotionEquations(x,M,f,obj.Inputs);
@@ -111,34 +115,38 @@ classdef GibbsAppell < handle
             end
             x = obj.LinearizationStates;
             eomkl = obj.Kinematics.linearize(x);
-            eomvl = obj.Auxiliary.linearize(x);
-            eomdl = obj.linearizeBodyDynamics(x);
+            eomdl = obj.linearizeBodyDynamics();
 
             M = [
                 eomkl.MassMatrix;
                 eomdl.MassMatrix;
-                eomvl.MassMatrix
                 ];
 
             H = [
                 eomkl.ForcingMatrix;
                 eomdl.ForcingMatrix;
-                eomvl.ForcingMatrix];
+                ];
 
             F = obj.Inputs;
 
             G = [
                 eomkl.InputMatrix;
                 eomdl.InputMatrix;
-                eomvl.InputMatrix
                 ];
+            
+            if ~isempty(obj.Auxiliary)
+                eomvl = obj.Auxiliary.linearize(x);
+                M = blkdiag(M,eomvl.MassMatrix);
+                H = [H;eomvl.ForcingMatrix];
+                G = [G;eomvl.InputMatrix];
+            end
 
             obj.LinearizedEquations = LinearizedMotionEquations(x,M,H,F,G);
-            independentLinearizedEquations(obj);
-            linearizedEquationsAtTrim(obj);
+            obj.independentLinearizedEquations();
+            obj.linearizedEquationsAtTrim();
         end
     end
-    methods (Access = private)
+    methods (Access = private) 
         function eomd = bodyDynamics(obj,body)
             arguments
                 obj (1,1) GibbsAppell;
@@ -161,6 +169,7 @@ classdef GibbsAppell < handle
                 wm,zeros(3);
                 vm,wm
                 ];
+
             F = body.ActiveForces;
 
             M = Vbar.'*G*Vbar;
@@ -176,7 +185,8 @@ classdef GibbsAppell < handle
             nvals = [diff(obj.Trim.x0);obj.Trim.x0];
             fsub = subs(f,ovals,nvals);
         end
-        function eomdl = linearizeBodyDynamics(obj,x)
+        function eomdl = linearizeBodyDynamics(obj)
+            x = obj.LinearizationStates;
             eomdl_bodies = arrayfun(@(b)b.linearize(x),obj.BodyDynamics);
             fB = @(f)arrayfun(f,eomdl_bodies,'uniform',0);
             sum3 = @(f)sum(cell2sym(reshape(fB(f),1,1,[])),3);

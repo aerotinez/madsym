@@ -27,15 +27,8 @@ classdef PermutationMatrices
             fPq = @(x)cell2mat(arrayfun(@(x)f(q,x),x,'uniform',0));
             Pq = fPq([qind;qdep])\eye(n);
 
-            obj.q_ind = Pq*[
-                eye(n - l); 
-                zeros(l,n - l)
-                ];
-
-            obj.q_dep = Pq*[
-                zeros(n - l,l); 
-                eye(l)
-                ];
+            obj.q_ind = Pq(:,1:n-l);
+            obj.q_dep = Pq(:,(n-l+1):end);
 
             fPu = @(x)cell2mat(arrayfun(@(x)f(u,x),x,'uniform',0));
             Pu = fPu([uind;udep])\eye(n);

@@ -10,9 +10,9 @@ classdef TrimPoint
                 u (:,1) sym = sym.empty([0,1]);
                 v (:,1) sym = sym.empty([0,1]);
                 F (:,1) sym = sym.empty([0,1]); 
-                q0 (:,1) sym = zeros(size(equations.q),'sym');
-                u0 (:,1) sym = zeros(size(equations.u),'sym');
-                v0 (:,1) sym = zeros(size(equations.v),'sym');
+                q0 (:,1) sym = sym.empty([0,1]);
+                u0 (:,1) sym = sym.empty([0,1]);
+                v0 (:,1) sym = sym.empty([0,1]);
                 F0 (:,1) sym = sym.empty([0,1]);
             end
 
