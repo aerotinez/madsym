@@ -136,7 +136,7 @@ classdef GibbsAppell < handle
             
             if ~isempty(obj.Auxiliary)
                 eomvl = obj.Auxiliary.linearize(x);
-                M = blkdiag(M,eomvl.MassMatrix);
+                M = [M;eomvl.MassMatrix];
                 H = [H;eomvl.ForcingMatrix];
                 G = [G;eomvl.InputMatrix];
             end
@@ -181,8 +181,8 @@ classdef GibbsAppell < handle
                 fsub = f;
                 return
             end
-            ovals = [diff(obj.Trim.x);obj.Trim.x];
-            nvals = [diff(obj.Trim.x0);obj.Trim.x0];
+            ovals = [diff(obj.Trim.x,sym('t'));obj.Trim.x];
+            nvals = [diff(obj.Trim.x0,sym('t'));obj.Trim.x0];
             fsub = subs(f,ovals,nvals);
         end
         function eomdl = linearizeBodyDynamics(obj)
