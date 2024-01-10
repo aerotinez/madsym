@@ -48,7 +48,7 @@ function Qi = inertialForces(obj)
     V = obj.Twist.Vector;
     ad = obj.Twist.Adjoint;
     Vd = obj.Twist.Rate;
-    Qi = simplify(expand(G*Vd - ad.'*G*V));
+    Qi = G*Vd - ad.'*G*V;
 end
 function W = applyWrench(obj,frame,point,wrench) 
     W = Wrench(frame,point,wrench).transform(obj.ReferenceFrame,obj.MassCenter);
