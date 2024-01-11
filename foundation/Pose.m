@@ -13,12 +13,12 @@ function obj = Pose(reference_frame,position)
     end
     obj.ReferenceFrame = reference_frame;
     obj.Position = position;
-    obj.Transform = [
-        obj.ReferenceFrame.dcm,obj.Position.posFrom();
-        0,0,0,1
-        ];
     R = obj.ReferenceFrame.dcm;
     p = obj.Position.posFrom();
+    obj.Transform = [
+        R,p;
+        0,0,0,1
+        ]; 
     obj.Adjoint = [
         R, zeros(3,3);
         vec2skew(p)*R,R
