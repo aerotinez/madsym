@@ -125,7 +125,7 @@ classdef GibbsAppell < handle
             x = prettify(obj.Equations.States);
             u = prettify(obj.Equations.Inputs);
             t = sym('t');
-            p = symvar(f);
+            p = symvar(f).';
             p(p == t) = [];
             state_str = strjoin(["    states = [",strjoin(string(x).'),"]"],'');
             input_str = strjoin(["    inputs = [",strjoin(string(u).'),"]"],'');
