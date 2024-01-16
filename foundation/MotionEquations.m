@@ -1,4 +1,4 @@
-classdef MotionEquations
+classdef MotionEquations < handle
     properties (GetAccess = public, SetAccess = private)
         States sym;
         Rates sym;
@@ -23,7 +23,12 @@ classdef MotionEquations
             obj.validateForcingVector();
             obj.Inputs = inputs;
             obj.validateInputs();
-        end 
+        end
+        function simplify(obj)
+            f = @(x)simplify(expand(x));
+            obj.MassMatrix = f(obj.MassMatrix);
+            obj.ForcingVector = f(obj.ForcingVector);
+        end
         function eoml = linearize(obj,lin_states)
             if ~all(isDynamicVariable(lin_states))
                 error('Linearization states must be dynamic variables.')

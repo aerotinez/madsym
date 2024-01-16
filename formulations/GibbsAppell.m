@@ -77,7 +77,14 @@ classdef GibbsAppell < handle
             f = -subs(eq,vd,0.*vd);
             obj.Auxiliary = MotionEquations(v,M,f,obj.Inputs);
         end
-        function equations(obj)
+        function simplify(obj)
+            obj.Kinematics.simplify();
+            obj.Dynamics.simplify();
+            if ~isempty(obj.Auxiliary)
+                obj.Auxiliary.simplify();
+            end
+        end
+        function equations(obj) 
             Mk = obj.Kinematics.MassMatrix;
             Md = obj.Dynamics.MassMatrix;
             M = blkdiag(Mk,Md); 
@@ -94,6 +101,40 @@ classdef GibbsAppell < handle
 
             x = obj.LinearizationStates;
             obj.Equations = MotionEquations(x,M,f,obj.Inputs);
+        end
+        function f = dae2ode(obj) 
+            Mkinv = syminv(obj.Kinematics.MassMatrix);
+            fk = obj.Kinematics.ForcingVector;
+            Mdinv = syminv(obj.Dynamics.MassMatrix);
+            fd = obj.Dynamics.ForcingVector;
+            Mvinv = [];
+            fv = [];
+            if ~isempty(obj.Auxiliary)
+                Mvinv = syminv(obj.Auxiliary.MassMatrix);
+                fv = obj.Auxiliary.ForcingVector;
+            end
+            Minv = blkdiag(Mkinv,Mdinv,Mvinv);
+            f = Minv*[fk;fd;fv];
+        end
+        function generateODEFunction(obj,function_name)
+            arguments
+                obj (1,1) GibbsAppell;
+                function_name (1,1) string;
+            end
+            f = obj.dae2ode(); 
+            x = prettify(obj.Equations.States);
+            u = prettify(obj.Equations.Inputs);
+            t = sym('t');
+            p = symvar(f);
+            p(p == t) = [];
+            state_str = strjoin(["    states = [",strjoin(string(x).'),"]"],'');
+            input_str = strjoin(["    inputs = [",strjoin(string(u).'),"]"],'');
+            param_str = strjoin(["    params = [",strjoin(string(p).'),"]"],'');
+            comment_str = [state_str,input_str,param_str,""].';
+            matlabFunction(prettify(f), ... 
+                "File",function_name, ...
+                "Vars",{x,u,p}, ...
+                "Comments",comment_str);
         end
         function trimPoint(obj,q0,u0,v0,F0)
             arguments

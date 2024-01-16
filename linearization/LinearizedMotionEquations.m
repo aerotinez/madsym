@@ -1,4 +1,4 @@
-classdef LinearizedMotionEquations 
+classdef LinearizedMotionEquations < handle 
     properties (GetAccess = public, SetAccess = private)
         States sym;
         Rates sym;
@@ -34,7 +34,12 @@ classdef LinearizedMotionEquations
             obj.validateInputs();
             obj.InputMatrix = input_matrix;
             obj.PermutationMatrix = permutation_matrix;
-        end 
+        end
+        function simplify(obj)
+            f = @(x)simplify(expand(x));
+            obj.MassMatrix = f(obj.MassMatrix);
+            obj.ForcingMatrix = f(obj.ForcingMatrix);
+        end
     end
     methods (Access = private)
         function validateStates(obj)
