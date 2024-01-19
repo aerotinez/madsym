@@ -2,15 +2,18 @@ setmadsympath();
 close("all"); clear; clc;
 
 N = 50;
+Mymax = 10;
+Mzmax = 30;
 
 x0 = zeros(N,1);
 y0 = zeros(N,1);
 yaw0 = zeros(N,1);
 lean0 = zeros(N,1);
-v0 = 20.*ones(N,1);
+pitch0 = zeros(N,1);
 yaw_rate0 = zeros(N,1);
 lean_rate0 = zeros(N,1);
-Fx0 = zeros(N,1);
+pitch_rate0 = zeros(N,1);
+My0 = zeros(N,1);
 Mz0 = zeros(N,1);
 
 x0 = [
@@ -18,10 +21,11 @@ x0 = [
     y0;
     yaw0;
     lean0;
-    v0;
+    pitch0;
     yaw_rate0;
     lean_rate0;
-    Fx0;
+    pitch_rate0
+    My0;
     Mz0;
     1
     ];
@@ -33,82 +37,79 @@ beq = [];
 
 xlb = -inf(N,1);
 ylb = -inf(N,1);
-yawlb = -deg2rad(90).*ones(N,1);
-leanlb = -deg2rad(90).*ones(N,1);
-vlb = -inf(N,1);
+yawlb = -deg2rad(45).*ones(N,1);
+leanlb = -deg2rad(60).*ones(N,1);
+pitchlb = -inf(N,1);
 yaw_ratelb = -inf(N,1);
 lean_ratelb = -inf(N,1);
-Fxlb = -ones(N,1);
-Mzlb = -10.*ones(N,1);
+pitch_ratelb = -inf(N,1);
+Mylb = -Mymax.*ones(N,1);
+Mzlb = -Mzmax.*ones(N,1);
 lb = [
     xlb;
     ylb;
     yawlb;
     leanlb;
-    vlb;
+    pitchlb;
     yaw_ratelb;
     lean_ratelb;
-    Fxlb;
+    pitch_ratelb;
+    Mylb;
     Mzlb;
     0
     ];
 
 xub = inf(N,1);
 yub = inf(N,1);
-yawub = deg2rad(90).*ones(N,1);
-leanub = deg2rad(90).*ones(N,1);
-vub = inf(N,1);
+yawub = deg2rad(45).*ones(N,1);
+leanub = deg2rad(60).*ones(N,1);
+pitchub = inf(N,1);
 yaw_rateub = inf(N,1);
 lean_rateub = inf(N,1);
-Fxub = ones(N,1);
-Mzub = 10.*ones(N,1);
+pitch_rateub = inf(N,1);
+Myub = Mymax.*ones(N,1);
+Mzub = Mzmax.*ones(N,1);
 ub = [
     xub;
     yub;
     yawub;
     leanub;
-    vub;
+    pitchub;
     yaw_rateub;
     lean_rateub;
-    Fxub;
+    pitch_rateub;
+    Myub;
     Mzub;
     inf
     ];
 
 
 options = optimoptions("fmincon", ...
-    "MaxFunEvals",1E06, ...
+    "MaxFunEvals",1E07, ...
     "Display","iter-detailed", ...
     "UseParallel",true);
 
 sol = fmincon(@fun,x0,A,b,Aeq,beq,lb,ub,@nonlcon,options);
 tf = sol(end);
 X = reshape(sol(1:end-1),N,[]);
-Fx = X(:,end - 1);
-Mz = X(:,end);
 
-optimalcontrol = @(t)interp1(linspace(0,tf,N),[Fx,Mz],t);
-sys = @(t,x)(1/tf).*plant(x,optimalcontrol(t).');
-[t,y] = ode45(sys,[0,tf],[0;0;0;0;0;0;0;tf]);
-
-results = [
-    y(:,1:7).';
-    optimalcontrol(t).'
-    ];
+results = X.';
 
 titles = [
     "x";
     "y";
     "yaw";
     "lean";
-    "speed";
+    "pitch";
     "yaw rate";
     "lean rate";
-    "F_x";
+    "pitch rate";
+    "M_y";
     "M_z"
     ];
 
-tiledlayout(3,3);
+t = linspace(0,tf,N);
+tiledlayout(5,2);
 for i = 1:size(results,1)
     nexttile;
     plot(t,results(i,:));
@@ -118,17 +119,23 @@ for i = 1:size(results,1)
 end
 
 function x_dot = plant(x,u)
-    x_dot = x(end).*[
-        travelingInvertedPendulum(x(1:end-1),u,[1,0,0.1,9.81,1,1].');
-        0
-        ];
+    N = size(u,2);
+    X = reshape(x,[],N);
+    X_dot = zeros(size(X));
+    for i = 1:N
+        X_dot(:,i) = X(end,i).*[
+            rollingDisk(X(1:end-1,i),u(:,i),[9.81,1,0.15].');
+            0
+            ];
+    end
+    x_dot = reshape(X_dot,[],1);
 end
 
 function J = fun(x)
     tf = x(end);
-    X = reshape(x(1:end-1),[],9);
-    x = reshape(X(:,1:7),[],1);
-    u = reshape(X(:,end-1:end),[],1);
+%     X = reshape(x(1:end-1),[],10);
+%     x = reshape(X(:,1:7),[],1);
+%     u = reshape(X(:,end-1:end),[],1);
     J = tf;
 end
 
@@ -138,19 +145,20 @@ function [c,ceq] = nonlcon(x)
 
     % unpack decision variables
     tf = x(end);
-    X = reshape(x(1:end-1),[],9);
+    X = reshape(x(1:end-1),[],10);
     x0 = X(:,1);
     y0 = X(:,2);
     yaw0 = X(:,3);
     lean0 = X(:,4);
-    v0 = X(:,5);
+    pitch0 = X(:,5);
     yaw_rate0 = X(:,6);
     lean_rate0 = X(:,7);
-    Fx = X(:,8);
-    Mz = X(:,9);
+    pitch_rate0 = X(:,8);
+    My = X(:,9);
+    Mz = X(:,10);
 
     % recover mesh resolution
-    N = numel(Fx);
+    N = numel(My);
 
     % initial conditions for each segment
     y0 = [
@@ -158,20 +166,19 @@ function [c,ceq] = nonlcon(x)
         y0.';
         yaw0.';
         lean0.';
-        v0.';
+        pitch0.';
         yaw_rate0.';
-        lean_rate0.'
+        lean_rate0.';
+        pitch_rate0.';
+        tf + 0.*x0.'
         ];
 
     % for each time span and initial condition, simulate the system and store
     % the end state
-    yf = zeros(7,N);
-    for i = 1:N
-        % simulate the system
-        [~,y] = ode45(@(t,x)plant(x,[Fx(i);Mz(i)]),[0,1/N],[y0(:,i);tf]);
-        yf(:,i) = y(end,1:7).';
-    end
+    [~,y] = ode45(@(t,x)plant(x,[My,Mz].'),[0,1/N],reshape(y0,[],1));
+    yf = reshape(y(end,:).',[],N);
+    idx = [1:4,6:8];
     x0 = [0;0;0;0;0;0;0];
-    xf = [10;1;0;0;0;0;0];
-    ceq = reshape([y0,xf] - [x0,yf],[],1);
+    xf = [1;0.1;0;0;0;0;0];
+    ceq = reshape([y0(idx,:),xf] - [x0,yf(idx,:)],[],1);
 end

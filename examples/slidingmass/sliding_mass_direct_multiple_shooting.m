@@ -41,7 +41,7 @@ ub = [
 
 
 options = optimoptions("fmincon", ...
-    "MaxFunEvals",1E04, ...
+    "MaxFunEvals",1E05, ...
     "Display","iter-detailed", ...
     "UseParallel",true);
 
@@ -104,12 +104,12 @@ function [c,ceq] = nonlcon(x)
     % for each time span and initial condition, simulate the system and store
     % the end state
     yf = zeros(2,N);
-    for i = 1:N-1
+    for i = 1:N
         % simulate the system
         [~,y] = ode45(@(t,x)plant(x,u(i)),[0,1/N],[y0(:,i);tf]);
-        yf(:,i+1) = y(end,1:2).';
+        yf(:,i) = y(end,1:2).';
     end
     x0 = [0;0];
     xf = [1;0];
-    ceq = reshape([y0(:,1) - x0,y0(:,2:end) - yf(:,2:end),y0(:,end) - xf],[],1);
+    ceq = reshape([y0,xf] - [x0,yf],[],1);
 end

@@ -1,7 +1,7 @@
 setmadsympath();
 close("all"); clear; clc;
 
-N = 20;
+N = 50;
 
 p0 = zeros(N,1);
 theta0 = zeros(N,1);
@@ -120,12 +120,12 @@ function [c,ceq] = nonlcon(x)
     % for each time span and initial condition, simulate the system and store
     % the end state
     yf = zeros(4,N);
-    for i = 1:N-1
+    for i = 1:N
         % simulate the system
         [~,y] = ode45(@(t,x)plant(x,u(i)),[0,1/N],[y0(:,i);tf]);
-        yf(:,i+1) = y(end,1:4).';
+        yf(:,i) = y(end,1:4).';
     end
     x0 = [0;0;0;0];
     xf = [1;0;0;0];
-    ceq = reshape([y0(:,1) - x0,y0(:,2:end) - yf(:,2:end),y0(:,end) - xf],[],1);
+    ceq = reshape([y0,xf] - [x0,yf],[],1);
 end

@@ -79,7 +79,6 @@ function [c,ceq] = nonlcon(z)
             xs(i,k) = z((i - 1)*(p + 1) + k);
         end
     end
-    disp(xs)
     
     for k = 1:p
         U(k) = z(3*(p + 1) + k);
