@@ -42,7 +42,7 @@ for i = 1:size(results,1)
     nexttile;
     plot(t,results(i,:));
     xlim([0,tf]);
-    ylim(1.5.*max(results(i,:)).*[-1,1])
+    % ylim(1.5.*max(results(i,:)).*[-1,1])
 end
 
 function x_dot = plant(x,u)
@@ -53,10 +53,10 @@ function x_dot = plant(x,u)
 end
 
 function J = fun(x)
-    u = x(1:end-1);
+    % u = x(1:end-1);
     tf = x(end);
-    J = tf + (1/2).*u.'*u;
-    % J = tf;
+    % J = tf + (1/2).*u.'*u;
+    J = tf;
 end
 
 function y_dot = rk4(y,u,h)
