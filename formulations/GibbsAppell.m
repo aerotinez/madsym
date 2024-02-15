@@ -7,7 +7,7 @@ classdef GibbsAppell < handle
         Trim TrimPoint;
         LinearizedEquations LinearizedMotionEquations; 
     end
-    properties (Access = private)
+    properties (GetAccess = public, SetAccess = private)
         Kinematics MotionEquations;
         BodyDynamics MotionEquations;
         Dynamics MotionEquations;
