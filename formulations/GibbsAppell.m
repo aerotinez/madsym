@@ -224,6 +224,36 @@ classdef GibbsAppell < handle
             obj.independentLinearizedEquations();
             obj.linearizedEquationsAtTrim();
         end
+        function generateStateSpace(obj,function_name)
+            arguments
+                obj (1,1) GibbsAppell;
+                function_name (1,1) string;
+            end
+            x = prettify(obj.Equations.States);
+            M = obj.LinearizedEquations.MassMatrix;
+            H = obj.LinearizedEquations.ForcingMatrix;
+            G = obj.LinearizedEquations.InputMatrix;
+            P = obj.LinearizedEquations.PermutationMatrix;
+            Minv = syminv(M);
+            A = P.'*(Minv*H);
+            B = P.'*(Minv*G);
+            p = symvar([A,B]).';
+            p = p(p ~= sym('t'));
+            state_str = strjoin(["    states = [",strjoin(string(x).'),"]"],'');
+            param_str = strjoin(["    params = [",strjoin(string(p).'),"]"],'');
+            comment_str = [state_str,param_str,""].';
+            Astr = strcat(function_name,"StateMatrix");
+            Bstr = strcat(function_name,"InputMatrix");
+            matlabFunction(prettify(A), ... 
+                "File",Astr, ...
+                "Vars",{x,p}, ...
+                "Comments",comment_str);
+            matlabFunction(prettify(B), ...
+                "File",Bstr, ...
+                "Vars",{x,p}, ...
+                "Comments",comment_str ...
+                ); 
+        end
     end
     methods (Access = private) 
         function eomd = bodyDynamics(obj,body)
@@ -261,7 +291,9 @@ classdef GibbsAppell < handle
                 return
             end
             ovals = [diff(obj.Trim.x,sym('t'));obj.Trim.x];
+            idx = has(ovals,diff(obj.States.Speeds.Independent,sym('t')));
             nvals = [diff(obj.Trim.x0,sym('t'));obj.Trim.x0];
+            nvals(idx) = 0.*nvals(idx);
             fsub = subs(f,ovals,nvals);
         end
         function eomdl = linearizeBodyDynamics(obj)
