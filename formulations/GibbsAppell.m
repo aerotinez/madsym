@@ -229,7 +229,10 @@ classdef GibbsAppell < handle
                 obj (1,1) GibbsAppell;
                 function_name (1,1) string;
             end
-            x = prettify(obj.Equations.States);
+            q = obj.States.Coordinates.Independent;
+            u = obj.States.Speeds.Independent;
+            v = obj.States.Auxiliary;
+            x = prettify([q;u;v]);
             M = obj.LinearizedEquations.MassMatrix;
             H = obj.LinearizedEquations.ForcingMatrix;
             G = obj.LinearizedEquations.InputMatrix;
