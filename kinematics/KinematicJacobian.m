@@ -11,8 +11,8 @@ classdef KinematicJacobian
                 error(msg1);
             end
             obj.qd = simplify(expand(obj.qd));
-            obj.u = simplify(expand(syminv(obj.qd)));
-            % obj.u = syminv(obj.qd);
+            % obj.u = simplify(expand(syminv(obj.qd)));
+            obj.u = syminv(obj.qd);
         end
     end
 end
