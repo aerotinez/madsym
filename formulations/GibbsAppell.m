@@ -193,7 +193,7 @@ classdef GibbsAppell < handle
                 obj (1,1) GibbsAppell;
             end
             x = obj.LinearizationStates;
-            eomkl = obj.Kinematics.linearize(x);
+            eomkl = obj.Kinematics.linearize(x,obj.Trim);
             eomdl = obj.linearizeBodyDynamics();
 
             M = [
@@ -214,7 +214,7 @@ classdef GibbsAppell < handle
                 ];
             
             if ~isempty(obj.Auxiliary)
-                eomvl = obj.Auxiliary.linearize(x);
+                eomvl = obj.Auxiliary.linearize(x,obj.Trim);
                 M = [M;eomvl.MassMatrix];
                 H = [H;eomvl.ForcingMatrix];
                 G = [G;eomvl.InputMatrix];
@@ -222,7 +222,6 @@ classdef GibbsAppell < handle
 
             obj.LinearizedEquations = LinearizedMotionEquations(x,M,H,F,G);
             obj.independentLinearizedEquations();
-            obj.linearizedEquationsAtTrim();
         end
         function generateStateSpace(obj,function_name)
             arguments
@@ -301,7 +300,8 @@ classdef GibbsAppell < handle
         end
         function eomdl = linearizeBodyDynamics(obj)
             x = obj.LinearizationStates;
-            eomdl_bodies = arrayfun(@(b)b.linearize(x),obj.BodyDynamics);
+            fl = @(b)b.linearize(x,obj.Trim);
+            eomdl_bodies = arrayfun(fl,obj.BodyDynamics);
             fB = @(f)arrayfun(f,eomdl_bodies,'uniform',0);
             sum3 = @(f)sum(cell2sym(reshape(fB(f),1,1,[])),3);
             M = sum3(@(b)b.MassMatrix);
@@ -313,6 +313,7 @@ classdef GibbsAppell < handle
         function independentLinearizedEquations(obj)
             P = PermutationMatrices(obj.States);
             C = dependentCoordinateProjection(obj.States,obj.Constraints);
+            C = obj.subsTrim(C);
 
             Hk = obj.LinearizedEquations.ForcingMatrix(:,1:obj.States.n);
             Hdv = obj.LinearizedEquations.ForcingMatrix(:,obj.States.n + 1:end);

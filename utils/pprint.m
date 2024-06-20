@@ -1,2 +1,2 @@
 function pprint(expr)
-disp(prettify(expr))
+disp(prettytrig(prettify(expr)))

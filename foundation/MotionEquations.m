@@ -29,20 +29,43 @@ classdef MotionEquations < handle
             obj.MassMatrix = f(obj.MassMatrix);
             obj.ForcingVector = f(obj.ForcingVector);
         end
-        function eoml = linearize(obj,lin_states)
+        function eoml = linearize(obj,lin_states,trim_point)
+            arguments
+                obj (1,1) MotionEquations;
+                lin_states (:,1) sym;
+                trim_point (1,1) TrimPoint = TrimPoint.empty();
+            end
             if ~all(isDynamicVariable(lin_states))
                 error('Linearization states must be dynamic variables.')
             end
             lin_rates = diff(lin_states);
             f0 = obj.MassMatrix*obj.Rates;
             f1 = -obj.ForcingVector;
-            M = jacobian(f0,lin_rates);
-            H = -jacobian(f0 + f1,lin_states);
-            G = -jacobian(f1,obj.Inputs);
+            M = obj.subsTrim(jacobian(f0,lin_rates),trim_point);
+            Jf0 = obj.subsTrim(jacobian(f0,lin_states),trim_point);
+            Jf1 = obj.subsTrim(jacobian(f1,lin_states),trim_point);
+            G = -obj.subsTrim(jacobian(f1,obj.Inputs),trim_point);
+            H = -(Jf0 + Jf1);
             eoml = LinearizedMotionEquations(lin_states,M,H,obj.Inputs,G);
         end
     end
     methods (Access = private)
+        function f0 = subsTrim(obj,f,trim_point)
+            arguments
+                obj (1,1) MotionEquations;
+                f sym;
+                trim_point (1,1) TrimPoint = TrimPoint.empty();
+            end
+            if isempty(trim_point)
+                f0 = f;
+                return
+            end
+            ovals = [diff(trim_point.x,sym('t'));trim_point.x];
+            idx = has(ovals,diff(trim_point.u,sym('t')));
+            nvals = [diff(trim_point.x0,sym('t'));trim_point.x0];
+            nvals(idx) = 0.*nvals(idx);
+            f0 = subs(f,ovals,nvals);
+        end
         function validateStates(obj)
             if ~all(isDynamicVariable(obj.States))
                 error('States must be dynamic variables.')
