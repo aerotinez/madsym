@@ -23,8 +23,8 @@ function new_wrench = transform(obj,reference_frame,position)
     end
     T = Pose(obj.ReferenceFrame,obj.Position);
     Tnew = Pose(reference_frame,position);
-    W = Tnew.Adjoint.'*T.inv().Adjoint.'*obj.Vector;
-    new_wrench = Wrench(reference_frame,position,simplify(expand(W)));
+    W = simplify(expand(Tnew.Adjoint.'*T.inv().Adjoint.'))*obj.Vector;
+    new_wrench = Wrench(reference_frame,position,W);
 end
 end
 end
