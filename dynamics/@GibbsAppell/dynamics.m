@@ -3,7 +3,13 @@ function dynamics(obj,bodies)
         obj (1,1) GibbsAppell;
         bodies (:,1) Body;
     end
-    obj.BodyDynamics = arrayfun(@(b)obj.bodyDynamics(b),bodies);
+
+    if isempty(gcp("nocreate")) || numel(bodies) < 2
+        obj.BodyDynamics = arrayfun(@(b)obj.bodyDynamics(b),bodies);
+    else
+        obj.BodyDynamics = dynamicsParallel(obj,bodies);
+    end
+    
     u = obj.States.Speeds.Independent;
     
     fB = @(f)arrayfun(f,obj.BodyDynamics,'uniform',0);

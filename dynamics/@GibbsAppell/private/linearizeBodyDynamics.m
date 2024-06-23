@@ -2,10 +2,15 @@ function eomdl = linearizeBodyDynamics(obj)
     arguments
         obj (1,1) GibbsAppell;
     end
+
     x = obj.LinearizationStates;
 
-    fl = @(b)b.linearize(x,obj.Trim);
-    eomdl_bodies = arrayfun(fl,obj.BodyDynamics);
+    if isempty(gcp("nocreate")) || numel(obj.BodyDynamics) < 2
+        fl = @(b)b.linearize(x,obj.Trim);
+        eomdl_bodies = arrayfun(fl,obj.BodyDynamics);
+    else
+        eomdl_bodies = linearizeBodyDynamicsParallel(obj);
+    end
 
     fB = @(f)arrayfun(f,eomdl_bodies,'uniform',0);
     sum3 = @(f)sum(cell2sym(reshape(fB(f),1,1,[])),3);
