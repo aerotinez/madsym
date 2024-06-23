@@ -24,6 +24,9 @@ function eomd = bodyDynamics(obj,body)
     F = body.ActiveForces;
 
     M = Vbar.'*G*Vbar;
-    f = Vbar.'*F - Vbar.'*(G*Vdbar - ad.'*G*Vbar)*u;
-    eomd = MotionEquations(u,M,f,obj.Inputs); 
+    f0 = -Vbar.'*G*Vdbar*u;
+    f1 = Vbar.'*ad.'*G*Vbar*u;
+    f2 = Vbar.'*F;
+    % f = Vbar.'*F - Vbar.'*(G*Vdbar - ad.'*G*Vbar)*u;
+    eomd = DynamicMotionEquations(u,M,f0,f1,f2,obj.Inputs); 
 end
