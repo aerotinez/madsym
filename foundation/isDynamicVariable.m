@@ -4,6 +4,7 @@ function result = isDynamicVariable(in)
     end
     result = arrayfun(@checkIsDynamicVariable,in);
 end
+
 function result = checkIsDynamicVariable(in)
     vars = findSymType(in,"symfunOf",sym('t'));
     if numel(vars) ~= 1
