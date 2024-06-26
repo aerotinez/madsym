@@ -1,0 +1,62 @@
+classdef PrydeMotorcycleParameters < handle
+    properties (Access = public)
+        Csteer;
+        Cf1;
+        Cf2;
+        Cr1;
+        Cr2;
+        Crxz;
+        Ifx;
+        Ifz;
+        Irx;
+        Irz;
+        a;
+        b;
+        c;
+        d;
+        e;
+        f;
+        g;
+        ify;
+        iry;
+        mf;
+        mr;
+        rhof;
+        rhor;
+        tf;
+        tr;
+        caster;
+    end
+    methods (Access = public)
+        function p = list(obj)
+            p = [
+                obj.Csteer;
+                obj.Cf1;
+                obj.Cf2;
+                obj.Cr1;
+                obj.Cr2;
+                obj.Crxz;
+                obj.Ifx;
+                obj.Ifz;
+                obj.Irx;
+                obj.Irz;
+                obj.a;
+                obj.b;
+                obj.c;
+                obj.d;
+                obj.e;
+                obj.f;
+                obj.g;
+                obj.ify;
+                obj.iry;
+                obj.mf;
+                obj.mr;
+                obj.rhof;
+                obj.rhor;
+                obj.tf;
+                obj.tr;
+                obj.caster;
+            ].';
+        end
+    end
+end
