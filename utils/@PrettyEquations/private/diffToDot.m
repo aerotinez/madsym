@@ -12,5 +12,5 @@ function xd = diffToDot(obj,x,dstr)
     end
 
     inds = strfind(xs,'_');
-    xd = str2sym(xs(1:inds(1) - 1) + dstr + xs(inds(1):end));
+    xd = str2sym(xs(1:inds(1) - 1) + "_" + dstr + xs(inds(1):end));
 end
