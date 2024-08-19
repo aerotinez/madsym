@@ -9,5 +9,5 @@ if isequal(size(A),[1,1])
 end
 idx = has(A,[symvar(A),1,-1]);
 inv_map = idx.*sym('a_',size(A));
-% B = subs(inv(inv_map),inv_map(idx),A(idx));
-B = subs(inv_map\eye(size(inv_map)),inv_map(idx),A(idx));
+B = subs(inv(inv_map),inv_map(idx),A(idx));
+% B = subs(inv_map\eye(size(inv_map)),inv_map(idx),A(idx));

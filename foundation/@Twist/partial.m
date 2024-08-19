@@ -4,5 +4,5 @@ function Vbar = partial(obj,eomk)
         eomk (1,1) MotionEquations;
     end
     u = eomk.Inputs;
-    Vbar = jacobian(obj.Vector,u);
+    Vbar = simplify(expand(jacobian(obj.Vector,u)));
 end
