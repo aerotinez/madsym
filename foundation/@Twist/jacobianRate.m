@@ -1,4 +1,4 @@
-function Jd = jacobianRate(obj,qd,pose)
+ function Jd = jacobianRate(obj,qd,pose)
     arguments
         obj (1,1) Twist;
         qd (:,1) sym;
