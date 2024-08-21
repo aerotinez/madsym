@@ -1,7 +1,7 @@
 function Vdbar = partialRate(obj,eomk)
     arguments
         obj (1,1) Twist;
-        eomk (1,1) MotionEquations;
+        eomk (1,1) KinematicEquations;
     end
     Vbar = partial(obj,eomk);
     q = eomk.States;

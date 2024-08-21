@@ -1,5 +1,5 @@
 classdef MotionEquations < handle
-    properties (GetAccess = public, SetAccess = private)
+    properties (GetAccess = public, SetAccess = protected)
         States;
         Rates;
         Inputs;

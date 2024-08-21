@@ -1,7 +1,7 @@
 function reformulate(obj,eomk)
     arguments
         obj (1,1) Twist;
-        eomk (1,1) MotionEquations;
+        eomk (1,1) KinematicEquations;
     end
     qd = eomk.Rates;
     u = eomk.Inputs;

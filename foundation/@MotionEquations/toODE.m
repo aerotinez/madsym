@@ -1,10 +1,7 @@
-function eom = toODE(obj)
+function toODE(obj)
     arguments
         obj (1,1) MotionEquations;
     end
-    x = obj.States;
-    u = obj.Inputs;
-    M = eye(numel(x),"sym");
-    f = syminv(obj.MassMatrix)*obj.ForcingVector;
-    eom = MotionEquations(x,M,f,u);
+    obj.ForcingVector = syminv(obj.MassMatrix)*obj.ForcingVector;
+    obj.MassMatrix = eye(size(obj.MassMatrix),"sym");
 end
