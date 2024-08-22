@@ -22,7 +22,7 @@ classdef Body < handle
             obj.Inertia = inertia;
             obj.Mass = mass;
             obj.InertialForces = obj.inertialForces();
-            obj.ActiveForces = sym(zeros(6,1));
+            obj.ActiveForces = Wrench(sym(zeros(6,1)));
         end
     end
 end

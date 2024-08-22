@@ -6,5 +6,5 @@ function Qi = inertialForces(obj)
     V = obj.Twist.Vector;
     ad = obj.Twist.Adjoint;
     Vd = obj.Twist.Rate;
-    Qi = G*Vd - ad.'*G*V;
+    Qi = Wrench(G*Vd - ad.'*G*V,Pose(obj.ReferenceFrame,obj.MassCenter));
 end

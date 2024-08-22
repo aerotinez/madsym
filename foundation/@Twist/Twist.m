@@ -12,7 +12,8 @@ classdef Twist < matlab.mixin.SetGet
             arguments
                 pose (1,1) Pose = Pose();
             end
-            V = pose.inv().Transform*diff(pose.Transform,sym('t'));
+            t = sym('t');
+            V = pose.inv().transform()*diff(pose.transform(),t);
             obj.Matrix = simplify(expand(V));
             obj.AngularVelocity = skew2vec(obj.Matrix(1:3,1:3));
             obj.TranslationalVelocity = obj.Matrix(1:3,4);

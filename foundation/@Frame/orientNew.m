@@ -7,7 +7,7 @@ function Nnew = orientNew(obj,axis,angle)
     if ~(length(axis) == length(angle))
         error('axis and angle must be the same length');
     end
-    R = obj.dcm;
+    R = obj.dcm();
     for i = 1:length(axis)
         switch axis(i)
         case 'x'

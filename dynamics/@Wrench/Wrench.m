@@ -1,19 +1,14 @@
 classdef Wrench
-    properties (GetAccess = public, SetAccess = private)
-        ReferenceFrame;
-        Position;
+    properties (Access = private)
         Vector;
     end
     methods (Access = public)
-        function obj = Wrench(reference_frame,position,vector)
+        function obj = Wrench(vector,pose)
             arguments
-                reference_frame (1,1) Frame;
-                position (1,1) Point;
                 vector (6,1) sym;
+                pose (1,1) Pose = Pose();
             end
-            obj.ReferenceFrame = reference_frame;
-            obj.Position = position;
-            obj.Vector = vector;
+            obj.Vector = simplify(expand(pose.inv().adjoint().'*vector));
         end
     end
 end
