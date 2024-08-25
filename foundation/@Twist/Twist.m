@@ -1,5 +1,5 @@
 classdef Twist < matlab.mixin.SetGet
-    properties (GetAccess = public, SetAccess = private)
+    properties (Access = private)
         AngularVelocity;
         TranslationalVelocity;
         Vector;
@@ -13,7 +13,7 @@ classdef Twist < matlab.mixin.SetGet
                 pose (1,1) Pose = Pose();
             end
             t = sym('t');
-            V = pose.inv().transform()*diff(pose.transform(),t);
+            V = diff(pose.transform(),t)*pose.inv().transform();
             obj.Matrix = simplify(expand(V));
             obj.AngularVelocity = skew2vec(obj.Matrix(1:3,1:3));
             obj.TranslationalVelocity = obj.Matrix(1:3,4);
