@@ -1,11 +1,9 @@
-classdef Twist < matlab.mixin.SetGet
+classdef Twist
     properties (Access = private)
-        AngularVelocity;
-        TranslationalVelocity;
-        Vector;
-        Matrix;
-        Adjoint;
-        Rate;
+        w;
+        v;
+        wd;
+        vd;
     end
     methods
         function obj = Twist(pose)
@@ -13,25 +11,13 @@ classdef Twist < matlab.mixin.SetGet
                 pose (1,1) Pose = Pose();
             end
             t = sym('t');
-            V = diff(pose.transform(),t)*pose.inv().transform();
-            obj.Matrix = simplify(expand(V));
-            obj.AngularVelocity = skew2vec(obj.Matrix(1:3,1:3));
-            obj.TranslationalVelocity = obj.Matrix(1:3,4);
-            
-            obj.Vector = [
-                obj.AngularVelocity;
-                obj.TranslationalVelocity
-                ];
-
-            wm = vec2skew(obj.AngularVelocity);
-            vm = vec2skew(obj.TranslationalVelocity);
-
-            obj.Adjoint = [
-                wm,zeros(3);
-                vm,wm
-                ];
-
-            obj.Rate = diff(obj.Vector,sym('t'));
+            R = pose.ReferenceFrame.dcm();
+            p = pose.Position.posFrom();
+            f = @(x)simplify(expand(x));
+            obj.w = f(skew2vec(diff(R,t)*R.'));
+            obj.v = f(diff(p,t) - vec2skew(obj.w)*p);
+            obj.wd = f(diff(obj.w,t));
+            obj.vd = f(diff(obj.v,t));
         end 
     end
 end

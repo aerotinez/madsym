@@ -1,6 +1,7 @@
 classdef KinematicEquations < MotionEquations
-    properties (GetAccess = public, SetAccess = protected)
+    properties (GetAccess = public, SetAccess = private)
         Jacobian;
+        JacobianRate;
     end
     methods (Access = public)
         function obj = KinematicEquations(q,eq,u)
@@ -10,7 +11,7 @@ classdef KinematicEquations < MotionEquations
                 u (1,1) GeneralizedCoordinates;
             end
             [M,f] = massMatrixForm(eq,q.All);
-            uf = setdiff(u.All, findSymType(f,"symfun"));
+            uf = setdiff(u.All,findSymType(f,"symfun"));
             if isempty(uf)
                 F = u.All;
             elseif isempty(setdiff(uf,u.Dependent))
@@ -21,8 +22,13 @@ classdef KinematicEquations < MotionEquations
                 msgc = "generalized speeds.";
                 error(msga + msgb + msgc); 
             end
+            f = syminv(M)*f;
+            M = eye(size(M));
             obj@MotionEquations(q.All,M,f,F);
             obj.Jacobian = jacobian(obj.ForcingVector,obj.Inputs);
+            fJd = @(j)jacobian(j,q.All)*obj.ForcingVector;
+            J = obj.Jacobian;
+            obj.JacobianRate = reshape(arrayfun(fJd,reshape(J,[],1)),size(J));
         end
-    end 
+    end
 end

@@ -19,6 +19,6 @@ function kinematics(obj,kdes)
 
     q = obj.States.Coordinates;
     u = obj.States.Speeds;
-    obj.Kinematics = KinematicEquations(q,eomk,u);
+    obj.Kinematics = kinematics(q,eomk,u);
     obj.Kinematics.toODE();
 end

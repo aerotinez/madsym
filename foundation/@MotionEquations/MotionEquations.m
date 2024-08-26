@@ -1,4 +1,4 @@
-classdef MotionEquations < handle
+classdef MotionEquations
     properties (GetAccess = public, SetAccess = protected)
         States;
         Rates;

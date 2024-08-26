@@ -1,8 +1,9 @@
-function simplify(obj)
+function eom = simplify(obj)
     arguments
         obj (1,1) MotionEquations;
     end
-    f = @(x)simplify(expand(x));
-    obj.MassMatrix = f(obj.MassMatrix);
-    obj.ForcingVector = f(obj.ForcingVector);
+    g = @(x)simplify(expand(x));
+    M = g(obj.MassMatrix);
+    f = g(obj.ForcingVector);
+    eom = MotionEquations(obj.States,M,f,obj.Inputs);
 end
