@@ -15,14 +15,10 @@ classdef MotionEquations
                 inputs sym = sym.empty(0,1);
             end
             obj.States = states;
-            obj.validateStates();
             obj.Rates = diff(states);
             obj.MassMatrix = mass_matrix;
-            obj.validateMassMatrix();
             obj.ForcingVector = forcing_vector;
-            obj.validateForcingVector();
             obj.Inputs = inputs;
-            obj.validateInputs();
         end 
     end 
 end

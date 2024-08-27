@@ -1,34 +1,40 @@
 classdef MechanicsEquations < MotionEquations
     properties (Access = protected)
-        States;
+        StateVector;
+        Constraints;
         Kinematics;
-        Dynamics;
+        BodyDynamics;
     end
     methods (Access = public)
-        function obj = MechanicsEquations(states,eomk,eomd)
+        function obj = MechanicsEquations(states,eomk,eomd_list,eomc)
             arguments
                 states (1,1) StateVector;
-                eomk (1,1) KinematicsEquations;
-                eomd (1,1) DynamicsEquations;
+                eomk (1,1) KinematicEquations;
+                eomd_list (:,1) DynamicEquations;
+                eomc (:,1) ConstraintEquations = ConstraintEquations.empty(0,1);
             end
+
             x = [
                 states.Coordinates.All;
-                eomk.Inputs;
-            ];
+                eomk.Inputs
+                ];
+
+            eomd = sum(eomd_list);
 
             M = blkdiag(eomk.MassMatrix,eomd.MassMatrix);
 
             f = [
                 eomk.ForcingVector;
-                eomd.ForcingVector;
-            ];
+                eomd.ForcingVector
+                ];
 
             F = eomd.Inputs;
 
             obj@MotionEquations(x,M,f,F);
-            obj.States = states;
+            obj.StateVector = states;
+            obj.Constraints = eomc;
             obj.Kinematics = eomk;
-            obj.Dynamics = eomd;
+            obj.BodyDynamics = eomd_list;
         end
     end
 end
