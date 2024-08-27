@@ -3,8 +3,6 @@ function [pexpr,vars] = prettytrig(expr)
         expr sym;
     end
     x = [findSymType(expr,"symfun"),symvar(expr)];
-    xc = unique(reshape(x + x.',1,[]));
-    % x = [x,xc];
     x(x == sym('t')) = [];
     sx = arrayfun(@sin,x);
     cx = arrayfun(@cos,x);

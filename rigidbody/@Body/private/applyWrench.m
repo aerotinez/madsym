@@ -6,5 +6,6 @@ function W = applyWrench(obj,frame,point,wrench)
         wrench (6,1) sym;
     end
     W = Wrench(wrench,Pose(frame,point));
-    obj.ActiveForces = Wrench(obj.ActiveForces.vector() + W.vector());
+    T = Pose(obj.ReferenceFrame,obj.MassCenter);
+    obj.ActiveForces = obj.ActiveForces + W.vector(T);
 end

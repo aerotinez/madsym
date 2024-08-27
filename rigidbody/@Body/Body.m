@@ -5,7 +5,6 @@ classdef Body < handle
         Twist; 
         Inertia;
         Mass; 
-        InertialForces;
         ActiveForces;
     end
     methods
@@ -21,8 +20,7 @@ classdef Body < handle
             obj.MassCenter = mass_center;
             obj.Inertia = inertia;
             obj.Mass = mass;
-            obj.InertialForces = obj.inertialForces();
-            obj.ActiveForces = Wrench(sym(zeros(6,1)));
+            obj.ActiveForces = sym(zeros(6,1));
         end
     end
 end

@@ -3,11 +3,9 @@ function Vd = rateVector(obj,pose)
         obj (1,1) Twist
         pose (1,1) Pose = Pose();
     end
-    wd = obj.angAccel(pose.ReferenceFrame);
-    vd = obj.transAccel(pose);
-
-    Vd = [
-        wd;
-        vd
-    ];
+    Ad = eye(6,"sym");
+    if pose ~= obj.Pose 
+        Ad = simplify(expand(pose.inv().adjoint()*obj.Pose.adjoint()));
+    end
+    Vd = simplify(expand(Ad*obj.RateVector));
 end

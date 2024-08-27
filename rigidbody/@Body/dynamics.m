@@ -1,45 +1,32 @@
-function eomd = dynamics(obj,eomk)
+function eomd = dynamics(obj,eomk,inputs)
     arguments
         obj (1,1) Body;
         eomk (1,1) KinematicEquations;
+        inputs (:,1) sym = sym.empty(0,1);
     end
-
     % generalized coordinates and speeds
-    q = eomk.States;
+    qd = eomk.Rates;
     u = eomk.Inputs;
 
-    % partial velocity
-    J = obj.Twist.jacobian(q);
-    W = eomk.Jacobian;
-    Vbar = J*W;
+    % reforumate twist 
+    V = obj.Twist.reformulate(eomk);
+    ad = V.adjoint();
 
-    % partial velocity rate
-    Jd = obj.Twist.jacobianRate(q,eomk.ForcingVector);
-    Wd = eomk.JacobianRate;
-    Vdbar = Jd*W + J*Wd;
-
-    % spatial inertia matrix
-    R = obj.ReferenceFrame.dcm();
-    I = simplify(expand(R.'*obj.Inertia*R));
-    G = blkdiag(I,obj.Mass.*eye(3));
-
-    % velocity adjoint matrix
-    V = Vbar*u;
-    wm = vec2skew(V(1:3));
-    vm = vec2skew(V(4:6));
-    ad = [
-        wm,zeros(3);
-        vm,wm
-        ];
+    % partial velocity and rate
+    Vbar = V.partial(eomk);
+    Vdbar = V.partialRate(eomk);
 
     % mass matrix
+    G = blkdiag(obj.Inertia,obj.Mass.*eye(3));
     M = Vbar.'*G*Vbar;
 
-    % forcing vector
-    fi = -Vbar.'*(G*Vdbar - ad.'*G*Vbar)*u;
-    fa = Vbar.'*obj.ActiveForces.vector();
-    f = fi + fa;
+    % inertial forces
+    f0 = -Vbar.'*G*Vdbar*u;
+    f1 = Vbar.'*ad.'*G*Vbar*u;
+
+    % active forces
+    f2 = Vbar.'*subs(obj.ActiveForces,qd,eomk.ForcingVector);
 
     % equations of motion
-    eomd = MotionEquations(u,M,f);
+    eomd = DynamicEquations(u,M,f0,f1,f2,inputs);
 end

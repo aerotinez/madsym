@@ -10,12 +10,13 @@ classdef ConstraintEquations < matlab.mixin.SetGet
                 configuration (:,1) sym = sym.empty(0,1);
                 velocity (:,1) sym = sym.empty(0,1);
             end
+            t = sym('t');
             obj.Configuration = configuration;
             obj.Velocity = [
-                diff(configuration,sym('t'));
+                diff(configuration,t);
                 velocity
                 ];
-            obj.Acceleration = diff(obj.Velocity,sym('t'));
+            obj.Acceleration = diff(obj.Velocity,t);
         end
     end
 end
