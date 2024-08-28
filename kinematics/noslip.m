@@ -5,5 +5,5 @@ arguments
     N (1,1) Frame = Frame();  
 end
 R = simplify(expand(b.ReferenceFrame.dcm));
-V = simplify(expand(Twist(Pose(b.ReferenceFrame,b.MassCenter)).Vector));
+V = simplify(expand(Twist(Pose(b.ReferenceFrame,b.MassCenter)).vector()));
 v = N.dcm.'*([-R*vec2skew(r),R]*V);

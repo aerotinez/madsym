@@ -1,5 +1,5 @@
 classdef MechanicsEquations < MotionEquations
-    properties (Access = protected)
+    properties (GetAccess = public, SetAccess = protected, Hidden = true)
         StateVector;
         Constraints;
         Kinematics;
@@ -19,7 +19,10 @@ classdef MechanicsEquations < MotionEquations
                 eomk.Inputs
                 ];
 
+                
+            
             eomd = sum(eomd_list);
+            F = eomd.Inputs;
 
             M = blkdiag(eomk.MassMatrix,eomd.MassMatrix);
 
@@ -28,7 +31,21 @@ classdef MechanicsEquations < MotionEquations
                 eomd.ForcingVector
                 ];
 
-            F = eomd.Inputs;
+            if ~isempty(states.Speeds.Dependent)
+                A = eomc.Jacobian;
+
+                M = [
+                    M;
+                    zeros(size(A,1),size(M,2) - size(A,2)),A
+                    ];
+
+                fa = eomc.Acceleration.ForcingVector;
+
+                f = [
+                    f;
+                    fa
+                    ];
+            end
 
             obj@MotionEquations(x,M,f,F);
             obj.StateVector = states;

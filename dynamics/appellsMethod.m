@@ -10,7 +10,7 @@ function eom = appellsMethod(x,kdes,bodies,inputs,constraints)
     uga = GeneralizedCoordinates(x.Speeds.Independent);
     xga = StateVector(x.Coordinates,uga);
     eomk = kinematics(q,kdes,uga.Independent,constraints);
-    eomd_list = bodyDynamics(bodies,eomk,inputs);
+    eomd_list = arrayfun(@(b)b.dynamics(eomk,inputs),bodies);
     eomc = ConstraintEquations.empty(0,1);
     if ~isempty(constraints) && ~isempty(constraints.Configuration)
         eomc = ConstraintEquations(x.Coordinates,constraints.Configuration);
@@ -40,8 +40,4 @@ function eomk = kinematics(q,kdes,u,constraints)
     end
 
     eomk = KinematicEquations(q,eq,u);
-end
-
-function eomd_list = bodyDynamics(bodies,eomk,inputs)
-    eomd_list = arrayfun(@(b)b.dynamics(eomk,inputs),bodies);
 end

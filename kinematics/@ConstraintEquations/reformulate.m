@@ -12,7 +12,8 @@ function eomc = reformulate(obj,eomk)
     Ad = Jd*eomk.Jacobian + obj.Jacobian*eomk.JacobianRate;
     u = eomk.Inputs;
     eomc.Acceleration = MotionEquations(u,A,-Ad*u);
-    eomc.Velocity = MotionEquations(u,A,zeros(size(eomc.Acceleration,1)));
+    fa = eomc.Acceleration.ForcingVector;
+    eomc.Velocity = MotionEquations(u,A,zeros(size(fa),"sym"));
     eomc.Jacobian = A;
     eomc.JacobianRate = Ad;
 end
