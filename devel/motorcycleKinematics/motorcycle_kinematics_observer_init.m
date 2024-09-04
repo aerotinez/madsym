@@ -6,7 +6,6 @@ ts = 1/60;
 dir_str = "G:\My Drive\BikeSimResults\BigSports\ICRA25\Vx130Kph\";
 file_str = "bikesim_results_130kph.csv";
 T = readtable(dir_str + file_str);
-T = T(1E03:end,:);
 t = T.Time;
 tf = t(end);
 
