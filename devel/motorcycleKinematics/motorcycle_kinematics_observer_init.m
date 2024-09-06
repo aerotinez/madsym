@@ -3,8 +3,9 @@ setmadsympath();
 ts = 1/60;
 
 %% Bikesim dataset
-dir_str = "G:\My Drive\BikeSimResults\BigSports\ICRA25\Vx130Kph\";
-file_str = "bikesim_results_130kph.csv";
+vx = 130;
+dir_str = "G:\My Drive\BikeSimResults\BigSports\ICRA25\Vx" + vx + "Kph\";
+file_str = "bikesim_results_" + vx +"kph.csv";
 T = readtable(dir_str + file_str);
 t = T.Time;
 tf = t(end);
