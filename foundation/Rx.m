@@ -1,3 +1,14 @@
 function R = Rx(a)
-R = [1,0,0;0,cos(a),-sin(a);0,sin(a),cos(a)];
+    arguments
+        a (1,1);
+    end
+    c = cos(a);
+    s = sin(a);
+
+    R = [
+        1,0,0;
+        0,c,-s;
+        0,s,c
+        ];
+end
 

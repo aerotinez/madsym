@@ -1,2 +1,13 @@
 function R = Rz(a)
-R = [cos(a),-sin(a),0;sin(a),cos(a),0;0,0,1];
+    arguments
+        a (1,1);
+    end
+    c = cos(a);
+    s = sin(a);
+
+    R = [
+        c,-s,0;
+        s,c,0;
+        0,0,1
+        ];
+end

@@ -1,2 +1,13 @@
 function R = Ry(a)
-R = [cos(a),0,sin(a);0,1,0;-sin(a),0,cos(a)];
+    arguments
+        a (1,1);
+    end
+    c = cos(a);
+    s = sin(a);
+    
+    R = [
+        c,0,s;
+        0,1,0;
+        -s,0,c
+        ];
+end
