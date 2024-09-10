@@ -31,7 +31,7 @@ roll = T.Roll_E;
 steer = T.Steer;
 eul = [yaw,lean,pitch,steer];
 q = timeseries(deg2rad(eul),t);
-q0 = q.Data(1,:);
+q0 = [q.Data(1,:),0];
 
 %% Steering frame velocities
 wx = T.AVx;
@@ -45,7 +45,7 @@ v = [vx,vy,vz];
 u = timeseries([deg2rad(w),v./3.6],t);
 
 %% EKF covariance matrices
-nx = 4;
+nx = 5;
 nz = 9;
 P0 = eye(nx);
 Q = eye(nx);
