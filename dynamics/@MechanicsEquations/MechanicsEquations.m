@@ -18,8 +18,6 @@ classdef MechanicsEquations < MotionEquations
                 states.Coordinates.All;
                 eomk.Inputs
                 ];
-
-                
             
             eomd = sum(eomd_list);
             F = eomd.Inputs;

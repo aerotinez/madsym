@@ -21,6 +21,7 @@ classdef TrimPoint
                 v0 (:,1) sym = sym.empty([0,1]);
                 F0 (:,1) sym = sym.empty([0,1]);
             end
+            
             obj.q = states.Coordinates.All;
             obj.u = states.Speeds.All;
             obj.v = sym.empty([0,1]);
@@ -28,6 +29,7 @@ classdef TrimPoint
                 obj.v = states.Auxiliary.All;
             end
             obj.F = inputs;
+
             obj.q0 = q0;
             obj.u0 = u0;
             obj.v0 = v0;

@@ -10,6 +10,7 @@ classdef StateVector
         k; % number of independent speeds
         m; % number of dependent speeds
         p; % number of auxiliary variables
+        P; % pertubation matrix
     end
     methods (Access = public)
         function obj = StateVector(coordinates,speeds,auxiliary)
@@ -27,6 +28,7 @@ classdef StateVector
             obj.k = numel(obj.Speeds.Independent);
             obj.m = numel(obj.Speeds.Dependent);
             obj.p = numel(obj.Auxiliary);
+            obj.P = blkdiag(obj.Coordinates.Pind,obj.Speeds.Pind);
         end
     end 
 end

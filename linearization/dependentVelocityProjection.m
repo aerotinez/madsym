@@ -1,15 +1,21 @@
-function [C1,C2] = dependentVelocityProjection(coordinates,kinematics,constraints)
+function [C1,C2] = dependentVelocityProjection(states,constraints)
     arguments
-        coordinates (1,1) GeneralizedCoordinates;
-        kinematics (1,1) KinematicEquations;
-        constraints (1,1) Constraints;
+        states (1,1) StateVector;
+        constraints (1,1) ConstraintEquations;
     end
-    X = coordinates;
-    K = kinematics;
-    P = PermutationMatrices(X);
-    nhc = simplify(expand(subs(constraints.Nonholonomic,X.qd,K.ForcingVector)));
-    Jq = jacobian(nhc,X.q);
-    Ju = jacobian(nhc,X.u);
-    C1 = -P.Pu_dep*syminv(Ju*P.Pu_dep)*Jq;
-    C2 = (eye(X.n) - P.Pu_dep*syminv(Ju*P.Pu_dep)*Jq)*P.Pq_ind;
+    fv = velocityConstraints(constraints);
+    Jq = jacobian(fv,states.Coordinates.All);
+    Ju = jacobian(fv,states.Speeds.All);
+    Pui = states.Speeds.Pind;
+    Pud = states.Speeds.Pdep;
+    I = eye(numel(states.Speeds.All));
+    C1 = -Pud*syminv(Ju*Pud)*Jq;
+    C2 = (I - Pud*syminv(Ju*Pud)*Ju)*Pui;
+end
+
+function fv = velocityConstraints(cons)
+    xd = cons.Velocity.Rates;
+    M = cons.Velocity.MassMatrix;
+    f = cons.Velocity.ForcingVector;
+    fv = M*xd - f;
 end
