@@ -16,10 +16,10 @@ classdef TrimPoint
             arguments
                 states (1,1) StateVector; 
                 inputs (:,1) sym = sym.empty([0,1]);
-                q0 (:,1) sym = sym.empty([0,1]);
-                u0 (:,1) sym = sym.empty([0,1]);
+                q0 (:,1) sym = states.Coordinates.All;
+                u0 (:,1) sym = states.Speeds.All;
                 v0 (:,1) sym = sym.empty([0,1]);
-                F0 (:,1) sym = sym.empty([0,1]);
+                F0 (:,1) sym = inputs;
             end
             
             obj.q = states.Coordinates.All;

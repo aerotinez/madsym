@@ -20,7 +20,7 @@ function eom = kanesMethod(x,kdes,bodies,inputs,constraints)
     u = GeneralizedCoordinates(u_all,x.Speeds.Dependent);
     xk = StateVector(q,u);
 
-    eomk = KinematicEquations(q.All,kdes,u.All);
+    eomk = KinematicEquations(q,kdes,u);
 
     eomc = ConstraintEquations.empty(0,1);
     Jc = sym.empty(0,1);
