@@ -20,7 +20,7 @@ classdef Body < handle
             obj.MassCenter = mass_center;
             obj.Inertia = inertia;
             obj.Mass = mass;
-            obj.ActiveForces = sym(zeros(6,1));
+            obj.ActiveForces = Wrench();
         end
     end
 end

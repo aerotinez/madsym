@@ -44,7 +44,7 @@ function Jc = constraintJacobian(constraints,u)
     B = constraints.Jacobian;
     Bind = B(:,1:numel(u.Independent));
     Bdep = B(:,numel(u.Independent) + 1:end);
-    Jc = -syminv(Bdep)*Bind;
+    Jc = syminv(Bdep)*Bind;
 end
 
 function eomd = bodyDynamics(body,eomk,inputs,Jc)
@@ -54,7 +54,39 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
         inputs (:,1) sym = sym.empty(0,1);
         Jc sym = sym.empty(0,1);
     end
-    eomd = body.dynamics(eomk,inputs);
+    q = eomk.States;
+    qd = eomk.Rates;
+    u = eomk.Inputs;
+
+    twist = body.Twist.reformulate(eomk);
+
+    w = twist.angVel();
+
+    V = [
+        w;
+        twist.linVel();
+        ];
+        
+    Vbar = jacobian(V,u);
+    fVdbar = @(vbar)jacobian(vbar,q)*eomk.ForcingVector;
+    Vdbar = reshape(arrayfun(fVdbar,reshape(Vbar,[],1)),size(Vbar));
+    adw = blkdiag(skew(w),zeros(3));
+
+    G = blkdiag(body.Inertia,body.Mass.*eye(3));
+    M = Vbar.'*G*Vbar;
+    
+    f0 = -Vbar.'*G*Vdbar*u;
+    f1 = -Vbar.'*adw*G*Vbar*u;
+
+    I = eye(3);
+    N = zeros(3);
+    T = Pose(body.ReferenceFrame,body.MassCenter);
+    mb = [I,N]*body.ActiveForces.vector(T);
+    fi = [N,I]*body.ActiveForces.vector();
+    f2 = Vbar.'*simplify(expand(subs([mb;fi],qd,eomk.ForcingVector)));
+
+    eomd = DynamicEquations(u,M,f0,f1,f2,inputs);
+
     if ~isempty(Jc)
         eomd_ind = independentBodyDynamics(eomd,Jc);
         eomd_dep = dependentBodyDynamics(eomd,Jc);
