@@ -1,0 +1,89 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[      3156,         81]
+NotebookOptionsPosition[      2481,         62]
+NotebookOutlinePosition[      2891,         78]
+CellTagsIndexPosition[      2848,         75]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\marti\\\\madsym\\\\devel\\\\motorcycleKinematics\>\"", 
+   "]"}], ";"}]], "Input",
+ CellChangeTimes->{{3.9352053206934586`*^9, 3.935205347539299*^9}, {
+   3.9352053892363663`*^9, 3.935205398167488*^9}, {3.935205446937519*^9, 
+   3.935205547157873*^9}, {3.93520562587693*^9, 3.935205634080223*^9}, {
+   3.9352056769985943`*^9, 3.9352056803187447`*^9}, {3.935205712992918*^9, 
+   3.935205737995886*^9}, {3.9352057701161556`*^9, 3.9352058038270493`*^9}, {
+   3.93520597572892*^9, 3.9352059886413555`*^9}, {3.9352061239312134`*^9, 
+   3.93520612538879*^9}, {3.9352061913030014`*^9, 3.935206192471817*^9}, 
+   3.9352067085612183`*^9, {3.935206758163872*^9, 3.9352068160146484`*^9}, {
+   3.935206996831337*^9, 3.935207035733486*^9}, 3.9352071940556965`*^9, {
+   3.9352073018554306`*^9, 3.9352073098236847`*^9}},
+ CellLabel->"In[4]:=",ExpressionUUID->"d4e32c38-2c33-b848-918f-1fd4bacf017b"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Get", "[", "\"\<MotorcycleKinematics`\>\"", "]"}], ";"}]], "Input",
+ CellChangeTimes->{{3.9352070564210033`*^9, 3.9352070649600773`*^9}, 
+   3.9352071467897625`*^9, {3.935207209842556*^9, 3.935207216581211*^9}},
+ CellLabel->"In[5]:=",ExpressionUUID->"915356a1-681b-f441-b4ab-b2711df9985d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"??", "motorcycleKinematicsMassMatrix"}]], "Input",
+ CellChangeTimes->{{3.9352071001339054`*^9, 3.9352071275303116`*^9}, 
+   3.9352073869304447`*^9},
+ CellLabel->"In[7]:=",ExpressionUUID->"dad92651-cb70-4e45-b062-c12457da0c5f"],
+
+Cell[BoxData[
+ RowBox[{"Missing", "[", 
+  RowBox[{"\<\"UnknownSymbol\"\>", 
+   ",", "\<\"motorcycleKinematicsMassMatrix\"\>"}], "]"}]], "Output",
+ CellChangeTimes->{{3.935207227012724*^9, 3.9352072487166424`*^9}, 
+   3.935207319073517*^9, 3.9352073899792614`*^9},
+ CellLabel->"Out[7]=",ExpressionUUID->"32c7fd88-0361-eb45-bfd8-7768e94dbd2b"]
+}, Open  ]]
+},
+WindowSize->{935.25, 609.75},
+WindowMargins->{{168.75, Automatic}, {Automatic, 49.5}},
+FrontEndVersion->"14.1 for Microsoft Windows (64-bit) (July 16, 2024)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"0680a17a-589a-834d-9a80-5ef48ce72f48"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 965, 16, 28, "Input",ExpressionUUID->"d4e32c38-2c33-b848-918f-1fd4bacf017b"],
+Cell[1522, 38, 324, 5, 28, "Input",ExpressionUUID->"915356a1-681b-f441-b4ab-b2711df9985d"],
+Cell[CellGroupData[{
+Cell[1871, 47, 250, 4, 28, "Input",ExpressionUUID->"dad92651-cb70-4e45-b062-c12457da0c5f"],
+Cell[2124, 53, 341, 6, 32, "Output",ExpressionUUID->"32c7fd88-0361-eb45-bfd8-7768e94dbd2b"]
+}, Open  ]]
+}
+]
+*)
+
