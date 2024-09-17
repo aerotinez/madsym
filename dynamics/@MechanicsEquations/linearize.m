@@ -69,7 +69,7 @@ function eom_lin = linearize(obj,trim_point)
         H = [Hq*C0,Hu];
     end
 
-    P = X.P;
+    % P = X.P;
 
-    eom_lin = LinearizedMotionEquations(x,P.'*M*P,P.'*H,P.'*G,u);
+    eom_lin = LinearizedMotionEquations(x,M,H,G,u);
 end

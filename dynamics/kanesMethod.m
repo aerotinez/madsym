@@ -26,7 +26,7 @@ function eom = kanesMethod(x,kdes,bodies,inputs,constraints)
     Jc = sym.empty(0,1);
     if ~isempty(constraints)
         eomc = validateConstraints(q,constraints,eomk);
-        Jc = constraintJacobian(constraints,u);
+        Jc = constraintJacobian(eomc,u);
     end
 
     eomd_list = arrayfun(@(b)bodyDynamics(b,eomk,inputs,Jc),bodies);
@@ -44,7 +44,7 @@ function Jc = constraintJacobian(constraints,u)
     B = constraints.Jacobian;
     Bind = B(:,1:numel(u.Independent));
     Bdep = B(:,numel(u.Independent) + 1:end);
-    Jc = syminv(Bdep)*Bind;
+    Jc = -syminv(Bdep)*Bind;
 end
 
 function eomd = bodyDynamics(body,eomk,inputs,Jc)
@@ -70,20 +70,20 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
     Vbar = jacobian(V,u);
     fVdbar = @(vbar)jacobian(vbar,q)*eomk.ForcingVector;
     Vdbar = reshape(arrayfun(fVdbar,reshape(Vbar,[],1)),size(Vbar));
-    adw = blkdiag(skew(w),zeros(3));
+    adw = blkdiag(vec2skew(w),zeros(3));
 
     G = blkdiag(body.Inertia,body.Mass.*eye(3));
-    M = Vbar.'*G*Vbar;
+    M = -Vbar.'*G*Vbar;
     
-    f0 = -Vbar.'*G*Vdbar*u;
-    f1 = -Vbar.'*adw*G*Vbar*u;
+    f0 = Vbar.'*G*Vdbar*u;
+    f1 = Vbar.'*adw*G*Vbar*u;
 
     I = eye(3);
     N = zeros(3);
     T = Pose(body.ReferenceFrame,body.MassCenter);
     mb = [I,N]*body.ActiveForces.vector(T);
     fi = [N,I]*body.ActiveForces.vector();
-    f2 = Vbar.'*simplify(expand(subs([mb;fi],qd,eomk.ForcingVector)));
+    f2 = -Vbar.'*simplify(expand(subs([mb;fi],qd,eomk.ForcingVector)));
 
     eomd = DynamicEquations(u,M,f0,f1,f2,inputs);
 
@@ -107,7 +107,7 @@ end
 
 function eomd_dep = dependentBodyDynamics(eomd,Jc)
     m = size(Jc,1);
-    M = Jc.'*eomd.MassMatrix(m+1:end,:);
+    M = Jc.'*eomd.MassMatrix(m + 1:end,:);
     f0 = Jc.'*eomd.f0(m + 1:end);
     f1 = Jc.'*eomd.f1(m + 1:end);
     f2 = Jc.'*eomd.f2(m + 1:end);
