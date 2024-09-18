@@ -8,7 +8,7 @@ function varargout = dynamicVariables(varargin)
     c = class(varargin{end});
 
     if isequal(c,'char') || isequal(c,'string')
-        outc = cellfun(f,varargin,'UniformOutput',false);
+        outc = cellfun(f,varargin,'UniformOutput',false).';
         varargout{1} = cellfun(@(x)x,outc);
         return
     end
