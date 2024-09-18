@@ -12,9 +12,9 @@ classdef DynamicEquations < MotionEquations
                 f0 (:,1) sym;
                 f1 (:,1) sym;
                 f2 (:,1) sym;
-                F (:,1) sym = sym.empty(0,1);
+                F (1,1) GeneralizedCoordinates = GeneralizedCoordinates();
             end
-            obj@MotionEquations(u.All,M,f0 + f1 + f2,F);
+            obj@MotionEquations(u,M,f0 + f1 + f2,F);
             obj.f0 = f0;
             obj.f1 = f1;
             obj.f2 = f2;

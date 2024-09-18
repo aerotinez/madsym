@@ -4,10 +4,10 @@ function twist = reformulate(obj,eomk)
         eomk (1,1) KinematicEquations;
     end
     % generalized coordinates
-    q = eomk.States;
+    q = eomk.States.All;
 
     % generalized speeds
-    u = eomk.Inputs;
+    u = eomk.Inputs.All;
     ud = diff(u,sym('t'));
 
     % partial velocity

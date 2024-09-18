@@ -1,30 +1,34 @@
-function eoml = linearize(obj,trim_point)
+function eoml = linearize(obj)
     arguments
         obj (1,1) MotionEquations;
-        trim_point (1,1) TrimPoint = TrimPoint.empty();
     end
 
     t = sym('t');
 
     x = [
-        trim_point.q;
-        trim_point.u;
-        ];
-        
-    xd = diff(x,t);
+        diff(obj.States.All,t);
+        obj.States.All;
+        diff(obj.Inputs.All,t);
+        obj.Inputs.All
+    ];
 
-    u = trim_point.F;
+    x0 = [
+        obj.States.TrimRate;
+        obj.States.Trim;
+        obj.Inputs.TrimRate;
+        obj.Inputs.Trim
+    ];
 
-    M = subsTrim(jacobian(obj.MassMatrix*obj.Rates,xd),trim_point); 
+    M = subs(obj.MassMatrix,x,x0); 
     
-    f0 = obj.MassMatrix*obj.Rates;
+    f0 = obj.MassMatrix*diff(obj.States.All,t);
     f1 = -obj.ForcingVector;
 
-    Jf0 = subsTrim(jacobian(f0,x),trim_point);
-    Jf1 = subsTrim(jacobian(f1,x),trim_point);
+    Jf0 = subs(jacobian(f0,obj.States.All),x,x0);
+    Jf1 = subs(jacobian(f1,obj.States.All),x,x0);
 
-    G = -subsTrim(jacobian(f1,u),trim_point);
+    G = -subs(jacobian(f1,obj.Inputs.All),x,x0);
     H = -(Jf0 + Jf1);
 
-    eoml = LinearizedMotionEquations(x,M,H,G,u);
+    eoml = LinearizedMotionEquations(obj.States,M,H,G,obj.Inputs);
 end

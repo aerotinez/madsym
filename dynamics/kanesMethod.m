@@ -6,22 +6,10 @@ function eom = kanesMethod(x,kdes,bodies,inputs,constraints)
         inputs (:,1) sym = sym.empty(0,1);
         constraints (:,1) ConstraintEquations = ConstraintEquations.empty(0,1);
     end
-    q_all = [
-        x.Coordinates.Independent;
-        x.Coordinates.Dependent
-        ];
-
-    u_all = [
-        x.Speeds.Independent;
-        x.Speeds.Dependent
-        ];
-    
-    q = GeneralizedCoordinates(q_all,x.Coordinates.Dependent);
-    u = GeneralizedCoordinates(u_all,x.Speeds.Dependent);
+    q = generalizedCoordinates(x.Coordinates);
+    u = generalizedSpeeds(x.Speeds); 
     xk = StateVector(q,u);
-
     eomk = KinematicEquations(q,kdes,u);
-
     eomc = ConstraintEquations.empty(0,1);
     Jc = sym.empty(0,1);
     if ~isempty(constraints)
@@ -33,9 +21,34 @@ function eom = kanesMethod(x,kdes,bodies,inputs,constraints)
     eom = MechanicsEquations(xk,eomk,eomd_list,eomc);
 end
 
+function qk = generalizedCoordinates(q)
+    q_all = [
+        q.Independent;
+        q.Dependent
+        ];
+
+    q0 = q.P*q.Trim;
+    qd0 = q.P*q.TrimRate;
+
+    qk = GeneralizedCoordinates(q_all,q.Dependent,q0,qd0);
+end
+
+function uk = generalizedSpeeds(u)
+    u_all = [
+        u.Independent;
+        u.Dependent
+        ];
+
+    u0 = u.P*u.Trim;
+    ud0 = u.P*u.TrimRate;
+
+    uk = GeneralizedCoordinates(u_all,u.Dependent,u0,ud0);
+end
+
 function eomc = validateConstraints(q,constraints,eomk)
+    t = sym('t');
     hc = constraints.Configuration;
-    nhc = constraints.Jacobian*constraints.Velocity.Rates;
+    nhc = constraints.Jacobian*diff(eomk.States.All,t);
     nhc = nhc(numel(hc) + 1:end);
     eomc = ConstraintEquations(q,hc,nhc).reformulate(eomk);
 end
@@ -51,11 +64,12 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
     arguments
         body (1,1) Body;
         eomk (1,1) KinematicEquations;
-        inputs (:,1) sym = sym.empty(0,1);
+        inputs (1,1) GeneralizedCoordinates = GeneralizedCoordinates();
         Jc sym = sym.empty(0,1);
     end
+    t = sym('t');
     q = eomk.States;
-    qd = eomk.Rates;
+    qd = diff(q.All,t);
     u = eomk.Inputs;
 
     twist = body.Twist.reformulate(eomk);
@@ -67,16 +81,16 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
         twist.linVel();
         ];
         
-    Vbar = jacobian(V,u);
-    fVdbar = @(vbar)jacobian(vbar,q)*eomk.ForcingVector;
+    Vbar = simplify(expand(jacobian(V,u.All)));
+    fVdbar = @(vbar)jacobian(vbar,q.All)*eomk.ForcingVector;
     Vdbar = reshape(arrayfun(fVdbar,reshape(Vbar,[],1)),size(Vbar));
     adw = blkdiag(vec2skew(w),zeros(3));
 
     G = blkdiag(body.Inertia,body.Mass.*eye(3));
     M = -Vbar.'*G*Vbar;
     
-    f0 = Vbar.'*G*Vdbar*u;
-    f1 = Vbar.'*adw*G*Vbar*u;
+    f0 = Vbar.'*G*Vdbar*u.All;
+    f1 = Vbar.'*adw*G*Vbar*u.All;
 
     I = eye(3);
     N = zeros(3);
@@ -95,7 +109,7 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
 end
 
 function eomd_ind = independentBodyDynamics(eomd,Jc)
-    n = numel(eomd.States);
+    n = numel(eomd.States.All);
     m = size(Jc,1);
     k = n - m;
     M = eomd.MassMatrix(1:k,:);

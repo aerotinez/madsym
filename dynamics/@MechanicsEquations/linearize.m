@@ -1,50 +1,64 @@
-function eom_lin = linearize(obj,trim_point)
+function eom_lin = linearize(obj)
     arguments
         obj (1,1) MechanicsEquations;
-        trim_point (1,1) TrimPoint = TrimPoint(obj.StateVector,obj.Inputs);
     end
 
-    eomk = linearize(obj.Kinematics,trim_point);
-    eomd = sum(arrayfun(@(eom)linearize(eom,trim_point),obj.BodyDynamics));
+    t = sym('t');
 
-    x = [
-        trim_point.q;
-        trim_point.u;
+    q = obj.StateVector.Coordinates;
+    u = obj.Kinematics.Inputs;
+
+    X = [
+        q;
+        u
         ];
 
-    u = trim_point.F;
+    x = [
+        diff(X.All,t);
+        X.All;
+        obj.Inputs.All
+        ];
+    
+    x0 = [
+        X.TrimRate;
+        X.Trim;
+        obj.Inputs.Trim
+        ];
+
+    eomk = linearize(obj.Kinematics);
+    eomd = sum(arrayfun(@(eom)linearize(eom,obj.Kinematics),obj.BodyDynamics));
+ 
+    Mk = eomk.MassMatrix;
+    Md = eomd.MassMatrix;
 
     M = [
-        eomk.MassMatrix;
+        Mk,zeros(size(Mk,1),size(Md,2) - size(Mk,2));
         eomd.MassMatrix;
         ];
 
     H = [
-        eomk.ForcingMatrix;
+        eomk.ForcingMatrix,eomk.InputMatrix;
         eomd.ForcingMatrix;
         ];
 
     G = [
         zeros(size(eomk.ForcingMatrix,1),size(eomd.InputMatrix,2));
         eomd.InputMatrix;
-        ];
-
-    X = obj.StateVector;
+        ]; 
 
     if obj.StateVector.m > 0
-        Ma = obj.Constraints.Acceleration.MassMatrix;
-        fa = obj.Constraints.Acceleration.ForcingVector;
-        eoma = Ma*obj.Constraints.Acceleration.Rates - fa;
-        xd = diff(x);
+        A = obj.Constraints.Jacobian;
+        Ad = obj.Constraints.JacobianRate;
+        eoma = A*diff(u.All,t) + Ad*u.All;
 
         M = [
             M;
-            subsTrim(jacobian(eoma,xd),trim_point)
+            subs(jacobian(eoma,diff(X.All,t)),x,x0)
             ];
 
         H = [
             H;
-            subsTrim(jacobian(-eoma,x),trim_point)
+            subs(jacobian(-eoma,X.All),x,x0)
             ];
 
         G = [
@@ -52,24 +66,21 @@ function eom_lin = linearize(obj,trim_point)
             zeros(size(eoma,1),size(G,2))
             ];
 
-        [C1,C2] = dependentVelocityProjection(X,obj.Constraints);
-        C1 = subsTrim(C1,trim_point);
-        C2 = subsTrim(C2,trim_point);
+        [C1,C2] = dependentVelocityProjection(q,u,obj.Constraints);
+        C1 = subs(C1,x,x0);
+        C2 = subs(C2,x,x0);
         Hq = H(:,1:obj.StateVector.n);
         Hu = H(:,obj.StateVector.n + 1:end);
         H = [Hq + Hu*C1,Hu*C2];
     end
 
     if obj.StateVector.l > 0
-        q = X.Coordinates;
         C0 = dependentCoordinateProjection(q,obj.Constraints);
-        C0 = subsTrim(C0,trim_point);
+        C0 = subs(C0,x,x0);
         Hq = H(:,1:obj.StateVector.n);
         Hu = H(:,obj.StateVector.n + 1:end);
         H = [Hq*C0,Hu];
     end
 
-    % P = X.P;
-
-    eom_lin = LinearizedMotionEquations(x,M,H,G,u);
+    eom_lin = LinearizedMotionEquations(X,M,H,G,eomd.Inputs);
 end

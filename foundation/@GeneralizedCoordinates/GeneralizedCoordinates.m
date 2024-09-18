@@ -14,13 +14,12 @@ classdef GeneralizedCoordinates
     methods (Access = public)
         function obj = GeneralizedCoordinates(all,dependent,trim,trim_rate)
             arguments
-                all (:,1) sym {mustBeNonempty};
+                all (:,1) sym = sym.empty(0,1);
                 dependent (:,1) sym = sym.empty(0,1);
                 trim (:,1) sym = all;
-                trim_rate (:,1) = diff(all,sym('t'));
+                trim_rate (:,1) = diff(trim,sym('t'));
             end
             obj.All = all;
-            validateCoordinates(obj);
             obj.Dependent = dependent;
             obj.Independent = obj.All(~has(obj.All,obj.Dependent));
             obj.Trim = trim;

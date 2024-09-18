@@ -3,13 +3,13 @@ function eom = appellsMethod(x,kdes,bodies,inputs,constraints)
         x (1,1) StateVector;
         kdes (:,1) sym;
         bodies (:,1) Body;
-        inputs (:,1) sym = sym.empty(0,1);
+        inputs (1,1) GeneralizedCoordinates = GeneralizedCoordinates();
         constraints (:,1) ConstraintEquations = ConstraintEquations.empty(0,1);
     end
-    q = x.Coordinates.All;
-    uga = GeneralizedCoordinates(x.Speeds.Independent);
-    xga = StateVector(x.Coordinates,uga);
-    eomk = kinematics(q,kdes,uga.Independent,constraints);
+    q = x.Coordinates;
+    uga = generalizedSpeeds(x.Speeds); 
+    xga = StateVector(q,uga);
+    eomk = kinematics(q,kdes,uga,constraints);
     eomd_list = arrayfun(@(b)bodyDynamics(b,eomk,inputs),bodies);
     eomc = ConstraintEquations.empty(0,1);
     if ~isempty(constraints) && ~isempty(constraints.Configuration)
@@ -18,24 +18,21 @@ function eom = appellsMethod(x,kdes,bodies,inputs,constraints)
     eom = MechanicsEquations(xga,eomk,eomd_list,eomc);
 end
 
-function eomk = kinematics(q,kdes,u,constraints)
-    arguments
-        q (:,1) sym;
-        kdes (:,1) sym;
-        u (:,1) sym;
-        constraints (:,1) ConstraintEquations = ConstraintEquations.empty(0,1);
-    end
-    if ~isempty(constraints) && ~isequal(constraints.Velocity.States,q)
-        error("Constraint and StateVector coordinates do not match.");
-    end
+function uga = generalizedSpeeds(u)
+    u0 = u.Trim(1:numel(u.Independent));
+    ud0 = u.TrimRate(1:numel(u.Independent));
+    uga = GeneralizedCoordinates(u.Independent,[],u0,ud0);
+end
+
+function eomk = kinematics(q,kdes,u,constraints) 
     t = sym('t');
-    qd = diff(q,t);
+    qd = diff(q.All,t);
 
     eq = kdes;
     if ~isempty(constraints)
         eq = [
             kdes;
-            constraints.Velocity.MassMatrix*qd
+            constraints.Jacobian*qd
             ];
     end
 
@@ -43,8 +40,9 @@ function eomk = kinematics(q,kdes,u,constraints)
 end
 
 function eomd = bodyDynamics(body,eomk,inputs)
-    qd = eomk.Rates;
-    u = eomk.Inputs;
+    t = sym('t');
+    qd = diff(eomk.States.All,t);
+    u = eomk.Inputs.All;
 
     V = body.Twist.reformulate(eomk);
     ad = V.adjoint();
@@ -62,5 +60,5 @@ function eomd = bodyDynamics(body,eomk,inputs)
     W = body.ActiveForces.vector(T);
     f2 = Vbar.'*subs(W,qd,eomk.ForcingVector);
 
-    eomd = DynamicEquations(u,M,f0,f1,f2,inputs);
+    eomd = DynamicEquations(eomk.Inputs,M,f0,f1,f2,inputs);
 end

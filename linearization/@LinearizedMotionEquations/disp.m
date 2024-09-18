@@ -3,7 +3,7 @@ function disp(eoml)
         eoml (1,1) LinearizedMotionEquations
     end
     disp("States : ");
-    pprint(eoml.States.');
+    disp(eoml.States);
     disp("Mass Matrix : ");
     pprint(eoml.MassMatrix);
     disp("Forcing Matrix : ");
@@ -11,5 +11,5 @@ function disp(eoml)
     disp("Input Matrix : ");
     pprint(eoml.InputMatrix);
     disp("Inputs : ");
-    pprint(eoml.Inputs.');
+    disp(eoml.Inputs);
 end

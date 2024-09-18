@@ -15,7 +15,7 @@ classdef MechanicsEquations < MotionEquations
             end
 
             x = [
-                states.Coordinates.All;
+                states.Coordinates;
                 eomk.Inputs
                 ];
             
@@ -31,13 +31,14 @@ classdef MechanicsEquations < MotionEquations
 
             if ~isempty(states.Speeds.Dependent)
                 A = eomc.Jacobian;
+                Ad = eomc.JacobianRate;
 
                 M = [
                     M;
                     zeros(size(A,1),size(M,2) - size(A,2)),A
                     ];
 
-                fa = eomc.Acceleration.ForcingVector;
+                fa = -Ad*eomk.Inputs.All;
 
                 f = [
                     f;

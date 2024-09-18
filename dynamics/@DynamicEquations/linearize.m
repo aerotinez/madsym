@@ -1,34 +1,43 @@
-function eoml = linearize(obj,trim_point)
+function eoml = linearize(obj,eomk)
     arguments
         obj (1,1) DynamicEquations;
-        trim_point (1,1) TrimPoint = TrimPoint(obj.StateVector,obj.Inputs);
+        eomk (1,1) KinematicEquations;
     end
     t = sym('t');
 
+    X = [
+        eomk.States;
+        obj.States;
+        ];
+
     x = [
-        trim_point.q;
-        trim_point.u;
+        diff(X.All,t);
+        X.All;
+        obj.Inputs.All
         ];
         
-    xd = diff(x,t);
+    x0 = [
+        X.TrimRate;
+        X.Trim;
+        obj.Inputs.Trim
+        ];
 
-    u = trim_point.F;
-
-    fM = obj.MassMatrix*obj.Rates;
-    M = subsTrim(jacobian(fM,xd),trim_point); 
+    fM = obj.MassMatrix*diff(obj.States.All,t);
+    N = zeros(size(obj.MassMatrix,1),numel(eomk.States.All));
+    M = subs([N,obj.MassMatrix],x,x0); 
     
     f = -obj.ForcingVector;
     f0 = -obj.f0;
     f1 = -obj.f1;
     f2 = -obj.f2;
 
-    JfM = subsTrim(jacobian(fM,x),trim_point);
-    Jf0 = subsTrim(jacobian(f0,x),trim_point);
-    Jf1 = subsTrim(jacobian(f1,x),trim_point);
-    Jf2 = subsTrim(jacobian(f2,x),trim_point);
+    JfM = subs(jacobian(fM,X.All),x,x0);
+    Jf0 = subs(jacobian(f0,X.All),x,x0);
+    Jf1 = subs(jacobian(f1,X.All),x,x0);
+    Jf2 = subs(jacobian(f2,X.All),x,x0);
 
-    G = -subsTrim(jacobian(f,u),trim_point);
+    G = -subs(jacobian(f,obj.Inputs.All),x,x0);
     H = -(JfM + Jf0 + Jf1 + Jf2);
 
-    eoml = LinearizedMotionEquations(x,M,H,G,u);
+    eoml = LinearizedMotionEquations(X,M,H,G,obj.Inputs);
 end
