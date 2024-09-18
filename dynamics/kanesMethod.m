@@ -3,7 +3,7 @@ function eom = kanesMethod(x,kdes,bodies,inputs,constraints)
         x (1,1) StateVector;
         kdes (:,1) sym;
         bodies (:,1) Body;
-        inputs (:,1) sym = sym.empty(0,1);
+        inputs (1,1) GeneralizedCoordinates = GeneralizedCoordinates();
         constraints (:,1) ConstraintEquations = ConstraintEquations.empty(0,1);
     end
     q = generalizedCoordinates(x.Coordinates);
@@ -120,7 +120,7 @@ function eomd_ind = independentBodyDynamics(eomd,Jc)
 end
 
 function eomd_dep = dependentBodyDynamics(eomd,Jc)
-    m = size(Jc,1);
+    m = size(Jc,2);
     M = Jc.'*eomd.MassMatrix(m + 1:end,:);
     f0 = Jc.'*eomd.f0(m + 1:end);
     f1 = Jc.'*eomd.f1(m + 1:end);
