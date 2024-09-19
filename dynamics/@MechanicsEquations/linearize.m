@@ -26,19 +26,23 @@ function eom_lin = linearize(obj)
         ];
 
     eomk = linearize(obj.Kinematics);
-    eomd = sum(arrayfun(@(eom)linearize(eom,obj.Kinematics),obj.BodyDynamics));
+    feomd = @(eom)linearize(eom,obj.Kinematics,obj.Auxiliary);
+    eomd = sum(arrayfun(feomd,obj.BodyDynamics));
  
     Mk = eomk.MassMatrix;
     Md = eomd.MassMatrix;
 
     M = [
         Mk,zeros(size(Mk,1),size(Md,2) - size(Mk,2));
-        eomd.MassMatrix;
+        Md;
         ];
 
+    Hk = [eomk.ForcingMatrix,eomk.InputMatrix];
+    Hd = eomd.ForcingMatrix;
+
     H = [
-        eomk.ForcingMatrix,eomk.InputMatrix;
-        eomd.ForcingMatrix;
+        Hk,zeros(size(Hk,1),size(Hd,2) - size(Hk,2));
+        Hd;
         ];
 
     G = [
@@ -48,21 +52,6 @@ function eom_lin = linearize(obj)
         
     if obj.StateVector.p > 0
         eoma = linearize(obj.Auxiliary);
-
-        M = [
-            M,zeros(size(M,1),size(eoma.MassMatrix,1));
-            eoma.MassMatrix
-            ];
-
-        H = [
-            H,zeros(size(H,1),size(eoma.ForcingMatrix,1));
-            eoma.ForcingMatrix
-            ];
-        
-        G = [
-            G;
-            eoma.InputMatrix
-            ];
 
         v = obj.StateVector.Auxiliary;
 
@@ -83,9 +72,20 @@ function eom_lin = linearize(obj)
             v.Trim
             ];
 
-        M = subs(M,x,x0);
-        H = subs(H,x,x0);
-        G = subs(G,x,x0);
+        M = [
+            M;
+            eoma.MassMatrix
+            ];
+
+        H = [
+            H;
+            eoma.ForcingMatrix
+            ];
+        
+        G = [
+            G;
+            eoma.InputMatrix
+            ]; 
     end
 
     if obj.StateVector.m > 0

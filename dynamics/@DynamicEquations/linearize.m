@@ -1,7 +1,8 @@
-function eoml = linearize(obj,eomk)
+function eoml = linearize(obj,eomk,eoma)
     arguments
         obj (1,1) DynamicEquations;
         eomk (1,1) KinematicEquations;
+        eoma (:,1) MotionEquations = MotionEquations.empty(0,1);
     end
     t = sym('t');
 
@@ -13,18 +14,37 @@ function eoml = linearize(obj,eomk)
     x = [
         diff(X.All,t);
         X.All;
+        diff(obj.Inputs.All,t);
         obj.Inputs.All
         ];
         
     x0 = [
         X.TrimRate;
         X.Trim;
+        obj.Inputs.TrimRate;
         obj.Inputs.Trim
         ];
 
+    if ~isempty(eoma)
+        X = eoma.States;
+
+        x = [
+            diff(X.All,t);
+            X.All;
+            diff(obj.Inputs.All,t);
+            obj.Inputs.All
+        ];
+
+        x0 = [
+            X.TrimRate;
+            X.Trim;
+            diff(obj.Inputs.All,t);
+            obj.Inputs.All
+        ];
+    end
+
     fM = obj.MassMatrix*diff(obj.States.All,t);
-    N = zeros(size(obj.MassMatrix,1),numel(eomk.States.All));
-    M = subs([N,obj.MassMatrix],x,x0); 
+    M = subs(massMatrixForm(fM,X.All),x,x0); 
     
     f = -obj.ForcingVector;
     f0 = -obj.f0;
