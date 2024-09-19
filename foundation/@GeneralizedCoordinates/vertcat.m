@@ -1,28 +1,8 @@
-function q = vertcat(qa,qb)
-    arguments
-        qa (1,1) GeneralizedCoordinates;
-        qb (1,1) GeneralizedCoordinates;
-    end
-
-    all= [
-        qa.All;
-        qb.All
-        ];
-
-    dep = [
-        qa.Dependent;
-        qb.Dependent
-        ];
-
-    trim = [
-        qa.Trim;
-        qb.Trim
-        ];
-
-    trim_rate = [
-        qa.TrimRate;
-        qb.TrimRate
-        ];
-
+function q = vertcat(varargin)
+    g = @(f)cell2sym(cellfun(f,varargin.',"uniform",0));
+    all = g(@(x)x.All);
+    dep = g(@(x)x.Dependent);
+    trim = g(@(x)x.Trim);
+    trim_rate = g(@(x)x.TrimRate);
     q = GeneralizedCoordinates(all,dep,trim,trim_rate);
 end

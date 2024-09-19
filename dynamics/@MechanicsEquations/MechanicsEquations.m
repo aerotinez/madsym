@@ -4,14 +4,16 @@ classdef MechanicsEquations < MotionEquations
         Constraints;
         Kinematics;
         BodyDynamics;
+        Auxiliary;
     end
     methods (Access = public)
-        function obj = MechanicsEquations(states,eomk,eomd_list,eomc)
+        function obj = MechanicsEquations(states,eomk,eomd_list,eomc,eoma)
             arguments
                 states (1,1) StateVector;
                 eomk (1,1) KinematicEquations;
                 eomd_list (:,1) DynamicEquations;
                 eomc (:,1) ConstraintEquations = ConstraintEquations.empty(0,1);
+                eoma (:,1) MotionEquations = MotionEquations.empty(0,1); 
             end
 
             x = [
@@ -46,11 +48,29 @@ classdef MechanicsEquations < MotionEquations
                     ];
             end
 
+            if ~isempty(eoma)
+                x = [
+                    x;
+                    states.Auxiliary
+                    ];
+                
+                M = [
+                    M,zeros(size(M,1),states.p);
+                    eoma.MassMatrix
+                    ];
+
+                f = [
+                    f;
+                    eoma.ForcingVector
+                    ];
+            end
+
             obj@MotionEquations(x,M,f,F);
             obj.StateVector = states;
             obj.Constraints = eomc;
             obj.Kinematics = eomk;
             obj.BodyDynamics = eomd_list;
+            obj.Auxiliary = eoma;
         end
     end
 end

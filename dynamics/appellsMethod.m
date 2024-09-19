@@ -1,21 +1,27 @@
-function eom = appellsMethod(x,kdes,bodies,inputs,constraints)
+function eom = appellsMethod(x,kdes,bodies,inputs,cons,ades)
     arguments
         x (1,1) StateVector;
         kdes (:,1) sym;
         bodies (:,1) Body;
         inputs (1,1) GeneralizedCoordinates = GeneralizedCoordinates();
-        constraints (:,1) ConstraintEquations = ConstraintEquations.empty(0,1);
+        cons (:,1) ConstraintEquations = ConstraintEquations.empty(0,1);
+        ades (:,1) sym = sym.empty(0,1);
     end
     q = x.Coordinates;
-    uga = generalizedSpeeds(x.Speeds); 
-    xga = StateVector(q,uga);
-    eomk = kinematics(q,kdes,uga,constraints);
+    uga = generalizedSpeeds(x.Speeds);
+    v = x.Auxiliary; 
+    xga = StateVector(q,uga,v);
+    eomk = kinematics(q,kdes,uga,cons);
     eomd_list = arrayfun(@(b)bodyDynamics(b,eomk,inputs),bodies);
     eomc = ConstraintEquations.empty(0,1);
-    if ~isempty(constraints) && ~isempty(constraints.Configuration)
-        eomc = ConstraintEquations(x.Coordinates,constraints.Configuration);
+    if ~isempty(cons) && ~isempty(cons.Configuration)
+        eomc = ConstraintEquations(x.Coordinates,cons.Configuration);
     end
-    eom = MechanicsEquations(xga,eomk,eomd_list,eomc);
+    eoma = MotionEquations.empty(0,1);
+    if ~isempty(ades)
+        eoma = auxiliaryEquations(x,ades,eomk,inputs);
+    end
+    eom = MechanicsEquations(xga,eomk,eomd_list,eomc,eoma);
 end
 
 function uga = generalizedSpeeds(u)
@@ -24,15 +30,15 @@ function uga = generalizedSpeeds(u)
     uga = GeneralizedCoordinates(u.Independent,[],u0,ud0);
 end
 
-function eomk = kinematics(q,kdes,u,constraints) 
+function eomk = kinematics(q,kdes,u,cons) 
     t = sym('t');
     qd = diff(q.All,t);
 
     eq = kdes;
-    if ~isempty(constraints)
+    if ~isempty(cons)
         eq = [
             kdes;
-            constraints.Jacobian*qd
+            cons.Jacobian*qd
             ];
     end
 

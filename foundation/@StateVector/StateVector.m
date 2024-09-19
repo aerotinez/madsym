@@ -13,22 +13,24 @@ classdef StateVector
         P; % pertubation matrix
     end
     methods (Access = public)
-        function obj = StateVector(coordinates,speeds,auxiliary)
+        function obj = StateVector(q,u,v)
             arguments
-                coordinates (1,1) GeneralizedCoordinates;
-                speeds (1,1) GeneralizedCoordinates;
-                auxiliary (:,1) sym = sym.empty(0,1);
+                q (1,1) GeneralizedCoordinates;
+                u (1,1) GeneralizedCoordinates;
+                v (1,1) GeneralizedCoordinates = GeneralizedCoordinates();
             end
-            obj.Coordinates = coordinates;
-            obj.Speeds = speeds;
-            obj.Auxiliary = auxiliary;
-            obj.validateAuxiliarySpeeds();
+            obj.Coordinates = q;
+            obj.Speeds = u;
+            obj.Auxiliary = v;
             obj.n = numel(obj.Coordinates.All);
             obj.l = numel(obj.Coordinates.Dependent);
             obj.k = numel(obj.Speeds.Independent);
             obj.m = numel(obj.Speeds.Dependent);
-            obj.p = numel(obj.Auxiliary);
-            obj.P = blkdiag(obj.Coordinates.Pind,obj.Speeds.Pind);
+            obj.p = numel(obj.Auxiliary.All);
+            Pq = obj.Coordinates.Pind;
+            Pu = obj.Speeds.Pind;
+            Pv = obj.Auxiliary.Pind;
+            obj.P = blkdiag(Pq,Pu,Pv);
         end
     end 
 end

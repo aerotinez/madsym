@@ -44,7 +44,49 @@ function eom_lin = linearize(obj)
     G = [
         zeros(size(eomk.ForcingMatrix,1),size(eomd.InputMatrix,2));
         eomd.InputMatrix;
-        ]; 
+        ];
+        
+    if obj.StateVector.p > 0
+        eoma = linearize(obj.Auxiliary);
+
+        M = [
+            M,zeros(size(M,1),size(eoma.MassMatrix,1));
+            eoma.MassMatrix
+            ];
+
+        H = [
+            H,zeros(size(H,1),size(eoma.ForcingMatrix,1));
+            eoma.ForcingMatrix
+            ];
+        
+        G = [
+            G;
+            eoma.InputMatrix
+            ];
+
+        v = obj.StateVector.Auxiliary;
+
+        X = [
+            X;
+            v
+            ];
+
+        x = [
+            x;
+            diff(v.All,t);
+            v.All
+            ];
+
+        x0 = [
+            x0;
+            v.TrimRate;
+            v.Trim
+            ];
+
+        M = subs(M,x,x0);
+        H = subs(H,x,x0);
+        G = subs(G,x,x0);
+    end
 
     if obj.StateVector.m > 0
         A = obj.Constraints.Jacobian;
