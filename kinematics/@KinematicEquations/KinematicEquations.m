@@ -10,8 +10,10 @@ classdef KinematicEquations < MotionEquations
                 eq (:,1) sym {mustBeNonempty};
                 u (1,1) GeneralizedCoordinates;
             end
-            [M,f] = massMatrixForm(eq,q.All);
-            M = simplify(expand(M));
+            t = sym('t');
+            qd = diff(q.All,t);
+            M = simplify(expand(jacobian(eq,qd)));
+            f = -subs(eq,qd,0.*qd);
             uf = setdiff(u.All,findSymType(f,"symfun"));
             if isempty(uf)
                 F = u;

@@ -44,7 +44,7 @@ function eoml = linearize(obj,eomk,eoma)
     end
 
     fM = obj.MassMatrix*diff(obj.States.All,t);
-    M = subs(massMatrixForm(fM,X.All),x,x0); 
+    M = subs(jacobian(fM,diff(X.All,t)),x,x0);
     
     f = -obj.ForcingVector;
     f0 = -obj.f0;
