@@ -27,11 +27,15 @@ function eom_lin = linearize(obj)
         ];
 
     if ~isempty(dependent(u))
-        A = subsTrim(obj.Constraints.Jacobian,[x;F]);
-        Ad = subsTrim(obj.Constraints.JacobianRate,[x;F]);
+        A = obj.Constraints.Jacobian;
+        Ad = obj.Constraints.JacobianRate;
+        eoma = A*u.rate() + Ad*u.state(); 
+        f0 = subsTrim(jacobian(eoma,x.rate),[x;F])*x.rate;
+        f1 = subsTrim(jacobian(eoma,x.state),[x;F])*x.state; 
+
         eqns = [
             eqns;
-            A*u.rate() + Ad*u.state()
+            f0 + f1 
             ];
     end
 
