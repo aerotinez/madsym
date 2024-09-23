@@ -7,12 +7,12 @@ classdef DynamicEquations < MotionEquations
     methods (Access = public)
         function obj = DynamicEquations(u,M,f0,f1,f2,F)
             arguments
-                u (1,1) GeneralizedCoordinates;
+                u (:,1) DynamicVariable;
                 M sym;
                 f0 (:,1) sym;
                 f1 (:,1) sym;
                 f2 (:,1) sym;
-                F (1,1) GeneralizedCoordinates = GeneralizedCoordinates();
+                F (:,1) DynamicVariable = DynamicVariable.empty(0,1);
             end
             obj@MotionEquations(u,M,f0 + f1 + f2,F);
             obj.f0 = f0;

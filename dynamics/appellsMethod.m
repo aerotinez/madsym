@@ -1,55 +1,46 @@
-function eom = appellsMethod(x,kdes,bodies,inputs,cons,ades)
+function eom = appellsMethod(q,u,kdes,bodies,F,cons,v,ades)
     arguments
-        x (1,1) StateVector;
+        q (:,1) DynamicVariable;
+        u (:,1) DynamicVariable;
         kdes (:,1) sym;
         bodies (:,1) Body;
-        inputs (1,1) GeneralizedCoordinates = GeneralizedCoordinates();
+        F (:,1) DynamicVariable = DynamicVariable.empty(0,1);
         cons (:,1) ConstraintEquations = ConstraintEquations.empty(0,1);
+        v (:,1) DynamicVariable = DynamicVariable.empty(0,1);
         ades (:,1) sym = sym.empty(0,1);
     end
-    q = x.Coordinates;
-    uga = generalizedSpeeds(x.Speeds);
-    v = x.Auxiliary; 
-    xga = StateVector(q,uga,v);
+    uga = u.independent();
     eomk = kinematics(q,kdes,uga,cons);
-    eomd_list = arrayfun(@(b)bodyDynamics(b,eomk,inputs),bodies);
+
+    eomd_list = arrayfun(@(b)bodyDynamics(eomk,b,F),bodies);
+
     eomc = ConstraintEquations.empty(0,1);
     if ~isempty(cons) && ~isempty(cons.Configuration)
-        eomc = ConstraintEquations(x.Coordinates,cons.Configuration);
+        eomc = ConstraintEquations(q,cons.Configuration);
     end
-    eoma = MotionEquations.empty(0,1);
-    if ~isempty(ades)
-        eoma = auxiliaryEquations(x,ades,eomk,inputs);
-    end
-    eom = MechanicsEquations(xga,eomk,eomd_list,eomc,eoma);
-end
 
-function uga = generalizedSpeeds(u)
-    u0 = u.Trim(1:numel(u.Independent));
-    ud0 = u.TrimRate(1:numel(u.Independent));
-    uga = GeneralizedCoordinates(u.Independent,[],u0,ud0);
+    eomv = MotionEquations.empty(0,1);
+    if ~isempty(ades)
+        eomv = auxiliaryEquations(v,ades,eomk,F);
+    end
+
+    eom = MechanicsEquations(eomk,eomd_list,eomc,eomv);
 end
 
 function eomk = kinematics(q,kdes,u,cons) 
-    t = sym('t');
-    qd = diff(q.All,t);
+    eqns = kdes;
 
-    eq = kdes;
     if ~isempty(cons)
-        eq = [
+        eqns = [
             kdes;
-            cons.Jacobian*qd
+            cons.Jacobian*q.rate()
             ];
     end
 
-    eomk = KinematicEquations(q,eq,u);
+    eomk = KinematicEquations(q,eqns,u);
 end
 
-function eomd = bodyDynamics(body,eomk,inputs)
-    t = sym('t');
-    qd = diff(eomk.States.All,t);
-    u = eomk.Inputs.All;
-
+function eomd = bodyDynamics(eomk,body,inputs)
     V = body.Twist.reformulate(eomk);
     ad = V.adjoint();
 
@@ -59,12 +50,13 @@ function eomd = bodyDynamics(body,eomk,inputs)
     G = blkdiag(body.Inertia,body.Mass.*eye(3));
     M = Vbar.'*G*Vbar;
 
+    u = eomk.Inputs.state;
     f0 = -Vbar.'*G*Vdbar*u;
     f1 = Vbar.'*ad.'*G*Vbar*u;
 
     T = Pose(body.ReferenceFrame,body.MassCenter);
     W = body.ActiveForces.vector(T);
-    f2 = Vbar.'*subs(W,qd,eomk.ForcingVector);
+    f2 = Vbar.'*subs(W,eomk.States.rate,eomk.ForcingVector);
 
     eomd = DynamicEquations(eomk.Inputs,M,f0,f1,f2,inputs);
 end

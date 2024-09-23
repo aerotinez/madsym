@@ -4,6 +4,5 @@ function Vbar = partial(obj,eomk,pose)
         eomk (1,1) KinematicEquations;
         pose (1,1) Pose = obj.Pose;
     end
-    V = obj.vector(pose);
-    Vbar = jacobian(V,eomk.Inputs.All);
+    Vbar = jacobian(obj.vector(pose),eomk.Inputs.state);
 end

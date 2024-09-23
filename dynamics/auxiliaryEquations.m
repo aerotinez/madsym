@@ -1,21 +1,11 @@
-function eom = auxiliaryEquations(states,eqns,eomk,inputs)
+function eom = auxiliaryEquations(v,eqns,eomk,F)
     arguments
-        states (1,1) StateVector;
+        v (:,1) DynamicVariable;
         eqns (:,1) sym;
         eomk (1,1) KinematicEquations;
-        inputs (1,1) GeneralizedCoordinates = GeneralizedCoordinates();
+        F (:,1) DynamicVariable = DynamicVariable.empty(0,1);
     end
-    t = sym('t');
-    qd = diff(eomk.States.All,t);
-    ades = subs(eqns,qd,eomk.ForcingVector);
-
-    x = [
-        states.Coordinates;
-        eomk.Inputs;
-        states.Auxiliary
-        ];
-
-    [M,f] = massMatrixForm(ades,x.All);
-
-    eom = MotionEquations(x,M,f,inputs);
+    ades = subs(eqns,eomk.States.rate(),eomk.ForcingVector);
+    [M,f] = massMatrixForm(ades,v.state);
+    eom = MotionEquations(v,M,f,F);
 end

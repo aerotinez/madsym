@@ -1,76 +1,57 @@
 classdef MechanicsEquations < MotionEquations
     properties (GetAccess = public, SetAccess = protected, Hidden = true)
-        StateVector;
         Constraints;
         Kinematics;
         BodyDynamics;
         Auxiliary;
     end
     methods (Access = public)
-        function obj = MechanicsEquations(states,eomk,eomd_list,eomc,eoma)
+        function obj = MechanicsEquations(eomk,eomd_list,eomc,eomv)
             arguments
-                states (1,1) StateVector;
                 eomk (1,1) KinematicEquations;
                 eomd_list (:,1) DynamicEquations;
                 eomc (:,1) ConstraintEquations = ConstraintEquations.empty(0,1);
-                eoma (:,1) MotionEquations = MotionEquations.empty(0,1); 
+                eomv (:,1) MotionEquations = MotionEquations.empty(0,1); 
             end
 
             x = [
-                states.Coordinates;
-                eomk.Inputs
-                ];
-            
-            eomd = sum(eomd_list);
-            F = eomd.Inputs;
-
-            M = blkdiag(eomk.MassMatrix,eomd.MassMatrix);
-
-            f = [
-                eomk.ForcingVector;
-                eomd.ForcingVector
+                eomk.States;
+                eomd_list(1).States;
                 ];
 
-            if ~isempty(states.Speeds.Dependent)
+            eqns = [
+                sym(eomk);
+                sym(sum(eomd_list))
+                ];
+
+            if ~isempty(eomk.Inputs.dependent())
                 A = eomc.Jacobian;
                 Ad = eomc.JacobianRate;
 
-                M = [
-                    M;
-                    zeros(size(A,1),size(M,2) - size(A,2)),A
-                    ];
-
-                fa = -Ad*eomk.Inputs.All;
-
-                f = [
-                    f;
-                    fa
+                eqns = [
+                    eqns;
+                    A*eomk.Inputs.rate() + Ad*eomk.Inputs.state()
                     ];
             end
 
-            if ~isempty(eoma)
+            if ~isempty(eomv)
                 x = [
                     x;
-                    states.Auxiliary
-                    ];
-                
-                M = [
-                    M,zeros(size(M,1),states.p);
-                    eoma.MassMatrix
+                    eomv.States
                     ];
 
-                f = [
-                    f;
-                    eoma.ForcingVector
+                eqns = [
+                    eqns;
+                    sym(eomv)
                     ];
             end
 
-            obj@MotionEquations(x,M,f,F);
-            obj.StateVector = states;
+            [M,f] = massMatrixForm(eqns,x.state);
+            obj@MotionEquations(x,M,f,eomd_list(1).Inputs);
             obj.Constraints = eomc;
             obj.Kinematics = eomk;
             obj.BodyDynamics = eomd_list;
-            obj.Auxiliary = eoma;
+            obj.Auxiliary = eomv;
         end
     end
 end

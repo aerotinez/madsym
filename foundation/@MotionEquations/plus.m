@@ -4,10 +4,10 @@ function eom = plus(eoma,eomb)
         eomb (1,1) MotionEquations;
     end
     if eoma.States ~= eomb.States || eoma.Inputs ~= eomb.Inputs
-        error("Cannot add motion equations with different states or inputs.");
+        error("Cannot add equations with different states or inputs.");
     end
     if numel(eoma.ForcingVector) ~= numel(eomb.ForcingVector)
-        error("Cannot add motion equations with different dimensions.");
+        error("Cannot add equations with different dimensions.");
     end
     x = eoma.States;
     Ma = eoma.MassMatrix;
