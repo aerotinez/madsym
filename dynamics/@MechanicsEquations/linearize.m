@@ -2,127 +2,68 @@ function eom_lin = linearize(obj)
     arguments
         obj (1,1) MechanicsEquations;
     end
-
-    t = sym('t');
-
-    q = obj.StateVector.Coordinates;
+    q = obj.Kinematics.States;
     u = obj.Kinematics.Inputs;
-
-    X = [
-        q;
-        u
-        ];
-
-    x = [
-        diff(X.All,t);
-        X.All;
-        obj.Inputs.All
-        ];
+    v = [];
+    if ~isempty(obj.Auxiliary)
+        v = obj.Auxiliary.States;
+    end
     
-    x0 = [
-        X.TrimRate;
-        X.Trim;
-        obj.Inputs.Trim
+    x = [
+        q;
+        u;
+        v;
         ];
 
-    eomk = linearize(obj.Kinematics);
-    feomd = @(eom)linearize(eom,obj.Kinematics,obj.Auxiliary);
+    F = obj.BodyDynamics(1).Inputs;
+
+    eomk = linearize(obj.Kinematics,x,F);
+    feomd = @(eom)linearize(eom,x,F);
     eomd = sum(arrayfun(feomd,obj.BodyDynamics));
- 
-    Mk = eomk.MassMatrix;
-    Md = eomd.MassMatrix;
-
-    M = [
-        Mk,zeros(size(Mk,1),size(Md,2) - size(Mk,2));
-        Md;
+    
+    eqns = [
+        sym(eomk);
+        sym(eomd)
         ];
 
-    Hk = [eomk.ForcingMatrix,eomk.InputMatrix];
-    Hd = eomd.ForcingMatrix;
-
-    H = [
-        Hk,zeros(size(Hk,1),size(Hd,2) - size(Hk,2));
-        Hd;
-        ];
-
-    G = [
-        zeros(size(eomk.ForcingMatrix,1),size(eomd.InputMatrix,2));
-        eomd.InputMatrix;
-        ];
-        
-    if obj.StateVector.p > 0
-        eoma = linearize(obj.Auxiliary);
-
-        v = obj.StateVector.Auxiliary;
-
-        X = [
-            X;
-            v
+    if ~isempty(dependent(u))
+        A = subsTrim(obj.Constraints.Jacobian,[x;F]);
+        Ad = subsTrim(obj.Constraints.JacobianRate,[x;F]);
+        eqns = [
+            eqns;
+            A*u.rate() + Ad*u.state()
             ];
-
-        x = [
-            x;
-            diff(v.All,t);
-            v.All
-            ];
-
-        x0 = [
-            x0;
-            v.TrimRate;
-            v.Trim
-            ];
-
-        M = [
-            M;
-            eoma.MassMatrix
-            ];
-
-        H = [
-            H;
-            eoma.ForcingMatrix
-            ];
-        
-        G = [
-            G;
-            eoma.InputMatrix
-            ]; 
     end
 
-    if obj.StateVector.m > 0
-        A = obj.Constraints.Jacobian;
-        Ad = obj.Constraints.JacobianRate;
-        eoma = A*diff(u.All,t) + Ad*u.All;
-
-        M = [
-            M;
-            subs(jacobian(eoma,diff(X.All,t)),x,x0)
+    if ~isempty(v)
+        eomv = linearize(obj.Auxiliary,x,F);
+        eqns = [
+            eqns;
+            sym(eomv)
             ];
+    end
 
-        H = [
-            H;
-            subs(jacobian(-eoma,X.All),x,x0)
-            ];
-
-        G = [
-            G;
-            zeros(size(eoma,1),size(G,2))
-            ];
-
+    [M,f] = massMatrixForm(eqns,x.state);
+    [H,g] = equationsToMatrix(f,x.state);
+    G = jacobian(-g,F.state);
+ 
+    n = numel(q);
+    if numel(dependent(u)) > 0 
         [C1,C2] = dependentVelocityProjection(q,u,obj.Constraints);
-        C1 = subs(C1,x,x0);
-        C2 = subs(C2,x,x0);
-        Hq = H(:,1:obj.StateVector.n);
-        Hu = H(:,obj.StateVector.n + 1:end);
+        C1 = subsTrim(C1,[x;F]);
+        C2 = subsTrim(C2,[x;F]);
+        Hq = H(:,1:n);
+        Hu = H(:,n + 1:end);
         H = [Hq + Hu*C1,Hu*C2];
     end
 
-    if obj.StateVector.l > 0
+    if numel(dependent(q)) > 0
         C0 = dependentCoordinateProjection(q,obj.Constraints);
-        C0 = subs(C0,x,x0);
-        Hq = H(:,1:obj.StateVector.n);
-        Hu = H(:,obj.StateVector.n + 1:end);
+        C0 = subsTrim(C0,[x;F]);
+        Hq = H(:,1:n);
+        Hu = H(:,n + 1:end);
         H = [Hq*C0,Hu];
     end
 
-    eom_lin = LinearizedMotionEquations(X,M,H,G,eomd.Inputs);
+    eom_lin = LinearizedMotionEquations(x,M,H,G,F);
 end

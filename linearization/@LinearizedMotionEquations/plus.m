@@ -4,7 +4,7 @@ function eoml = plus(eoma,eomb)
         eomb (1,1) LinearizedMotionEquations
     end
 
-    if ~isequal(eoma.States,eomb.States) || ~isequal(eoma.Inputs,eomb.Inputs)
+    if any(eoma.States ~= eomb.States) || any(eoma.Inputs ~= eomb.Inputs)
         msga = "States and inputs must be the same for both "; 
         msgb = "LinearizedMotionEquations objects";
         error(msga + msgb);

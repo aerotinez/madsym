@@ -4,11 +4,11 @@ function matlabFunction(obj,name)
         name (1,1) string
     end
     eom = obj;
-    if ~isequal(obj.MassMatrix,eye(numel(obj.States.All)))
+    if ~isequal(obj.MassMatrix,eye(numel(obj.States)))
         eom = toODE(obj);
     end
-    x = prettify(eom.States.All);
-    u = prettify(eom.Inputs.All);
+    x = prettify(eom.States.state);
+    u = prettify(eom.Inputs.state);
     A = prettify(eom.ForcingMatrix);
     B = prettify(eom.InputMatrix);
     p = setdiff(symvar([A,B]),x).';

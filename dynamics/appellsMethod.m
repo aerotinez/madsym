@@ -9,6 +9,7 @@ function eom = appellsMethod(q,u,kdes,bodies,F,cons,v,ades)
         v (:,1) DynamicVariable = DynamicVariable.empty(0,1);
         ades (:,1) sym = sym.empty(0,1);
     end
+
     uga = u.independent();
     eomk = kinematics(q,kdes,uga,cons);
 
