@@ -22,7 +22,7 @@ classdef KinematicEquations < MotionEquations
                 msgc = "generalized speeds.";
                 error(msga + msgb + msgc); 
             end
-            obj@MotionEquations(q,eye(size(M)),syminv(M)*f,F);
+            obj@MotionEquations(q,eye(size(M)),simplify(expand(syminv(M)))*f,F);
             obj.Jacobian = jacobian(obj.ForcingVector,F.state);
             fJd = @(j)jacobian(j,q.state())*obj.ForcingVector;
             J = obj.Jacobian;

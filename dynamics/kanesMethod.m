@@ -25,6 +25,7 @@ function eom = kanesMethod(q,u,kdes,bodies,F,cons,v,ades)
     Jc = sym.empty(0,1);
     if ~isempty(cons)
         eomc = validateConstraints(q,cons,eomk);
+        eomc = simplify(eomc);
         Jc = constraintJacobian(eomc,uk);
     end
 
@@ -87,7 +88,7 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
     T = Pose(body.ReferenceFrame,body.MassCenter);
     mb = [I,N]*body.ActiveForces.vector(T);
     fi = [N,I]*body.ActiveForces.vector();
-    f2 = -Vbar.'*simplify(expand(subs([mb;fi],q.rate,eomk.ForcingVector)));
+    f2 = -Vbar.'*subs([mb;fi],q.rate,eomk.ForcingVector);
 
     eomd = DynamicEquations(u,M,f0,f1,f2,inputs);
 
