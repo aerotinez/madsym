@@ -5,7 +5,7 @@ function V = vector(obj,pose)
     end
     Ad = eye(6,"sym");
     if pose ~= obj.Pose 
-        Ad = simplify(expand(pose.inv().adjoint()*obj.Pose.adjoint()));
+        Ad = pose.inv().adjoint()*obj.Pose.adjoint();
     end
-    V = simplify(expand(Ad*obj.Vector)); 
+    V = Ad*obj.Vector; 
 end
