@@ -20,7 +20,7 @@ function eom = kanesMethod(q,u,kdes,bodies,F,cons,v,ades)
         u.dependent()
         ];
 
-    eomk = KinematicEquations(qk,kdes,uk);
+    eomk = KinematicEquations(qk,kdes,uk).simplify();
     eomc = ConstraintEquations.empty(0,1);
     Jc = sym.empty(0,1);
     if ~isempty(cons)
@@ -72,7 +72,7 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
         twist.linVel();
         ];
         
-    Vbar = simplify(expand(jacobian(V,u.state)));
+    Vbar = jacobian(V,u.state);
     fVdbar = @(vbar)jacobian(vbar,q.state)*eomk.ForcingVector;
     Vdbar = reshape(arrayfun(fVdbar,reshape(Vbar,[],1)),size(Vbar));
     adw = blkdiag(vec2skew(w),zeros(3));

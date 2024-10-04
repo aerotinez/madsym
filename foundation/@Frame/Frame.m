@@ -8,7 +8,8 @@ classdef Frame
         function obj = Frame(R)
             arguments
                 R (3,3) sym = eye(3,'sym');
-            end 
+            end
+            R = simplify(expand(R));
             obj.x = R(:,1);
             obj.y = R(:,2);
             obj.z = R(:,3);

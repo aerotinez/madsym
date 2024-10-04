@@ -24,7 +24,7 @@ classdef MechanicsEquations < MotionEquations
                 sym(sum(eomd_list))
                 ];
 
-            if ~isempty(eomk.Inputs.dependent())
+            if ~isempty(eomc)
                 A = eomc.Jacobian;
                 Ad = eomc.JacobianRate;
 

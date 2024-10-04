@@ -26,7 +26,7 @@ classdef Pose
 
             obj.Adjoint = [
                 R, zeros(3,3);
-                vec2skew(p)*R,R
+                simplify(expand(vec2skew(p)*R)),R
                 ];
         end 
     end

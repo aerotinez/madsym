@@ -5,7 +5,7 @@ function wd = angAccel(obj,frame)
     end
     R = eye(3);
     if frame ~= obj.Pose.ReferenceFrame
-        R = frame.dcm().'*obj.Pose.ReferenceFrame.dcm();
+        R = simplify(expand(frame.dcm().'*obj.Pose.ReferenceFrame.dcm()));
     end
     Vd = obj.rateVector();
     wd = simplify(expand(R*Vd(1:3)));

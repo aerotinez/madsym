@@ -5,5 +5,5 @@ function J = jacobian(obj,q,pose)
         pose (1,1) Pose = obj.Pose;
     end
     V = obj.vector(pose);
-    J = jacobian(V,q.rate);
+    J = simplify(expand(jacobian(V,q.rate)));
 end

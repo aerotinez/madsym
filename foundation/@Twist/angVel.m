@@ -5,7 +5,7 @@ function w = angVel(obj,frame)
     end
     R = eye(3,"sym");
     if frame ~= obj.Pose.ReferenceFrame
-        R = frame.dcm().'*obj.Pose.ReferenceFrame.dcm();
+        R = simplify(expand(frame.dcm().'*obj.Pose.ReferenceFrame.dcm()));
     end
     w = simplify(expand(R*obj.Vector(1:3)));
 end
