@@ -72,7 +72,7 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
         twist.linVel();
         ];
         
-    Vbar = jacobian(V,u.state);
+    Vbar = simplify(expand(jacobian(V,u.state)));
     fVdbar = @(vbar)jacobian(vbar,q.state)*eomk.ForcingVector;
     Vdbar = reshape(arrayfun(fVdbar,reshape(Vbar,[],1)),size(Vbar));
     adw = blkdiag(vec2skew(w),zeros(3));
