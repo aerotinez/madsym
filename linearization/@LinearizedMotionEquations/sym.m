@@ -10,7 +10,12 @@ function eqns = sym(obj)
     H = obj.ForcingMatrix;
     G = obj.InputMatrix;
 
-    eqns = M*xd - H*x;
+    eqns = M*xd;
+    if size(H,2) < numel(x)
+        eqns = eqns - H*obj.States.independent().state();
+    else
+        eqns = eqns - H*x;
+    end
 
     if ~isempty(u)
         eqns = eqns - G*u;

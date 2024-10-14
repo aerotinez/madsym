@@ -6,7 +6,7 @@ function Vdbar = partialRate(obj,eomk,pose)
     end
     q = eomk.States;
     Vbar = obj.partial(eomk,pose);
-    f = @(vbar)simplify(expand(jacobian(vbar,q.state)*eomk.ForcingVector));
+    f = @(vbar)jacobian(vbar,q.state)*eomk.ForcingVector;
     Vdbar = reshape(arrayfun(f,reshape(Vbar,[],1)),size(Vbar));
 end
 

@@ -18,7 +18,7 @@ function eom = lagrangesMethod(q,u,kdes,bodies,F,cons,v,ades)
         eomc = partition(cons).reformulate(eomk).simplify(); 
         Jc = partitionJacobian(eomc);
     end
-    eomd_list = arrayfun(@(b)bodyDynamics(b,eomk,F,Jc),bodies);
+    eomd_list = arrayfun(@(b)bodyDynamics(b,eomk,permMat(u),F,Jc),bodies);
     eomv = MotionEquations.empty(0,1);
     if ~isempty(ades)
         eomv = auxiliaryEquations(v,ades,eomk,F);
@@ -26,10 +26,11 @@ function eom = lagrangesMethod(q,u,kdes,bodies,F,cons,v,ades)
     eom = MechanicsEquations(eomk,eomd_list,eomc,eomv);
 end
 
-function eomd = bodyDynamics(body,eomk,inputs,Jc)
+function eomd = bodyDynamics(body,eomk,P,inputs,Jc)
     arguments
         body (1,1) Body;
         eomk (1,1) KinematicEquations;
+        P sym;
         inputs (:,1) DynamicVariable = DynamicVariable.empty(0,1);
         Jc sym = sym.empty(0,1);
     end
@@ -37,8 +38,8 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
     G = blkdiag(body.Inertia,body.Mass.*eye(3));
     L = (1/2).*V.'*G*V;
 
-    dLdqd = jacobian(L,eomk.States.rate).';
-    dLdq = jacobian(L,eomk.States.state).';
+    dLdqd = P*jacobian(L,eomk.States.rate).';
+    dLdq = P*jacobian(L,eomk.States.state).';
     t = sym('t');
     qdd = diff(eomk.States.rate,t);
 
@@ -48,19 +49,20 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
         ];
 
     nvars = [
-        eomk.Inputs.rate;
-        eomk.Inputs.state;
+        diff(eomk.ForcingVector,t);
+        eomk.ForcingVector;
         ];
 
     eqns = subs(diff(dLdqd,t) - dLdq,ovars,nvars);
-    [M,f0] = massMatrixForm(eqns,eomk.Inputs.state);
+    u = eomk.Inputs;
+    [M,f0] = massMatrixForm(eqns,u.state);
 
     f1 = zeros(size(f0),"sym");
 
     J = body.Twist.jacobian(eomk.States);
     T = Pose(body.ReferenceFrame,body.MassCenter);
     W = body.ActiveForces.vector(T);
-    f2 = J.'*subs(W,eomk.States.rate,eomk.ForcingVector);
+    f2 = P*J.'*subs(W,eomk.States.rate,eomk.ForcingVector);
 
     eomd = DynamicEquations(eomk.Inputs,M,f0,f1,f2,inputs);
 

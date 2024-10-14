@@ -24,7 +24,9 @@ classdef MechanicsEquations < MotionEquations
                 sym(sum(eomd_list))
                 ];
 
-            if ~isempty(eomc)
+            l = numel(eomc.configuration);
+            m = numel(eomc.velocity);
+            if ~isempty(eomc) && m > l
                 A = eomc.Jacobian;
                 Ad = eomc.JacobianRate;
 

@@ -9,22 +9,17 @@ function eom = appellsMethod(q,u,kdes,bodies,F,cons,v,ades)
         v (:,1) DynamicVariable = DynamicVariable.empty(0,1);
         ades (:,1) sym = sym.empty(0,1);
     end
-
     uga = u.independent();
     eomk = kinematics(q,kdes,uga,cons);
-
     eomd_list = arrayfun(@(b)bodyDynamics(eomk,b,F),bodies);
-
     eomc = ConstraintEquations.empty(0,1);
     if ~isempty(cons) && ~isempty(cons.Configuration)
         eomc = ConstraintEquations(q,cons.Configuration);
     end
-
     eomv = MotionEquations.empty(0,1);
     if ~isempty(ades)
         eomv = auxiliaryEquations(v,ades,eomk,F);
     end
-
     eom = MechanicsEquations(eomk,eomd_list,eomc,eomv);
 end
 

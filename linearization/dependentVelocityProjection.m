@@ -4,7 +4,7 @@ function [C1,C2] = dependentVelocityProjection(q,u,constraints)
         u (:,1) DynamicVariable;
         constraints (1,1) ConstraintEquations;
     end
-    fv = constraints.Jacobian*u.state;
+    fv = constraints.velocity;
     Jq = jacobian(fv,q.state);
     Ju = jacobian(fv,u.state);
     Pui = permMatInd(u).';

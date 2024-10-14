@@ -4,7 +4,7 @@ function eom_lin = linearize(obj)
     end
     q = obj.Kinematics.States;
     u = obj.Kinematics.Inputs;
-    v = [];
+    v = DynamicVariable.empty(0,1);
     if ~isempty(obj.Auxiliary)
         v = obj.Auxiliary.States;
     end

@@ -12,17 +12,17 @@ function twist = reformulate(obj,eomk)
     % partial velocity
     J = obj.jacobian(q);
     W = eomk.Jacobian;
-    Vbar = simplify(expand(J*W));
+    Vbar = J*W;
 
     % twist in terms of generalized speeds
     twist = obj;
-    twist.Vector = simplify(expand(Vbar*u.state));
+    twist.Vector = Vbar*u.state;
 
     % partial velocity rate
     Jd = twist.jacobianRate(q);
     Wd = eomk.JacobianRate;
-    Vdbar = simplify(expand(Jd*W + J*Wd));
+    Vdbar = Jd*W + J*Wd;
 
     % twist in terms of generalized speeds
-    twist.RateVector = simplify(expand(Vbar*u.rate + Vdbar*u.state));
+    twist.RateVector = Vbar*u.rate + Vdbar*u.state;
 end
