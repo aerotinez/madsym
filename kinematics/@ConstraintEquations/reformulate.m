@@ -3,6 +3,7 @@ function eomc = reformulate(obj,eomk)
         obj (1,1) ConstraintEquations
         eomk (1,1) KinematicEquations
     end
+    obj.Speeds = eomk.Inputs;
     q = eomk.States;
     eomc = obj;
     J = obj.Jacobian;

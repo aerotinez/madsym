@@ -1,5 +1,7 @@
 classdef ConstraintEquations 
     properties (GetAccess = public, SetAccess = protected)
+        States;
+        Speeds;
         Configuration;
         Jacobian;
         JacobianRate;
@@ -11,6 +13,7 @@ classdef ConstraintEquations
                 configuration (:,1) sym = sym.empty(0,1);
                 velocity (:,1) sym = sym.empty(0,1);
             end
+            obj.States = q;
             obj.Configuration = configuration;
 
             nhc = [
