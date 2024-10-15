@@ -24,17 +24,17 @@ classdef MechanicsEquations < MotionEquations
                 sym(sum(eomd_list))
                 ];
 
-            l = numel(eomc.configuration);
-            m = numel(eomc.velocity);
-            if ~isempty(eomc) && m > l
-                A = eomc.Jacobian;
-                Ad = eomc.JacobianRate;
-
-                eqns = [
-                    eqns;
-                    A*eomk.Inputs.rate() + Ad*eomk.Inputs.state()
-                    ];
-            end
+%             l = numel(eomc.configuration);
+%             m = numel(eomc.velocity);
+%             if ~isempty(eomc) && m > l
+%                 A = eomc.Jacobian;
+%                 Ad = eomc.JacobianRate;
+% 
+%                 eqns = [
+%                     eqns;
+%                     A*eomk.Inputs.rate() + Ad*eomk.Inputs.state()
+%                     ];
+%             end
 
             if ~isempty(eomv)
                 x = [
