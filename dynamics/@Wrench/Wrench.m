@@ -8,7 +8,7 @@ classdef Wrench
                 vector (6,1) sym = zeros(6,1,"sym");
                 pose (1,1) Pose = Pose();
             end
-            obj.Vector = simplify(expand(pose.inv().adjoint().'*vector));
+            obj.Vector = pose.inv().adjoint().'*vector;
         end
     end
 end
