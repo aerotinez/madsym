@@ -15,7 +15,7 @@ function eom = kanesMethod(q,u,kdes,bodies,F,cons,v,ades)
     eomc = ConstraintEquations.empty(0,1);
     Jc = sym.empty(0,1);
     if ~isempty(cons)
-        eomc = partition(cons).reformulate(eomk).simplify(); 
+        eomc = partition(cons).reformulate(eomk); 
         Jc = partitionJacobian(eomc);
     end
     eomd_list = arrayfun(@(b)bodyDynamics(b,eomk,F,Jc),bodies);

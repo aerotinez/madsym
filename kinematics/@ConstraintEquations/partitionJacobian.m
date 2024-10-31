@@ -7,7 +7,8 @@ function J = partitionJacobian(obj)
         x = obj.Speeds;
     end
     B = obj.Jacobian;
-    Bind = B(:,1:numel(x.independent));
-    Bdep = B(:,numel(x.independent) + 1:end);
-    J = -syminv(Bdep)*Bind;
+    Bind = simplify(expand(B(:,1:numel(x.independent))));
+    Bdep = simplify(expand(B(:,numel(x.independent) + 1:end)));
+    A = simplify(expand(syminv(Bdep)));
+    J = -A*Bind;
 end
