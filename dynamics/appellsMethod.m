@@ -51,7 +51,7 @@ function eomd = bodyDynamics(eomk,body,inputs)
     f1 = Vbar.'*ad.'*G*Vbar*u;
 
     T = Pose(body.ReferenceFrame,body.MassCenter);
-    W = body.ActiveForces.vector(T);
+    W = simplify(expand(body.ActiveForces.vector(T)));
     f2 = Vbar.'*subs(W,eomk.States.rate,eomk.ForcingVector);
 
     eomd = DynamicEquations(eomk.Inputs,M,f0,f1,f2,inputs);
