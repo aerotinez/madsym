@@ -9,6 +9,6 @@ function J = partitionJacobian(obj)
     B = obj.Jacobian;
     Bind = simplify(expand(B(:,1:numel(x.independent))));
     Bdep = simplify(expand(B(:,numel(x.independent) + 1:end)));
-    A = simplify(expand(syminv(Bdep)));
+    A = syminv(Bdep);
     J = -A*Bind;
 end
