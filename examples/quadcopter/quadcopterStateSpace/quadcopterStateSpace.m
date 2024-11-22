@@ -9,4 +9,42 @@ function sys = quadcopterStateSpace(p)
    A = P*(M\H);
    B = P*(M\G);
    sys = ss(A,B,eye(size(A)),0);
+
+   sys.StateName = [
+      "psi"
+      "theta"
+      "phi"
+      "p_x"
+      "p_y"
+      "p_z"
+      "omega_x"
+      "omega_y"
+      "omega_z"
+      "v_x"
+      "v_y"
+      "v_z"
+   ];
+
+   sys.InputName = [
+      "tau_x"
+      "tau_y"
+      "tau_z"
+      "f_z"
+   ];
+
+   sys.OutputName = [
+      "psi"
+      "theta"
+      "phi"
+      "p_x"
+      "p_y"
+      "p_z"
+      "omega_x"
+      "omega_y"
+      "omega_z"
+      "v_x"
+      "v_y"
+      "v_z"
+   ];
+
 end

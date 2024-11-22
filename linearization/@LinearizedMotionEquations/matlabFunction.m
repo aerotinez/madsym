@@ -49,16 +49,16 @@ function matlabFunction(obj,name)
     fprintf(fid,"   G = %sInputMatrix(p);\n",name);
     fprintf(fid,"   A = P*(M\\H);\n");
     fprintf(fid,"   B = P*(M\\G);\n");
-    fprintf(fid,"   sys = ss(A,B,eye(size(A)),0);\n");
+    fprintf(fid,"   sys = ss(A,B,eye(size(A)),0);\n\n");
     fprintf(fid,"   sys.StateName = [\n");
-    arrayfun(@(x)fprintf(fid,"      " + x + "\n"),state_names);
-    fprintf(fid,"   ];\n");
+    arrayfun(@(x)fprintf(fid,"      """ + x + """\n"),state_names);
+    fprintf(fid,"   ];\n\n");
     fprintf(fid,"   sys.InputName = [\n");
-    arrayfun(@(x)fprintf(fid,"      " + x + "\n"),input_names);
-    fprintf(fid,"   ];\n");
+    arrayfun(@(x)fprintf(fid,"      """ + x + """\n"),input_names);
+    fprintf(fid,"   ];\n\n");
     fprintf(fid,"   sys.OutputName = [\n");
-    arrayfun(@(x)fprintf(fid,"      " + x + "\n"),state_names);
-    fprintf(fid,"   ];\n");
+    arrayfun(@(x)fprintf(fid,"      """ + x + """\n"),state_names);
+    fprintf(fid,"   ];\n\n");
     fprintf(fid,"end\n");
     fclose(fid);
 end
