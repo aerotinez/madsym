@@ -12,7 +12,8 @@ function matlabFunction(obj,name,states)
     eom = obj;
     x = prettify(states.state);
     u = prettify(eom.Inputs.state);
-    P = jacobian(states.state,eom.States.state);
+    P = eom.States.permMatInd;
+    Pr = jacobian(states.state,eom.States.independent.state);
     M = prettify(eom.MassMatrix);
     H = prettify(eom.ForcingMatrix);
     G = prettify(eom.InputMatrix);
@@ -34,7 +35,7 @@ function matlabFunction(obj,name,states)
     comment_str = [state_str,input_str,param_str,""].';
 
     vars = {p};
-    matlabFunction(P,"File",Pstr,"Comments",comment_str);
+    matlabFunction(Pr*P,"File",Pstr,"Comments",comment_str);
     matlabFunction(M,"File",Mstr,"Vars",vars,"Comments",comment_str);
     matlabFunction(H,"File",Hstr,"Vars",vars,"Comments",comment_str);
     matlabFunction(G,"File",Gstr,"Vars",vars,"Comments",comment_str);
