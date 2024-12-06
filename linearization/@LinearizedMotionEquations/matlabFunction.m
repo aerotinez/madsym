@@ -1,13 +1,18 @@
-function matlabFunction(obj,name)
+function matlabFunction(obj,name,states)
     arguments
         obj (1,1) LinearizedMotionEquations
         name (1,1) string;
+        states (:,1) DynamicVariable = obj.States;
     end
+
+    if numel(states.dependent) > 0
+        error("Output states cannot be dependent.")
+    end
+
     eom = obj;
-    
-    x = prettify(eom.States.state);
+    x = prettify(states.state);
     u = prettify(eom.Inputs.state);
-    P = permMatInd(eom.States);
+    P = jacobian(states.state,eom.States.state);
     M = prettify(eom.MassMatrix);
     H = prettify(eom.ForcingMatrix);
     G = prettify(eom.InputMatrix);
