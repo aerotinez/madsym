@@ -86,6 +86,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
 
     Irt = zeros(3);
     Irt(2,2) = rt.SpinInertia;
+    p.iry = rt.SpinInertia;
 
     Ort = -sm.Wheelbase.*N(:,1) + rt.EffectiveRollingRadius*N(:,3);
 
@@ -96,6 +97,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
 
     Ift = zeros(3);
     Ift(2,2) = ft.SpinInertia;
+    p.ify = ft.SpinInertia;
 
     Oft = ft.EffectiveRollingRadius.*N(:,3);
 
@@ -117,6 +119,8 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
 
     steering_head = body(Nsh,Osh,Ish,sh.Mass);
 
+    p.Cdelta = rad2deg(sh.Damping);
+
     %% Fork
     ff = bs.Fork;
 
@@ -136,8 +140,29 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         rear_tire
         ];
 
-    % mass center
+    % total mass
     p.mb = sum([rear_bodies.m]);
+
+    % mass center
+    Ob = sum([rear_bodies.O].*[rear_bodies.m],2)/p.mb;
+    rb = Ob - [rear_bodies.O];
+    p.b = abs(Ob(1));
+    p.h = Ob(3);
+
+    % inertia tensor
+    I = zeros(3,3,numel(rear_bodies));
+    for k = 1:numel(rear_bodies)
+        m = rear_bodies(k).m;
+        d = rb(:,k);
+        Ik = rear_bodies(k).I;
+        I(:,:,k) = Ik + m*(d.'*d*eye(3) - d*d.');
+    end
+    Ib = sum(I,3);
+
+    p.Ibxx = Ib(1,1);
+    p.Ibxz = Ib(1,3);
+    p.Ibzz = Ib(3,3);
+
 
     %% Front body
 
@@ -146,4 +171,32 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         fork
         front_tire
         ];
+
+    % total mass
+    p.mh = sum([front_bodies.m]);
+
+    % mass center
+    Of = sum([front_bodies.O].*[front_bodies.m],2)/p.mh;
+    rf = Of - [front_bodies.O];
+    l = sm.CoMOffset;
+    p.a = l*cos(p.caster) + p.an;
+    B = O - l.*N(:,1) + p.a.*Nsh(:,1);
+    Gf = Nsh.'*(Of - B);
+    p.e = Gf(1);
+    p.f = Gf(3);
+
+    % inertia tensor
+    I = zeros(3,3,numel(front_bodies));
+    for k = 1:numel(front_bodies)
+        m = front_bodies(k).m;
+        d = rf(:,k);
+        Ik = front_bodies(k).I;
+        I(:,:,k) = Ik + m*(d.'*d*eye(3) - d*d.');
+    end
+    If = sum(I,3);
+
+    p.Ihxx = If(1,1);
+    p.Ihzz = If(3,3);
+
+    %%  
 end
