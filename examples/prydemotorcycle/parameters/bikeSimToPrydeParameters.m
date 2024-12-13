@@ -13,6 +13,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.rr = bs.RearTire.EffectiveRollingRadius - p.tr;
     p.caster = deg2rad(bs.SteeringHead.Caster);
     p.an = (p.rf + p.tf)*sin(p.caster) - bs.SteeringHead.Rake;
+    p.v = vx;
 
     %% Initialize pose
     N = eye(3);
@@ -114,8 +115,8 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
 
     Nsh = N*roty(-sh.Caster);
 
-    Oh = Oft - sh.Rake.*Nsh(:,1) + sh.ForkLength.*Nsh(:,3);
-    Osh = Oh + sh.CoMOffset.*Nsh(:,1) + sh.CoMHeight.*Nsh(:,3);
+    H = Oft - sh.Rake.*Nsh(:,1) + sh.ForkLength.*Nsh(:,3);
+    Osh = H + sh.CoMOffset.*Nsh(:,1) + sh.CoMHeight.*Nsh(:,3);
 
     steering_head = body(Nsh,Osh,Ish,sh.Mass);
 
@@ -126,7 +127,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
 
     Iff = zeros(3);
 
-    Off = Oh + ff.CoMOffset.*Nsh(:,1) - ff.CoMHeight.*Nsh(:,3);
+    Off = H + ff.CoMOffset.*Nsh(:,1) - ff.CoMHeight.*Nsh(:,3);
 
     fork = body(Nsh,Off,Iff,ff.Mass);
 
@@ -176,12 +177,12 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.mh = sum([front_bodies.m]);
 
     % mass center
-    Of = sum([front_bodies.O].*[front_bodies.m],2)/p.mh;
-    rf = Of - [front_bodies.O];
+    Oh = sum([front_bodies.O].*[front_bodies.m],2)/p.mh;
+    rf = Oh - [front_bodies.O];
     l = sm.CoMOffset;
     p.a = l*cos(p.caster) + p.an;
     B = O - l.*N(:,1) + p.a.*Nsh(:,1);
-    Gf = Nsh.'*(Of - B);
+    Gf = Nsh.'*(Oh - B);
     p.e = Gf(1);
     p.f = Gf(3);
 
@@ -198,5 +199,29 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.Ihxx = If(1,1);
     p.Ihzz = If(3,3);
 
-    %%  
+    %% Tire parameters
+    p.fw0 = (0.0085 + 0.018/sm.Wheelbase);
+    p.fw2 = 1.59E-06/sm.Wheelbase;
+    p.af0 = 0.02;
+    p.ar0 = 0.02;
+
+    % normal forces
+    p.g = 9.80665;
+    bodies = [rear_bodies; front_bodies];
+    W = p.g.*[bodies.m];
+    O = [bodies.O];
+    p.Zf = -(sum(W.*abs(O(1,:))) - sum(W).*sm.Wheelbase)./sm.Wheelbase;
+    p.Zr = sum(W.*abs(O(1,:)))./sm.Wheelbase;
+
+    % longitudinal stiffness
+    p.kkf = 10;
+    p.kkr = 10;
+
+    % sideslip stiffness
+    p.kaf = 11;
+    p.kar = 11;
+
+    % camber stiffness
+    p.klf = 1;
+    p.klr = 1; 
 end
