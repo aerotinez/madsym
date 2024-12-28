@@ -61,12 +61,18 @@ set(F,'CoMHeight',263.848E-03);
 
 FT = Tire;
 set(FT,'EffectiveRollingRadius',282E-03);
+set(FT,'SpringRate',130E03);
 set(FT,'Mass',7);
 set(FT,'UndeflectedCrownRadius',50E-03);
 set(FT,'SpinInertia',0.484);
-set(FT,'CorneringStiffness',2.0566E04);
-set(FT,'CamberStiffness',908.1083);
-set(FT,'RelaxationLength',0.1979);
+set(FT,'NominalVerticalForce',1.1E03);
+set(FT,'Pky1',-22.841);
+set(FT,'Pky2',2.1578);
+set(FT,'Pky3',2.5058);
+set(FT,'Pky4',-0.08088);
+set(FT,'Pky5',-0.22882);
+set(FT,'Pky6',-0.69677);
+set(FT,'Pky7',0.03077);
 
 SA = SwingArm;
 set(SA,'Mass',8);
@@ -78,11 +84,17 @@ set(SA,'AxelHeight',290E-03);
 
 RT = Tire;
 set(RT,'EffectiveRollingRadius',297E-03);
+set(RT,'SpringRate',141E03);
 set(RT,'Mass',14.7);
 set(RT,'UndeflectedCrownRadius',70E-03);
 set(RT,'SpinInertia',0.638);
-set(RT,'CorneringStiffness',2.0174E04);
-set(RT,'CamberStiffness',648.8377);
-set(RT,'RelaxationLength',0.1979);
+set(RT,'NominalVerticalForce',1.6E03);
+set(RT,'Pky1',-15.791);
+set(RT,'Pky2',1.6935);
+set(RT,'Pky3',1.4604);
+set(RT,'Pky4',0.669);
+set(RT,'Pky5',0.18708);
+set(RT,'Pky6',-0.45512);
+set(RT,'Pky7',-0.013293);
 
 params = BikeSimMotorcycleParameters(RU,RL,SM,SA,SH,F,FT,RT);
