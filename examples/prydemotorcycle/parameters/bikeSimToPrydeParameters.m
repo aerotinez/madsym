@@ -155,7 +155,8 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     for k = 1:numel(rear_bodies)
         m = rear_bodies(k).m;
         d = rb(:,k);
-        Ik = rear_bodies(k).I;
+        Nk = rear_bodies(k).N;
+        Ik = Nk*rear_bodies(k).I*Nk.';
         I(:,:,k) = Ik + m*(d.'*d*eye(3) - d*d.');
     end
     Ib = sum(I,3);
@@ -191,7 +192,8 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     for k = 1:numel(front_bodies)
         m = front_bodies(k).m;
         d = rf(:,k);
-        Ik = front_bodies(k).I;
+        Nk = front_bodies(k).N;
+        Ik = Nk*front_bodies(k).I*Nk.';
         I(:,:,k) = Ik + m*(d.'*d*eye(3) - d*d.');
     end
     If = sum(I,3);
@@ -225,11 +227,11 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     % self-aligning sideslip stiffness
     Rf = p.rf + p.tf;
     Rr = p.rr + p.tr;
-    p.kmzaf = -(Rf/p.Zf)*ft.Qdz1*p.kfyaf;
-    p.kmzar = -(Rr/p.Zr)*rt.Qdz1*p.kfyar;
+    p.kmzaf = Rf*ft.Qdz1*p.kfyaf;
+    p.kmzar = Rr*rt.Qdz1*p.kfyar;
 
     % self-aligning camber stiffness
-    p.kmzlf = 0.1*Rf*(ft.Qdz8);
-    p.kmzlr = Rr*(rt.Qdz8);
+    p.kmzlf = -0*Rf*(ft.Qdz8);
+    p.kmzlr = -0*Rr*(rt.Qdz8);
 
 end
