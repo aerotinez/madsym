@@ -73,6 +73,14 @@ set(FT,'Pky4',-0.08088);
 set(FT,'Pky5',-0.22882);
 set(FT,'Pky6',-0.69677);
 set(FT,'Pky7',0.03077);
+set(FT,'Qdz1',0.19796);
+set(FT,'Qdz2',0.065629);
+set(FT,'Qdz3',0.2199);
+set(FT,'Qdz4',0.21866);
+set(FT,'Qdz8',-0.3682);
+set(FT,'Qdz9',-0.1218);
+set(FT,'Qdz10',-0.25439);
+set(FT,'Qdz11',0.17873);
 
 SA = SwingArm;
 set(SA,'Mass',8);
@@ -96,5 +104,13 @@ set(RT,'Pky4',0.669);
 set(RT,'Pky5',0.18708);
 set(RT,'Pky6',-0.45512);
 set(RT,'Pky7',-0.013293);
+set(RT,'Qdz1',0.26331);
+set(RT,'Qdz2',0.030987);
+set(RT,'Qdz3',-0.62013);
+set(RT,'Qdz4',0.98524);
+set(RT,'Qdz8',-0.50453);
+set(RT,'Qdz9',-0.36312);
+set(RT,'Qdz10',0.19167);
+set(RT,'Qdz11',0.40709);
 
 params = BikeSimMotorcycleParameters(RU,RL,SM,SA,SH,F,FT,RT);
