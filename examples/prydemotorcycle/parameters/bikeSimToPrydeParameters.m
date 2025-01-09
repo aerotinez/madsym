@@ -217,8 +217,8 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.kkr = 0;
 
     % lateral sideslip stiffness
-    p.kfyaf = -ft.Pky1*sin(ft.Pky2*atan(1/ft.Pky3));
-    p.kfyar = -rt.Pky1*sin(rt.Pky2*atan(1/rt.Pky3));
+    p.kfyaf = ft.Pky1*sin(ft.Pky2*atan(1/ft.Pky3));
+    p.kfyar = rt.Pky1*sin(rt.Pky2*atan(1/rt.Pky3));
 
     % lateral camber stiffness
     p.kfylf = ft.Pky6;
@@ -227,11 +227,11 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     % self-aligning sideslip stiffness
     Rf = p.rf + p.tf;
     Rr = p.rr + p.tr;
-    p.kmzaf = Rf*ft.Qdz1*p.kfyaf;
-    p.kmzar = Rr*rt.Qdz1*p.kfyar;
+    p.kmzaf = -Rf*ft.Qdz1*p.kfyaf;
+    p.kmzar = -Rr*rt.Qdz1*p.kfyar;
 
     % self-aligning camber stiffness
-    p.kmzlf = -0*Rf*(ft.Qdz8);
-    p.kmzlr = -0*Rr*(rt.Qdz8);
+    p.kmzlf = -Rf*(ft.Qdz8);
+    p.kmzlr = -Rr*(rt.Qdz8);
 
 end
