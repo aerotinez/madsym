@@ -7,10 +7,10 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p = prydeMotorcycleParameters;
 
     %% Geometric parameters
-    p.tf = bs.FrontTire.UndeflectedCrownRadius - (bs.FrontTire.NominalVerticalForce/bs.FrontTire.SpringRate);
-    p.rf = bs.FrontTire.EffectiveRollingRadius - p.tf;
-    p.tr = bs.RearTire.UndeflectedCrownRadius - (bs.RearTire.NominalVerticalForce/bs.RearTire.SpringRate);
-    p.rr = bs.RearTire.EffectiveRollingRadius - p.tr;
+    p.tf = bs.FrontTire.UndeflectedCrownRadius - 0*(bs.FrontTire.NominalVerticalForce/bs.FrontTire.SpringRate);
+    p.rf = bs.FrontTire.EffectiveRollingRadius - bs.FrontTire.UndeflectedCrownRadius;
+    p.tr = bs.RearTire.UndeflectedCrownRadius - 0*(bs.RearTire.NominalVerticalForce/bs.RearTire.SpringRate);
+    p.rr = bs.RearTire.EffectiveRollingRadius - bs.RearTire.UndeflectedCrownRadius;
     p.caster = deg2rad(bs.SteeringHead.Caster);
     p.an = (p.rf + p.tf)*sin(p.caster) - bs.SteeringHead.Rake;
     p.v = vx;
@@ -113,7 +113,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         sh.Ixz, 0, sh.Izz
         ];
 
-    Nsh = N*roty(-sh.Caster);
+    Nsh = N*roty(sh.Caster).';
 
     H = Oft - sh.Rake.*Nsh(:,1) + sh.ForkLength.*Nsh(:,3);
     Osh = H + sh.CoMOffset.*Nsh(:,1) + sh.CoMHeight.*Nsh(:,3);
@@ -156,7 +156,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         m = rear_bodies(k).m;
         d = rb(:,k);
         Nk = rear_bodies(k).N;
-        Ik = Nk*rear_bodies(k).I*Nk.';
+        Ik = Nk.'*rear_bodies(k).I*Nk;
         I(:,:,k) = Ik + m*(d.'*d*eye(3) - d*d.');
     end
     Ib = sum(I,3);
@@ -193,7 +193,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         m = front_bodies(k).m;
         d = rf(:,k);
         Nk = front_bodies(k).N;
-        Ik = Nk*front_bodies(k).I*Nk.';
+        Ik = Nk.'*front_bodies(k).I*Nk;
         I(:,:,k) = Ik + m*(d.'*d*eye(3) - d*d.');
     end
     If = sum(I,3);
@@ -202,10 +202,6 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.Ihzz = If(3,3);
 
     %% Tire parameters
-    p.fw0 = (0.0085 + 0.018/sm.Wheelbase);
-    p.fw2 = 1.59E-06/sm.Wheelbase;
-    p.af0 = 0.02;
-    p.ar0 = 0.02;
 
     % normal forces
     p.g = 9.80665;
@@ -217,21 +213,21 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.kkr = 0;
 
     % lateral sideslip stiffness
-    p.kfyaf = ft.Pky1*sin(ft.Pky2*atan(1/ft.Pky3));
-    p.kfyar = rt.Pky1*sin(rt.Pky2*atan(1/rt.Pky3));
+    p.kfyaf = abs(ft.Pky1*sin(ft.Pky2*atan(1/ft.Pky3)));
+    p.kfyar = abs(rt.Pky1*sin(rt.Pky2*atan(1/rt.Pky3)));
 
     % lateral camber stiffness
-    p.kfylf = ft.Pky6;
-    p.kfylr = rt.Pky6;
+    p.kfylf = abs(ft.Pky6);
+    p.kfylr = abs(rt.Pky6);
 
     % self-aligning sideslip stiffness
     Rf = p.rf + p.tf;
     Rr = p.rr + p.tr;
-    p.kmzaf = -Rf*ft.Qdz1*p.kfyaf;
-    p.kmzar = -Rr*rt.Qdz1*p.kfyar;
+    p.kmzaf = abs(Rf*ft.Qdz1*p.kfyaf);
+    p.kmzar = abs(Rr*rt.Qdz1*p.kfyar);
 
     % self-aligning camber stiffness
-    p.kmzlf = -Rf*(ft.Qdz8);
-    p.kmzlr = -Rr*(rt.Qdz8);
+    p.kmzlf = abs(Rf*(ft.Qdz8));
+    p.kmzlr = abs(Rr*(rt.Qdz8));
 
 end
