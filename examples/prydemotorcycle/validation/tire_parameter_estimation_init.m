@@ -1,7 +1,8 @@
 close("all"); clc;
+% setmadsympath();
 
 %% Load dataset
-vx = 50;
+vx = 80;
 n2s = @num2str;
 results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
 speed_path = "\Vx" + n2s(vx) + "Kph\";
@@ -35,15 +36,12 @@ params = s2m(bikeSimToPrydeParameters(bs,vx/3.6));
 % kmzar = params(8);
 % kmzlf = params(9);
 % kmzlr = params(10);
-% kfyaf = params(12);
-% kfyar = params(13);
-% kfylf = params(14);
-% kfylr = params(15);
-kfyaf = 31.174;
-kfyar = 13.794;
-kfylf = 0.00061688;
-kfylr = 0.034478;
-kmzaf = 0.69133;
-kmzar = 7.3564;
-kmzlf = 0.027474;
-kmzlr = 0.4764;
+kfyaf = params(12);
+kfyar = params(13);
+kfylf = params(14);
+kfylr = params(15);
+
+kmzaf = 0.65798;
+kmzar = 5.6439;
+kmzlf = 0.03128;
+kmzlr = 0.97436;
