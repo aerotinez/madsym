@@ -1,15 +1,15 @@
 close("all"); clc;
-% setmadsympath();
+setmadsympath();
 
 %% Load dataset
-vx = 80;
+vx = 50;
 n2s = @num2str;
 results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
 speed_path = "\Vx" + n2s(vx) + "Kph\";
 file_name = "bikesim_results_" + n2s(vx) + "kph.csv";
-% results = readtable(results_path + speed_path + file_name);
+results = readtable(results_path + speed_path + file_name);
 % load("G:\My Drive\BikeSimResults\BigSports\Slalom50Kph\results_slalom_50kph.mat");
-results = readtable("G:\My Drive\BikeSimResults\BigSports\ICRA25\Vx50Kph\bikesim_results_50kph.csv");
+% results = readtable("G:\My Drive\BikeSimResults\BigSports\ICRA25\Vx50Kph\bikesim_results_50kph.csv");
 
 
 %% Signal data
@@ -32,16 +32,11 @@ IC = s.*x(1,:);
 bs = bigSportsParameters;
 s2m = @(x)cell2mat(struct2cell(x));
 params = s2m(bikeSimToPrydeParameters(bs,vx/3.6));
-% kmzaf = params(7);
-% kmzar = params(8);
-% kmzlf = params(9);
-% kmzlr = params(10);
+kmzaf = params(7);
+kmzar = params(8);
+kmzlf = params(9);
+kmzlr = params(10);
 kfyaf = params(12);
 kfyar = params(13);
 kfylf = params(14);
 kfylr = params(15);
-
-kmzaf = 0.65798;
-kmzar = 5.6439;
-kmzlf = 0.03128;
-kmzlr = 0.97436;
