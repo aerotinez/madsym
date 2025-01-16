@@ -227,7 +227,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.kmzar = Rr*rt.Qdz1*p.kfyar;
 
     % self-aligning camber stiffness
-    p.kmzlf = 0.1*Rf*(ft.Qdz8);
+    p.kmzlf = Rf*(ft.Qdz8);
     p.kmzlr = Rr*(rt.Qdz8);
 
 end
