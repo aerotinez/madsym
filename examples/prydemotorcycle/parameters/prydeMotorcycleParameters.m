@@ -31,6 +31,7 @@ function p = prydeMotorcycleParameters()
     p.mh = 0;
     p.rf = 0;
     p.rr = 0;
+    % p.sigma = 0;
     p.tf = 0;
     p.tr = 0;
     p.caster = 0;

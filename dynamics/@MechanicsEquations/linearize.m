@@ -53,7 +53,7 @@ function eom_lin = linearize(obj)
  
     n = numel(q);
     if numel(dependent(u)) > 0 
-        [C1,C2] = dependentVelocityProjection(q,u,obj.Constraints);
+        [C1,C2] = dependentVelocityProjection(q,[u;v],obj.Constraints);
         C1 = subsTrim(C1,[x;F]);
         C2 = subsTrim(C2,[x;F]);
         Hq = H(:,1:n);

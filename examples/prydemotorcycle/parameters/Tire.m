@@ -5,6 +5,7 @@ classdef Tire < matlab.mixin.SetGet
         Mass;
         UndeflectedCrownRadius;
         SpinInertia;
+        LateralTireLag;
         Pacejka;
     end
 end

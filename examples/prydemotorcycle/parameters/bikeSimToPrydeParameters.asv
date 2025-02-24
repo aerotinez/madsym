@@ -10,9 +10,9 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.g = 9.80665;
 
     %% Geometric parameters
-    p.tf = bs.FrontTire.UndeflectedCrownRadius - bs.FrontTire.Pacejka.fz0/bs.FrontTire.SpringRate;
+    p.tf = bs.FrontTire.UndeflectedCrownRadius - bs.FrontTire.Pacejka.fz0;
     p.rf = bs.FrontTire.EffectiveRollingRadius - bs.FrontTire.UndeflectedCrownRadius;
-    p.tr = bs.RearTire.UndeflectedCrownRadius - bs.RearTire.Pacejka.fz0/bs.RearTire.SpringRate;
+    p.tr = 0.5*bs.RearTire.UndeflectedCrownRadius;
     p.rr = bs.RearTire.EffectiveRollingRadius - bs.RearTire.UndeflectedCrownRadius;
     p.caster = deg2rad(bs.SteeringHead.Caster);
     p.an = (p.rf + p.tf)*sin(p.caster) - bs.SteeringHead.Rake;
@@ -225,7 +225,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.kfylf = ft.Pacejka.pky6;
 
     % Self-aligning sideslip stiffness
-    Rf = ft.UndeflectedCrownRadius;
+    Rf = p.tf;
     qdz1 = ft.Pacejka.qdz1;
     p.kmzaf = -Rf*qdz1*pky1*sin(pky2*atan2(1,pky3));
 
@@ -250,7 +250,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.kfylr = rt.Pacejka.pky6;
 
     % Self-aligning sideslip stiffness
-    Rr = rt.UndeflectedCrownRadius;
+    Rr = p.tr;
     qdz1 = rt.Pacejka.qdz1;
     p.kmzar = -Rr*qdz1*pky1*sin(pky2*atan2(1,pky3));
 
