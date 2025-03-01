@@ -18,4 +18,5 @@ function p = bikeSimGeometricParameters()
     p.ShinHeight = 0;
     p.ThighLength = 0;
     p.LegHeight = 0;
+    p.BackHeight = 0;
 end

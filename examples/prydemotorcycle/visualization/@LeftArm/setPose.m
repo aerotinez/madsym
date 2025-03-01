@@ -26,20 +26,20 @@ function setPose(obj,q)
     d = [
         p.Wheelbase - p.StepOffset;
         (p.RiderWidth + obj.AnimatorParameters.ReferenceLength.Y)/2;
-        p.StepHeight + p.LegHeight 
+        p.StepHeight + p.LegHeight + p.RearCrownRadius 
+        ].';
+
+    A = A*f(I,d); 
+
+    A = A*f(roty(p.RiderLean),n0);
+
+    d = [
+        -p.RiderDepth/2;
+        0;
+        p.BackHeight
         ].';
 
     A = A*f(I,d);
-
-    d = roty(p.RiderLean)*[
-        -p.RiderDepth;
-        0;
-        p.ThighLength
-        ];
-
-    A = A*f(I,d);
-
-    A = A*f(roty(p.RiderLean),n0);
 
     setPose@MotoBody(obj,A);
 end

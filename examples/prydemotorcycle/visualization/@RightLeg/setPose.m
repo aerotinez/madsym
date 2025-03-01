@@ -33,5 +33,5 @@ function setPose(obj,q)
 
     A = A*f(I,roty(p.RiderLean)*[-p.RiderDepth/2,0,0].');
 
-    setPose@MotoBody(obj,0*A + eye(4));
+    setPose@MotoBody(obj,A);
 end

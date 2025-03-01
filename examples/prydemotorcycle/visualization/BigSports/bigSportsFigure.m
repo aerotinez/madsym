@@ -22,6 +22,7 @@ function out = bigSportsFigure()
     geom_params.ThighLength = 500E-03;
     geom_params.ShinHeight = 500E-03;
     geom_params.LegHeight = 170E-03;
+    geom_params.BackHeight = 500E-03;
 
     %% Rear tire
     stl_file = dir + "rear_tire";
@@ -113,7 +114,6 @@ function out = bigSportsFigure()
     anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
     out.LeftLeg = LeftLeg(stl_file,anim_params,geom_params);
     out.LeftLeg.Patch.FaceColor = [1,0,0];
-    out.LeftLeg.Patch.FaceAlpha = 0;
 
     %% Right leg
     stl_file = dir + "driver_leg_right";
@@ -124,7 +124,6 @@ function out = bigSportsFigure()
     anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
     out.RightLeg = RightLeg(stl_file,anim_params,geom_params);
     out.RightLeg.Patch.FaceColor = [1,0,0];
-    out.RightLeg.Patch.FaceAlpha = 0;
 
     %% Driver
     stl_file = dir + "driver";
@@ -134,7 +133,6 @@ function out = bigSportsFigure()
     ref = [296E-03,404E-03,500E-03];
     anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
     out.Driver = Driver(stl_file,anim_params,geom_params);
-    out.Driver.Patch.FaceAlpha = 0;
 
     %% Left arm
     stl_file = dir + "left_arm";
@@ -153,6 +151,5 @@ function out = bigSportsFigure()
     ref = [484E-03,180E-03,180E-03];
     anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
     out.RightArm = RightArm(stl_file,anim_params,geom_params);
-    out.RightArm.Patch.FaceAlpha = 0;
 
 end
