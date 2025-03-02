@@ -59,33 +59,15 @@ function out = bigSportsFigure()
     ref = [1300E-03,525E-03,905E-03];
     anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
     out.Body = BikeBody(stl_file,anim_params,geom_params);
-
-    %% Front tire
-    stl_file = dir + "front_tire";
+    
+    %% Handlebars
+    stl_file = dir + "handlebars_no_arms";
     ang = [0,0,0];
     scale = [1,1,1];
-    coord = [0,0,0];
-    ref = [0,0,0];
+    coord = [30E-03,0,50E-03];
+    ref = [153E-03,548E-03,169E-03];
     anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
-    out.FrontTire = FrontTire(stl_file,anim_params,geom_params);
-
-    %% Fork
-    stl_file = dir + "fork";
-    ang = [0,0,0];
-    scale = [1,1,1];
-    coord = [0,0,0];
-    ref = [512E-03,275E-03,585E-03];
-    anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
-    out.Fork = Fork(stl_file,anim_params,geom_params);
-
-    %% Front fender
-    stl_file = dir + "front_fender";
-    ang = [0,1.5,0];
-    scale = [1,1,1];
-    coord = [0,0,-45E-03];
-    ref = [512E-03,275E-03,585E-03];
-    anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
-    out.FrontFender = Fork(stl_file,anim_params,geom_params);
+    out.Handlebars = Handlebars(stl_file,anim_params,geom_params);
 
     %% Fork top
     stl_file = dir + "fork_top";
@@ -96,14 +78,32 @@ function out = bigSportsFigure()
     anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
     out.ForkTop = ForkTop(stl_file,anim_params,geom_params);
 
-    %% Handlebars
-    stl_file = dir + "handlebars_no_arms";
+    %% Front fender
+    stl_file = dir + "front_fender";
+    ang = [0,1.5,0];
+    scale = [1,1,1];
+    coord = [0,0,-45E-03];
+    ref = [512E-03,275E-03,585E-03];
+    anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
+    out.FrontFender = Fork(stl_file,anim_params,geom_params);
+
+    %% Fork
+    stl_file = dir + "fork";
     ang = [0,0,0];
     scale = [1,1,1];
-    coord = [30E-03,0,50E-03];
-    ref = [153E-03,548E-03,169E-03];
+    coord = [0,0,0];
+    ref = [512E-03,275E-03,585E-03];
     anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
-    out.Handlebars = Handlebars(stl_file,anim_params,geom_params);
+    out.Fork = Fork(stl_file,anim_params,geom_params);
+
+    %% Front tire
+    stl_file = dir + "front_tire";
+    ang = [0,0,0];
+    scale = [1,1,1];
+    coord = [0,0,0];
+    ref = [0,0,0];
+    anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
+    out.FrontTire = FrontTire(stl_file,anim_params,geom_params);
 
     %% Left leg
     stl_file = dir + "driver_leg_left";
@@ -113,7 +113,6 @@ function out = bigSportsFigure()
     ref = [500E-03,180E-03,500E-03];
     anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
     out.LeftLeg = LeftLeg(stl_file,anim_params,geom_params);
-    out.LeftLeg.Patch.FaceColor = [1,0,0];
 
     %% Right leg
     stl_file = dir + "driver_leg_right";
@@ -123,7 +122,6 @@ function out = bigSportsFigure()
     ref = [500E-03,180E-03,500E-03];
     anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
     out.RightLeg = RightLeg(stl_file,anim_params,geom_params);
-    out.RightLeg.Patch.FaceColor = [1,0,0];
 
     %% Driver
     stl_file = dir + "driver";
