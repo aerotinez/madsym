@@ -10,9 +10,9 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.g = 9.80665;
 
     %% Geometric parameters
-    p.tf = bs.FrontTire.UndeflectedCrownRadius - bs.FrontTire.Pacejka.fz0/bs.FrontTire.SpringRate;
+    p.tf = bs.FrontTire.UndeflectedCrownRadius;
     p.rf = bs.FrontTire.EffectiveRollingRadius - bs.FrontTire.UndeflectedCrownRadius;
-    p.tr = bs.RearTire.UndeflectedCrownRadius - bs.RearTire.Pacejka.fz0/bs.RearTire.SpringRate;
+    p.tr = bs.RearTire.UndeflectedCrownRadius;
     p.rr = bs.RearTire.EffectiveRollingRadius - bs.RearTire.UndeflectedCrownRadius;
     p.caster = deg2rad(bs.SteeringHead.Caster);
     p.an = (p.rf + p.tf)*sin(p.caster) - bs.SteeringHead.Rake;

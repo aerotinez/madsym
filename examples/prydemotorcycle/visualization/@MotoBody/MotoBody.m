@@ -18,6 +18,7 @@ classdef MotoBody < handle
             obj.Vertices = obj.Patch.Vertices;
             obj.Patch.EdgeColor = 'none';
             obj.Patch.FaceColor = 0.5.*ones(1,3);
+            uistack(gca,'bottom');
             hold off;
             obj.AnimatorParameters = anim_params;
             obj.GeometricParameters = geom_params;
