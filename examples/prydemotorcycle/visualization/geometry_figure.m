@@ -2,7 +2,7 @@ close("all"); clear; clc;
 setmadsympath();
 
 %% Figure setup
-fig = figure('Position',[100,200,720,640]);
+fig = figure('Position',[100,100,720,640]);
 
 axe = axes(fig);
 set(axe,'Color','none');
@@ -23,7 +23,7 @@ axe.XColor = 'none';
 axe.YColor = 'none';
 axe.ZColor = 'none';
 
-title(axe,'Motorcycle geometry','FontSize',24);
+% title(axe,'Motorcycle geometry','FontSize',24);
 
 %% Geometric parameters
 caster = 24;

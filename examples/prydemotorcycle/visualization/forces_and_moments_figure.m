@@ -2,7 +2,7 @@ close("all"); clear; clc;
 setmadsympath();
 
 %% Figure setup
-fig = figure('Position',[10,270,640,640]);
+fig = figure('Position',[10,100,640,640]);
 
 axe = axes(fig);
 set(axe,'Color','none');

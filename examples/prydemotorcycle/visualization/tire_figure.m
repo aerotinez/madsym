@@ -2,7 +2,7 @@ close("all"); clear; clc;
 setmadsympath();
 
 %% Figure setup
-fig = figure('Position',[10,270,480,640]);
+fig = figure('Position',[10,100,570,640]);
 
 axe = axes(fig);
 set(axe,'Color','none');
@@ -15,7 +15,7 @@ hold(axe,'off');
 
 box(axe,'on');
 light(axe);
-view(axe,180,30);
+view(axe,180,20);
 xticks(axe,[]);
 yticks(axe,[]);
 zticks(axe,[]);
@@ -28,7 +28,7 @@ m = matlabColors;
 title(axe,'Motorcycle tire dynamics','FontSize',24);
 
 %%
-q = [-50,-10,12,0];
+q = [-60,-10,12,0];
 % q = [0,0,0,0];
 
 rf = 290E-03;
@@ -73,12 +73,12 @@ plotDoFLine(axe, ...
 plotDoFLine(axe, ...
     rigidtform3d(Ryaw,ptr), ...
     rigidtform3d(Rcamber,ptr), ...
-    'z',[0.8,0.7]);
+    'z',[0.65,0.6]);
 
 plotDoFLine(axe, ...
     rigidtform3d(Rcamber,prr), ...
     rigidtform3d(Rpitch,prr), ...
-    'x',0.5.*[1,1]);
+    'x',0.7.*[1,1]);
 
 plotDoFLine(axe, ...
     rigidtform3d(Rcamber,prr), ...
@@ -88,5 +88,6 @@ plotDoFLine(axe, ...
 plotDoFLine(axe, ...
     rigidtform3d(Ryaw,p0), ...
     rigidtform3d(Ryaw*rotz(10),p0), ...
-    'x',[0.6,0.45]);
+    'x',[0.8,0.7]);
 
+camproj(axe,'perspective');
