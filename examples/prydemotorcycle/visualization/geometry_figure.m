@@ -206,3 +206,7 @@ p = [
 plot3(axe,p(1,:),[0,0],p(2,:),'k--','LineWidth',1.5);
 
 hold(axe,'off');
+
+%% Save figure
+dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\RigidBodies\Figures\';
+saveas(fig,string(dir) + "motorcycle_geometry_unlabled.eps",'epsc');

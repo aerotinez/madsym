@@ -74,3 +74,5 @@ legend(axe,names{:}, ...
     );
 
 %% Save figure
+dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Introduction\Figures\';
+saveas(fig,string(dir) + "rigid_bodies.eps",'epsc');

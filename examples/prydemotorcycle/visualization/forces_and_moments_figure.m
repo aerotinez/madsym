@@ -23,7 +23,7 @@ axe.XColor = 'none';
 axe.YColor = 'none';
 axe.ZColor = 'none';
 
-title(axe,'Chassis forces and moments','FontSize',24);
+% title(axe,'Chassis forces and moments','FontSize',24);
 
 %% Geometric parameters
 caster = 24;
@@ -76,10 +76,10 @@ pf = p_caster + lx.*Rsteer(:,1) - lz.*Rsteer(:,3);
 Tf = rigidtform3d(Rsteer*roty(caster),pf);
 
 %% Plot frames
-hr = plotFrame(axe,Tr,m.blue);
-hb = plotFrame(axe,Tb,m.orange);
-hh = plotFrame(axe,Th,m.yellow);
-hf = plotFrame(axe,Tf,m.purple);
+hr = plotFrame(axe,Tr,'Color',m.blue);
+hb = plotFrame(axe,Tb,'Color',m.orange);
+hh = plotFrame(axe,Th,'Color',m.yellow);
+hf = plotFrame(axe,Tf,'Color',m.purple);
 
 %% Legend
 names = [
@@ -147,3 +147,7 @@ p = transformPointsForward(T,p0);
 plot3(axe,p(:,1),p(:,2),p(:,3),'k--','LineWidth',1.5);
 
 hold(axe,'off');
+
+%% Save figure
+dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\';
+saveas(fig,string(dir) + "chassis_forces_unlabeled.eps",'epsc');

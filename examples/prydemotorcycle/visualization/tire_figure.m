@@ -2,7 +2,7 @@ close("all"); clear; clc;
 setmadsympath();
 
 %% Figure setup
-fig = figure('Position',[10,100,570,640]);
+fig = figure('Position',[10,100,480,640]);
 
 axe = axes(fig);
 set(axe,'Color','none');
@@ -25,7 +25,7 @@ axe.ZColor = 'none';
 
 m = matlabColors;
 
-title(axe,'Motorcycle tire dynamics','FontSize',24);
+% title(axe,'Motorcycle tire dynamics','FontSize',24);
 
 %%
 q = [-60,-10,12,0];
@@ -50,18 +50,23 @@ axis(axe,'tight');
 
 I = eye(3);
 p0 = [0,0,0];
-hw = plotFrame(axe,rigidtform3d(rotz(-60),p0),p0);
+
+hw = plotFrame(axe,rigidtform3d(rotz(-60),p0), ...
+    'Color',p0);
 
 Ryaw = rotz(q(1));
-hCr = plotFrame(axe,rigidtform3d(Ryaw,[0,0,0]),m.blue);
+hCr = plotFrame(axe,rigidtform3d(Ryaw,[0,0,0]), ...
+    'Color',m.blue);
 
 Rcamber = Ryaw*rotx(q(2));
 ptr = tr.*Ryaw(:,3);
-htr = plotFrame(axe,rigidtform3d(Rcamber,ptr),m.orange);
+htr = plotFrame(axe,rigidtform3d(Rcamber,ptr), ...
+    'Color',m.orange);
 
 Rpitch = Rcamber*roty(q(3));
 prr = ptr + (rr - tr).*Rcamber(:,3);
-h = plotFrame(axe,rigidtform3d(Rpitch,prr),m.yellow);
+h = plotFrame(axe,rigidtform3d(Rpitch,prr), ...
+    'Color',m.yellow);
 
 %%
 
@@ -91,3 +96,7 @@ plotDoFLine(axe, ...
     'x',[0.8,0.7]);
 
 camproj(axe,'perspective');
+
+%% Save figure
+dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\';
+saveas(fig,string(dir) + "tire_unlabeled.eps",'epsc');
