@@ -13,51 +13,23 @@ x = linspace(0,1,ns);
 
 f = @(B,C,D,E,x)D*sin(C*atan(B*x - E*(B*x - atan(B*x))));
 
-dB = 5;
-yBmin = f(B - dB,C,D,E,x);
-yBmax = f(B + dB,C,D,E,x);
-
-dC = 0.2;
-yCmin = f(B,C - dC,D,E,x);
-yCmax = f(B,C + dC,D,E,x);
-
-dD = 50;
-yDmin = f(B,C,D - dD,E,x);
-yDmax = f(B,C,D + dD,E,x);
-
-dE = 0.01;
-yEmin = f(B,C,D,E - dE,x);
-yEmax = f(B,C,D,E - 2*dE,x);
+y = [
+    f(B - 0.1*B,C,D,E,x),fliplr(f(B + 0.1*B,C,D,E,x));
+    f(B,C - 0.1*C,D,E,x),fliplr(f(B,C + 0.1*C,D,E,x));
+    f(B,C,D - 0.1*D,E,x),fliplr(f(B,C,D + 0.1*D,E,x));
+    f(B,C,D,E - 0.2*E,x),fliplr(f(B,C,D,E,x));
+    ];
 
 fig = figure('Position',[100,100,640,360]);
-axe = axes(fig);
-hold(axe,'on');
+tl = tiledlayout(2,2,'Parent',fig);
 
-% l = plot(axe,x,y, ...
-%     "Color",m.blue, ...
-%     "LineWidth",1);
-
-hB = patch(axe,[x,fliplr(x)].',[yBmin,fliplr(yBmax)].','k', ...
-    'FaceColor',m.blue, ...
-    'EdgeColor','none', ...
-    'FaceAlpha',0.5);
-
-hC = patch(axe,[x,fliplr(x)].',[yCmin,fliplr(yCmax)].','k', ...
-    'FaceColor',m.orange, ...
-    'EdgeColor','none', ...
-    'FaceAlpha',0.5);
-
-hD = patch(axe,[x,fliplr(x)].',[yDmin,fliplr(yDmax)].','k', ...
-    'FaceColor',m.yellow, ...
-    'EdgeColor','none', ...
-    'FaceAlpha',0.5);
-
-hE = patch(axe,[x,fliplr(x)].',[yEmin,fliplr(yEmax)].','k', ...
-    'FaceColor',m.purple, ...
-    'EdgeColor','none', ...
-    'FaceAlpha',0.5);
-
-hold(axe,'off');
-box(axe,'on');
-xlim(axe,[-0.2,1]);
-ylim(axe,[0,1200]);
+for k = 1:4
+    axe = nexttile(tl,k);
+    hold(axe,'on');
+    hB = patch(axe,[x,fliplr(x)].',y(k,:).','k', ...
+        'FaceColor',m.blue, ...
+        'EdgeColor','none');
+    hold(axe,'off');
+    box(axe,'on');
+    axis(axe,'tight');
+end
