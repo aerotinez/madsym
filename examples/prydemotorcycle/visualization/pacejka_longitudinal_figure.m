@@ -6,69 +6,39 @@ m = matlabColors();
 ns = 1000;
 k = linspace(-1,1,ns);
 
-fz = linspace(1E03,3E03,ns).';
-fx = zeros(ns);
+fz = linspace(0,3E03,ns);
+fx = pacejkaLongitudinalForce(k,fz);
 
-for i = 1:ns
-    fx(i,:) = pacejkaLongitudinalForce(k,fz(i));
-end
+X = repmat(k,ns,1);
+Y = fx;
+Z = repmat(fz,ns,1);
 
+fig = figure('Position',[100,100,640,240]);
+axe = axes(fig);
+hold(axe,'on');
+h = surf(axe,X.',Y.',Z,'EdgeColor','none');
+hold(axe,'off');
+view(axe,[0,90]);
+box(axe,'on');
+title(axe,'Magic formula longitudinal force');
+xlabel('Longitudinal slip (normalized)');
+ylabel('Force (kN)');
+yticklabels(axe,arrayfun(@string,axe.YTick./1E03));
+cb = colorbar(axe);
+cb.Label.String = "Vertical force (kN)";
+cb.TickLabels = arrayfun(@string,cb.Ticks/1E03);
+grid(axe,'on');
 
-% X = [
-%     k;
-%     k
-%     ];
-% 
-% Y = [
-%     fxmin;
-%     fxmax
-%     ];
-% 
-% Z = zeros(size(Y));
-% 
-% nVert = numel(X);
-% 
-% C = [repmat(fzmin,1,numel(k)), repmat(fzmax,1,numel(k))];
-% 
-% fig = figure('Position',[100,100,640,240]);
-% axe = axes(fig);
-% 
-% hold(axe,'on');
-% 
-% h = surf(X,Y,Z);
-% 
-% % h.FaceVertexCData = 255.*linspace(0,1,nVert).';
-% 
-% plot(axe,k,fxmin,'k','LineWidth',1);
-% plot(axe,k,pacejkaLongitudinalForce(k,1.5E03),'k','LineWidth',1);
-% plot(axe,k,pacejkaLongitudinalForce(k,2E03),'k','LineWidth',1);
-% plot(axe,k,pacejkaLongitudinalForce(k,2.5E03),'k','LineWidth',1);
-% plot(axe,k,fxmax,'k','LineWidth',1);
-% 
-% hold(axe,'off');
-% 
-% box(axe,'on');
-% 
-% xlabel(axe,'\kappa (normalized)', ...
-%     'FontSize',12, ...
-%     'Interpreter','tex');
-% 
-% ylabel(axe,'f_{x} (N)', ...
-%     'FontSize',12, ...
-%     'Interpreter','tex');
-% 
-% title(axe,"Pacejka's magic formula");
-% 
-% dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\";
-% saveas(fig,dir + "magic_formula.eps",'epsc');
-% 
+dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\";
+saveas(fig,dir + "longitudinal_force.eps",'epsc');
+
 function fx = pacejkaLongitudinalForce(k,fz)
     arguments
         k (1,:) double;
-        fz (1,1) double;
+        fz (:,1) double;
     end
     fz0 = 1.6E03;
-    dfz = (fz - fz0)/fz0;
+    dfz = (fz - fz0)./fz0;
 
     C = 1.6064;
     pDx1 = 1.2017;
@@ -81,10 +51,10 @@ function fx = pacejkaLongitudinalForce(k,fz)
     pKx2 = -4.233;
     pKx3 = 0.3369;
 
-    D = fz*(pDx1 + pDx2*dfz);
-    E = (pEx1 + pEx2*dfz + pEx3*dfz.^2)*(1 - pEx4*sign(k));
-    K = fz*(pKx1 + pKx2*dfz)*exp(pKx3*dfz);
-    B = K/(C*D);
+    D = fz.*(pDx1 + pDx2.*dfz);
+    E = (pEx1 + pEx2.*dfz + pEx3.*dfz.^2).*(1 - pEx4.*sign(k));
+    K = fz.*(pKx1 + pKx2.*dfz).*exp(pKx3.*dfz);
+    B = K./(C.*D);
 
-    fx = D*sin(C*atan(B*k - E.*(B*k - atan(B*k))));
+    fx = D.*sin(C.*atan(B*k - E.*(B.*k - atan(B.*k))));
 end
