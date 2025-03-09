@@ -1,31 +1,64 @@
 close("all"); clear; clc;
 setmadsympath();
-
 m = matlabColors();
 
-ns = 100;
-slip = deg2rad(linspace(-14,14,ns));
-camber = deg2rad(linspace(-30,5,ns));
+ns = 1000;
+slip = deg2rad(linspace(-10,10,ns));
 
-%% Pure camber, zero slip
-X = meshgrid(slip);
-Y = meshgrid(camber).';
-Z = pacejkaLateralForce(X,Y,3E03);
+%% Slip vs vertical force
+fz = linspace(0,3E03,ns);
+fy = pacejkaLateralForce(slip,0,fz.'); 
 
-fig = figure('Position',[200,200,640,640]);
+X = rad2deg(repmat(slip,ns,1));
+Y = fy./1E03;
+Z = repmat(fz,ns,1)./1E03;
+
+fig = figure('Position',[100,100,640,240]);
 axe = axes(fig);
 hold(axe,'on');
-h = surf(axe,rad2deg(X),rad2deg(Y),Z./1E03,'EdgeColor','none');
+surf(axe,X.',Y.',Z,'EdgeColor','none');
 hold(axe,'off');
-view(axe,0,0);
+view(axe,0,90);
 box(axe,'on');
-title(axe,'Magic formula lateral force');
+axis(axe,'tight');
+grid(axe,'on');
+title(axe,'Magic formula: slip angle vs vertical force vs lateral force');
+xlabel(axe,'Slip angle (deg)');
+ylabel(axe,'Force (kN)');
+cb = colorbar(axe);
+cb.Label.String = "Vertical force (kN)";
+
+dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\";
+saveas(fig,dir + "lateral_force_slip_vertical_force.eps",'epsc');
+
+%% Slip vs camber
+camber = deg2rad(linspace(-50,50,ns));
+
+[X,Y] = meshgrid(slip,camber);
+Z = pacejkaLateralForce(X,Y,3E03);
+
+fig = figure('Position',[100,100,640,240]);
+axe = axes(fig);
+hold(axe,'on');
+
+surf(axe,rad2deg(X),rad2deg(Y),Z./1E03, ...
+    'EdgeColor','none', ...
+    'FaceColor',m.blue, ...
+    'FaceLighting','gouraud');
+
+hold(axe,'off');
+view(axe,3);
+box(axe,'on');
+title(axe,'Magic formula: slip angle vs camber vs lateral force');
 xlabel('Slip angle (deg)');
 ylabel('Camber (deg)');
 zlabel('Force (kN)');
 grid(axe,'on');
 axis(axe,'tight');
-% daspect(axe,[max(slip)/max(camber),1,0.1]);
+light(axe,'Position',rotx(45)*[0,0,10].');
+
+dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\";
+saveas(fig,dir + "lateral_force_slip_camber.eps",'epsc');
 
 %% Helper functions
 
@@ -57,14 +90,14 @@ function fy = pacejkaLateralForce(slip, camber, fz)
     Eg = -4.7481;
     
     % Compute Dy
-    Dy = fz.*pDy1.*exp(pDy2.*dfz)./(1 + pDy3.*camber.^2);
+    Dy = fz.*pDy1.*exp(pDy2.*dfz)./(1 + pDy3*camber.^2);
     
     % Compute Ey
-    Ey = pEy1 + pEy2.*camber.^2 + pEy4.*sign(slip);
+    Ey = pEy1 + pEy2*camber.^2 + pEy4*camber.*sign(slip);
     
     % Compute Kya
-    ang = fz./((pKy3 + pKy4.*camber.^2).*fz0);
-    Kya = pKy1*fz0.*sin(pKy2.*atan(ang))./(1 + pKy5*camber.^2);
+    ang = atan2(fz,(pKy3 + pKy4*camber.^2).*fz0);
+    Kya = pKy1*fz0.*sin(pKy2*ang)./(1 + pKy5*camber.^2);
     
     % Compute By
     By = Kya./(Cy*Dy);
@@ -76,6 +109,6 @@ function fy = pacejkaLateralForce(slip, camber, fz)
     Bg = Kyg./(Cg*Dy);
     
     % Compute lateral force Fy0
-    fy = Dy.*sin(Cy.*atan(By.*slip - Ey.*(By.*slip - atan(By.*slip)))) + ...
-        Cg.*atan(Bg.*camber - Eg.*(Bg.*camber - atan(Bg.*camber)));
+    fy = Dy.*sin(Cy*atan(By.*slip - Ey.*(By.*slip - atan(By.*slip)))) + ...
+        Cg*atan(Bg.*camber - Eg.*(Bg.*camber - atan(Bg.*camber)));
 end

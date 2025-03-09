@@ -9,9 +9,9 @@ k = linspace(-1,1,ns);
 fz = linspace(0,3E03,ns);
 fx = pacejkaLongitudinalForce(k,fz);
 
-X = repmat(k,ns,1);
-Y = fx;
-Z = repmat(fz,ns,1);
+X = rad2deg(repmat(k,ns,1));
+Y = fx./1E03;
+Z = repmat(fz,ns,1)./1E03;
 
 fig = figure('Position',[100,100,640,240]);
 axe = axes(fig);
@@ -20,14 +20,13 @@ h = surf(axe,X.',Y.',Z,'EdgeColor','none');
 hold(axe,'off');
 view(axe,[0,90]);
 box(axe,'on');
-title(axe,'Magic formula longitudinal force');
+title(axe,'Magic formula: slip vs vertical force vs longitudinal force');
 xlabel('Longitudinal slip (normalized)');
 ylabel('Force (kN)');
-yticklabels(axe,arrayfun(@string,axe.YTick./1E03));
 cb = colorbar(axe);
 cb.Label.String = "Vertical force (kN)";
-cb.TickLabels = arrayfun(@string,cb.Ticks/1E03);
 grid(axe,'on');
+axis(axe,'tight');
 
 dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\";
 saveas(fig,dir + "longitudinal_force.eps",'epsc');
