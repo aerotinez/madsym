@@ -9,7 +9,7 @@ k = linspace(-1,1,ns);
 fz = linspace(0,3E03,ns);
 fx = pacejkaLongitudinalForce(k,fz);
 
-X = rad2deg(repmat(k,ns,1));
+X = repmat(k,ns,1);
 Y = fx./1E03;
 Z = repmat(fz,ns,1)./1E03;
 
@@ -20,11 +20,11 @@ h = surf(axe,X.',Y.',Z,'EdgeColor','none');
 hold(axe,'off');
 view(axe,[0,90]);
 box(axe,'on');
-title(axe,'Magic formula: slip vs vertical force vs longitudinal force');
-xlabel('Longitudinal slip (normalized)');
+title(axe,'Magic formula: slip ratio vs vertical force vs driving/braking force');
+xlabel('Slip ratio');
 ylabel('Force (kN)');
 cb = colorbar(axe);
-cb.Label.String = "Vertical force (kN)";
+cb.Label.String = "Normal force (kN)";
 grid(axe,'on');
 axis(axe,'tight');
 

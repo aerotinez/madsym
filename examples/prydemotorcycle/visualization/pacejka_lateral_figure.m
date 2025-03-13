@@ -22,11 +22,11 @@ view(axe,0,90);
 box(axe,'on');
 axis(axe,'tight');
 grid(axe,'on');
-title(axe,'Magic formula: slip angle vs vertical force vs lateral force');
+title(axe,'Magic formula: slip angle vs normal force vs side force');
 xlabel(axe,'Slip angle (deg)');
 ylabel(axe,'Force (kN)');
 cb = colorbar(axe);
-cb.Label.String = "Vertical force (kN)";
+cb.Label.String = "Normal force (kN)";
 
 dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\";
 saveas(fig,dir + "lateral_force_slip_vertical_force.eps",'epsc');
@@ -49,7 +49,7 @@ surf(axe,rad2deg(X),rad2deg(Y),Z./1E03, ...
 hold(axe,'off');
 view(axe,3);
 box(axe,'on');
-title(axe,'Magic formula: slip angle vs camber vs lateral force');
+title(axe,'Magic formula: slip angle vs camber vs side force');
 xlabel('Slip angle (deg)');
 ylabel('Camber (deg)');
 zlabel('Force (kN)');
