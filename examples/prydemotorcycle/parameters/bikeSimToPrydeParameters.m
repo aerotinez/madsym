@@ -11,9 +11,9 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
 
     %% Geometric parameters
     p.tf = bs.FrontTire.UndeflectedCrownRadius;
-    p.rf = bs.FrontTire.EffectiveRollingRadius - bs.FrontTire.UndeflectedCrownRadius;
+    p.rf = bs.FrontTire.EffectiveRollingRadius - p.tf;
     p.tr = bs.RearTire.UndeflectedCrownRadius;
-    p.rr = bs.RearTire.EffectiveRollingRadius - bs.RearTire.UndeflectedCrownRadius;
+    p.rr = bs.RearTire.EffectiveRollingRadius - p.tr;
     p.caster = deg2rad(bs.SteeringHead.Caster);
     p.an = (p.rf + p.tf)*sin(p.caster) - bs.SteeringHead.Rake;
     p.v = vx;
@@ -205,56 +205,74 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.Ihzz = If(3,3);
 
     %% Tire parameters
-    % p.sigma = ft.LateralTireLag;
+    s = sin(p.caster);
+    c = cos(p.caster);
+    k = (p.a + p.e)*c + p.f*s;
+    l = (p.a - p.an)/c;
+    wb = p.b + l;
 
     %% Front tire parameters
 
     % Normal force
-    p.Zf = ft.Pacejka.fz0;
+    fz = (p.g/wb).*[p.b + k, wb - l]*[p.mh;p.mb];
+    fz0 = ft.Pacejka.fz0;
 
     % Longitudinal stiffness
-    p.kkf = 0;
+    p.Ckf = 0;
 
     % Lateral sideslip stiffness
     pky1 = ft.Pacejka.pky1;
     pky2 = ft.Pacejka.pky2;
     pky3 = ft.Pacejka.pky3;
-    p.kfyaf = -pky1*sin(pky2*atan2(1,pky3));
+    p.Caf = -fz0*pky1*sin(pky2*atan(fz/(fz0*pky3)));
 
     % Lateral camber stiffness
-    p.kfylf = ft.Pacejka.pky6;
+    pky6 = ft.Pacejka.pky6;
+    pky7 = ft.Pacejka.pky7;
+    p.Cgf = fz*(pky6 - pky7) + (pky7*fz^2)/fz0;
 
     % Self-aligning sideslip stiffness
-    Rf = ft.UndeflectedCrownRadius;
+    R0 = ft.UndeflectedCrownRadius;
     qdz1 = ft.Pacejka.qdz1;
-    p.kmzaf = -Rf*qdz1*pky1*sin(pky2*atan2(1,pky3));
+    qdz2 = ft.Pacejka.qdz2;
+    ang = atan2(fz,fz0*pky3);
+    p.Kaf = -R0*fz*pky1*sin(pky2*ang)*(fz0*(qdz1 - qdz2) + fz*qdz2)/fz0;
 
     % Self-aligning camber stiffness
-    p.kmzlf = Rf*ft.Pacejka.qdz8;
+    qdz8 = ft.Pacejka.qdz8;
+    qdz9 = ft.Pacejka.qdz9;
+    p.Kgf = R0*fz*(fz0*(qdz8 - qdz9) + fz*qdz9)/fz0;
 
     %% Rear tire parameters
 
     % Normal force
-    p.Zr = rt.Pacejka.fz0;
+    fz = (p.g/wb).*[wb - p.b - k, l]*[p.mh;p.mb];
+    fz0 = rt.Pacejka.fz0;
 
     % Longitudinal stiffness
-    p.kkr = 0;
+    p.Ckr = 0;
 
     % Lateral sideslip stiffness
     pky1 = rt.Pacejka.pky1;
     pky2 = rt.Pacejka.pky2;
     pky3 = rt.Pacejka.pky3;
-    p.kfyar = -pky1*sin(pky2*atan2(1,pky3));
+    p.Car = -fz0*pky1*sin(pky2*atan(fz/(fz0*pky3)));
 
     % Lateral camber stiffness
-    p.kfylr = rt.Pacejka.pky6;
+    pky6 = rt.Pacejka.pky6;
+    pky7 = rt.Pacejka.pky7;
+    p.Cgr = fz*(pky6 - pky7) + (pky7*fz^2)/fz0;
 
     % Self-aligning sideslip stiffness
-    Rr = rt.UndeflectedCrownRadius;
+    R0 = rt.UndeflectedCrownRadius;
     qdz1 = rt.Pacejka.qdz1;
-    p.kmzar = -Rr*qdz1*pky1*sin(pky2*atan2(1,pky3));
+    qdz2 = rt.Pacejka.qdz2;
+    ang = atan2(fz,fz0*pky3);
+    p.Kar = -R0*fz*pky1*sin(pky2*ang)*(fz0*(qdz1 - qdz2) + fz*qdz2)/fz0;
 
     % Self-aligning camber stiffness
-    p.kmzlr = Rr*rt.Pacejka.qdz8;
+    qdz8 = rt.Pacejka.qdz8;
+    qdz9 = rt.Pacejka.qdz9;
+    p.Kgr = R0*fz*(fz0*(qdz8 - qdz9) + fz*qdz9)/fz0;
 
 end
