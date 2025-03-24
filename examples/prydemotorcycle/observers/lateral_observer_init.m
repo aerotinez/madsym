@@ -12,7 +12,7 @@ ts = 1/60;
 vx = [30,50,80,110,130];
 plant = @prydeMotorcycleUILateralStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
+results_path = "G:\My Drive\BikeSimResults\BigSports\Chicane";
 
 k = 4;
 
@@ -73,11 +73,11 @@ function L = designObserverGains(A,C,E)
     g = sdpvar(1,1);
 
     ep = 1E-06;
-    a = 3;
+    a = 20;
 
     F = [
         P >= ep*I;
-        R*C*E == P*E;
+        R*C*E - P*E <= ep*I;
         g >= ep;
         [
         A'*P + P*A - C'*R' - R*C  + 2*a*P, -R;
