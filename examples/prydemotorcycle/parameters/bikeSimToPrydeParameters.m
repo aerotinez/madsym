@@ -213,35 +213,40 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
 
     %% Front tire parameters
 
-    % Normal force
     fz = (p.g/wb).*[p.b + k, wb - l]*[p.mh;p.mb];
     fz0 = ft.Pacejka.fz0;
 
-    % Longitudinal stiffness
-    p.Ckf = 0;
+    pp = [
+        ft.Pacejka.pkx1;
+        ft.Pacejka.pkx2;
+        ft.Pacejka.pkx3;
+        ];
 
-    % Lateral sideslip stiffness
-    pky1 = ft.Pacejka.pky1;
-    pky2 = ft.Pacejka.pky2;
-    pky3 = ft.Pacejka.pky3;
-    p.Caf = -fz0*pky1*sin(pky2*atan(fz/(fz0*pky3)));
+    p.Kxkf = fxCoeffs(fz,fz0,pp);
 
-    % Lateral camber stiffness
-    pky6 = ft.Pacejka.pky6;
-    pky7 = ft.Pacejka.pky7;
-    p.Cgf = fz*(pky6 - pky7) + (pky7*fz^2)/fz0;
+    pp = [
+        ft.Pacejka.pky1;
+        ft.Pacejka.pky2;
+        ft.Pacejka.pky3;
+        ft.Pacejka.pky6;
+        ft.Pacejka.pky7
+        ];
 
-    % Self-aligning sideslip stiffness
-    R0 = ft.UndeflectedCrownRadius;
-    qdz1 = ft.Pacejka.qdz1;
-    qdz2 = ft.Pacejka.qdz2;
-    ang = atan2(fz,fz0*pky3);
-    p.Kaf = -R0*fz*pky1*sin(pky2*ang)*(fz0*(qdz1 - qdz2) + fz*qdz2)/fz0;
+    [p.Kyaf,p.Kygf]= fyCoeffs(fz,fz0,pp);
+    p.Kyaf = -p.Kyaf;
 
-    % Self-aligning camber stiffness
-    qdz8 = ft.Pacejka.qdz8;
-    qdz9 = ft.Pacejka.qdz9;
-    p.Kgf = R0*fz*(fz0*(qdz8 - qdz9) + fz*qdz9)/fz0;
+    pp = [
+        ft.Pacejka.pky1;
+        ft.Pacejka.pky2;
+        ft.Pacejka.pky3;
+        ft.Pacejka.qdz1;
+        ft.Pacejka.qdz2;
+        ft.Pacejka.qdz8;
+        ft.Pacejka.qdz9
+        ];
+
+    [p.Kzaf,p.Kzgf]= tzCoeffs(fz,fz0,p.tf,pp);
+    p.Kzaf = -p.Kzaf;
 
     %% Rear tire parameters
 
@@ -249,30 +254,75 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     fz = (p.g/wb).*[wb - p.b - k, l]*[p.mh;p.mb];
     fz0 = rt.Pacejka.fz0;
 
-    % Longitudinal stiffness
-    p.Ckr = 0;
+    pp = [
+        rt.Pacejka.pkx1;
+        rt.Pacejka.pkx2;
+        rt.Pacejka.pkx3;
+        ];
 
-    % Lateral sideslip stiffness
-    pky1 = rt.Pacejka.pky1;
-    pky2 = rt.Pacejka.pky2;
-    pky3 = rt.Pacejka.pky3;
-    p.Car = -fz0*pky1*sin(pky2*atan(fz/(fz0*pky3)));
+    p.Kxkr = fxCoeffs(fz,fz0,pp);
 
-    % Lateral camber stiffness
-    pky6 = rt.Pacejka.pky6;
-    pky7 = rt.Pacejka.pky7;
-    p.Cgr = fz*(pky6 - pky7) + (pky7*fz^2)/fz0;
+    pp = [
+        rt.Pacejka.pky1;
+        rt.Pacejka.pky2;
+        rt.Pacejka.pky3;
+        rt.Pacejka.pky6;
+        rt.Pacejka.pky7
+        ];
 
-    % Self-aligning sideslip stiffness
-    R0 = rt.UndeflectedCrownRadius;
-    qdz1 = rt.Pacejka.qdz1;
-    qdz2 = rt.Pacejka.qdz2;
-    ang = atan2(fz,fz0*pky3);
-    p.Kar = -R0*fz*pky1*sin(pky2*ang)*(fz0*(qdz1 - qdz2) + fz*qdz2)/fz0;
+    [p.Kyar,p.Kygr]= fyCoeffs(fz,fz0,pp);
+    p.Kyar = -p.Kyar;
 
-    % Self-aligning camber stiffness
-    qdz8 = rt.Pacejka.qdz8;
-    qdz9 = rt.Pacejka.qdz9;
-    p.Kgr = R0*fz*(fz0*(qdz8 - qdz9) + fz*qdz9)/fz0;
+    pp = [
+        rt.Pacejka.pky1;
+        rt.Pacejka.pky2;
+        rt.Pacejka.pky3;
+        rt.Pacejka.qdz1;
+        rt.Pacejka.qdz2;
+        rt.Pacejka.qdz8;
+        rt.Pacejka.qdz9
+        ];
 
+    [p.Kzar,p.Kzgr]= tzCoeffs(fz,fz0,p.tr,pp);
+    p.Kzar = -p.Kzar;
+
+end
+
+function dfz = fzRatio(fz,fz0)
+    dfz = (fz - fz0)/fz0;
+end
+
+function K = fxCoeffs(fz,fz0,p)
+    p1 = p(1);
+    p2 = p(2);
+    p3 = p(3);
+    dfz = fzRatio(fz,fz0);
+    n = p3*dfz;
+    K = fz*(p1 + p2*dfz)*exp(n);
+end
+
+function [Ka,Kg] = fyCoeffs(fz,fz0,p)
+    p1 = p(1);
+    p2 = p(2);
+    p3 = p(3);
+    p6 = p(4);
+    p7 = p(5);
+    dfz = fzRatio(fz,fz0);
+    ang = p2*atan(fz/(fz0*p3));
+    Ka = fz0*p1*sin(ang);
+    Kg = fz*(p6 + p7*dfz);
+end
+
+function [Ka,Kg] = tzCoeffs(fz,fz0,R0,p)
+    p1 = p(1);
+    p2 = p(2);
+    p3 = p(3);
+    q1 = p(4);
+    q2 = p(5);
+    q8 = p(6);
+    q9 = p(7);
+    dfz = fzRatio(fz,fz0);
+    ang = p2*atan(fz/(fz0*p3));
+    Ka = -R0*fz*p1*sin(ang)*(q1 + q2*dfz);
+    Kg = R0*fz*(q8 + q9*dfz);
 end
