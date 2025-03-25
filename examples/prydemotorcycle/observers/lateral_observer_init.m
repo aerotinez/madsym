@@ -36,9 +36,11 @@ Mz = timeseries(results.M_Str_In,time);
 p = params(vx(k));
 sys = plant(p);
 
+%% Plant matrices
+
 A = sys.A;
 B = sys.B(:,2);
-E = sys.B(:,3:end);
+E = sys.B(:,3:6);
 
 C = [
     1,0,0,0,0,0;
@@ -47,58 +49,16 @@ C = [
     0,0,0,0,1,0
     ];
 
-L = designObserverGains(A,C,E);
+nx = size(A,1);
+nu = size(B,2);
+nd = size(E,2);
+ny = size(C,1);
 
-disp(rank(C*E) == rank(E));
-
-% H = E*(((C*E).'*C*E)\(C*E).');
-% I = eye(6);
-% T = I - H*C;
-% F = A - K1*C;
-% K2 = F*H;
-% K = K1 + K2;
-% 
-% A1 = T*A;
-% disp(isDetectable(A1,C));
-
-
-function L = designObserverGains(A,C,E)
-    nx = size(A,1);
-    ny = size(C,1);
-    I = eye(nx);
-
-    yalmip('clear');
-    P = sdpvar(nx,nx,'symmetric');
-    R = sdpvar(nx,ny,'full');
-    g = sdpvar(1,1);
-
-    ep = 1E-06;
-    a = 20;
-
-    F = [
-        P >= ep*I;
-        R*C*E - P*E <= ep*I;
-        g >= ep;
-        [
-        A'*P + P*A - C'*R' - R*C  + 2*a*P, -R;
-        -R', -g*eye(ny)
-        ] <= -ep*eye(nx + ny)
-        ];
-
-    opts = sdpsettings('solver','sdpt3');
-    optimize(F,g,opts);
-
-    L = value(P)\value(R);
+% check that a UIO can be designed
+if rank(C*E) ~= rank(E)
+    error("No unknown input observer exists for this system")
 end
 
-function res = isDetectable(A,C)
-    for lambda = eig(A)'
-        if real(lambda) >= 0
-            if rank([A - lambda*eye(size(A)); C]) < size(A,1)
-                res = false;
-                return;
-            end
-        end
-    end
-    res = true;
-end
+%% Design decoupling matrix
+I= eye(nx);
+[H,T,g,sol] = findDecouplingMatrix(C,E);
