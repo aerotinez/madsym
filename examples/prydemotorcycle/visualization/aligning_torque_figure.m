@@ -39,6 +39,7 @@ Z = pacejkaAligningTorque(X,Y,3E03);
 
 fig = figure('Position',[100,100,640,240]);
 axe = axes(fig);
+camproj(axe,'perspective');
 hold(axe,'on');
 
 surf(axe,rad2deg(X),rad2deg(Y),Z, ...
