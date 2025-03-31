@@ -37,7 +37,7 @@ for k = 1:numel(vx)
     sys = plant(p);
     sf = (pi/180).*[1,1,1,0,1,1] + [0,0,0,1,0,0];
     IC = sf.*x_mes{k}(1,:);
-    x_sys{k} = s.*lsim(sys,[0.*Mz,Mz],time,IC);
+    x_sys{k} = s.*lsim(sys,Mz,time,IC);
 end
 
 %% Plot results
