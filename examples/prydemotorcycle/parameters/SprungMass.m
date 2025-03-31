@@ -11,5 +11,8 @@ properties
     CoMOffset;
     CoMHeight;
     Wheelbase;
+    LiftCoefficient;
+    DragCoefficient;
+    FrontalArea;
 end
 end

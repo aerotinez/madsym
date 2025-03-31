@@ -11,6 +11,9 @@ set(SM,'Rz',291E-03);
 set(SM,'CoMOffset',560E-03);
 set(SM,'CoMHeight',532E-03);
 set(SM,'Wheelbase',1370E-03);
+set(SM,'LiftCoefficient',0.085);
+set(SM,'DragCoefficient',0.52);
+set(SM,'FrontalArea',0.6);
 
 RU = RiderUpperBody;
 set(RU,'Mass',43.52);
@@ -66,6 +69,8 @@ set(FT,'Mass',7);
 set(FT,'UndeflectedCrownRadius',50E-03);
 set(FT,'SpinInertia',0.484);
 set(FT,'LateralTireLag',200E-03);
+set(FT,'RollingResistanceCoefficient',0.002);
+set(FT,'RollingResistanceTimeConstant',0.000015);
 set(FT,'Pacejka',pacejkaParametersFromBikeSim("Example_Front_v102.par"));
 
 SA = SwingArm;
@@ -83,6 +88,8 @@ set(RT,'Mass',14.7);
 set(RT,'UndeflectedCrownRadius',70E-03);
 set(RT,'SpinInertia',0.638);
 set(RT,'LateralTireLag',200E-03);
+set(RT,'RollingResistanceCoefficient',0.004);
+set(RT,'RollingResistanceTimeConstant',0.000025);
 set(RT,'Pacejka',pacejkaParametersFromBikeSim("Example_Rear_v102.par"));
 
 params = BikeSimMotorcycleParameters(RU,RL,SM,SA,SH,F,FT,RT);

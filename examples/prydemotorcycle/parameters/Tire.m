@@ -7,5 +7,7 @@ classdef Tire < matlab.mixin.SetGet
         SpinInertia;
         LateralTireLag;
         Pacejka;
+        RollingResistanceCoefficient;
+        RollingResistanceTimeConstant;
     end
 end

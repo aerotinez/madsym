@@ -74,8 +74,8 @@ f = @(x)string((vmax - vmin)*double(string(x)) + vmin);
 cb.TickLabels = cellfun(f,cb.TickLabels,'uniform',0);
 cb.Label.String = "Speed (km/h)";
 
-dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-saveas(fig,string(dir) + "nyquist.eps",'epsc');
+% dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
+% saveas(fig,string(dir) + "nyquist.eps",'epsc');
 
 function poles = sortpoles(poles)
     [n,m] = size(poles);
