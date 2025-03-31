@@ -248,6 +248,9 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     [p.Kzaf,p.Kzgf]= tzCoeffs(fz,fz0,p.tf,pp);
     p.Kzaf = -p.Kzaf;
 
+    p.Kycf = 0*ft.RollingResistanceCoefficient;
+    p.Kyvf = ft.RollingResistanceCoefficient*ft.RollingResistanceTimeConstant*3.6;
+
     %% Rear tire parameters
 
     % Normal force
@@ -285,6 +288,9 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
 
     [p.Kzar,p.Kzgr]= tzCoeffs(fz,fz0,p.tr,pp);
     p.Kzar = -p.Kzar;
+
+    p.Kycr = 0*rt.RollingResistanceCoefficient;
+    p.Kyvr = rt.RollingResistanceCoefficient*rt.RollingResistanceTimeConstant*3.6;
 
 end
 
