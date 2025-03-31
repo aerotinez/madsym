@@ -29,7 +29,7 @@ for k = 1:numel(Vx)
     s = (180/pi).*[0,1,1] + [1,0,0];
     x_mes{k} = [vx,wr,wf];
     
-    My = results.My_DR_2;
+    My = results.My_DR_2.*(results.My_DR_2 > 0);
     sf = (pi/180).*[0,1,1] + [1,0,0];
     IC = sf.*x_mes{k}(1,:);
     x_sys{k} = s.*lsim(sys,My,time,IC,params);
