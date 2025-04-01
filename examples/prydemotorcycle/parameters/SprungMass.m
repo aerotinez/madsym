@@ -13,6 +13,7 @@ properties
     Wheelbase;
     LiftCoefficient;
     DragCoefficient;
+    PitchCoefficient;
     FrontalArea;
 end
 end

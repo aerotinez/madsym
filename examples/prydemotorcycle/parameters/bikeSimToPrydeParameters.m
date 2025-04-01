@@ -204,17 +204,29 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.Ihxx = If(1,1);
     p.Ihzz = If(3,3);
 
+    %% Aerodynamic parameters
+    % p.A = sm.FrontalArea;
+    % p.Cd = sm.DragCoefficient;
+    % p.Cl = sm.LiftCoefficient;
+    % p.Cp = sm.PitchCoefficient;
+    % p.rho = 1.206;
+
     %% Tire parameters
-    s = sin(p.caster);
-    c = cos(p.caster);
-    k = (p.a + p.e)*c + p.f*s;
-    l = (p.a - p.an)/c;
-    wb = p.b + l;
+
+    % rolling resistance parameters
+    % p.Kycf = ft.RollingResistanceCoefficient;
+    % p.Kyvf = ft.RollingResistanceTimeConstant*3.6;
+    % p.Kycr = rt.RollingResistanceCoefficient;
+    % p.Kyvr = rt.RollingResistanceTimeConstant*3.6;
+    
+    % Normal forces at trim
+    fz = normalForcesAtTrim(cell2mat(struct2cell(p)));
+    fzr = fz(1);
+    fzf = fz(2);
 
     %% Front tire parameters
 
-    fz = (p.g/wb).*[p.b + k, wb - l]*[p.mh;p.mb];
-    fz0 = ft.Pacejka.fz0;
+    fz0f = ft.Pacejka.fz0;
 
     pp = [
         ft.Pacejka.pkx1;
@@ -222,7 +234,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         ft.Pacejka.pkx3;
         ];
 
-    p.Kxkf = fxCoeffs(fz,fz0,pp);
+    p.Kxkf = fxCoeffs(fzf,fz0f,pp);
 
     pp = [
         ft.Pacejka.pky1;
@@ -232,7 +244,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         ft.Pacejka.pky7
         ];
 
-    [p.Kyaf,p.Kygf]= fyCoeffs(fz,fz0,pp);
+    [p.Kyaf,p.Kygf]= fyCoeffs(fzf,fz0f,pp);
     p.Kyaf = -p.Kyaf;
 
     pp = [
@@ -245,17 +257,12 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         ft.Pacejka.qdz9
         ];
 
-    [p.Kzaf,p.Kzgf]= tzCoeffs(fz,fz0,p.tf,pp);
+    [p.Kzaf,p.Kzgf]= tzCoeffs(fzf,fz0f,p.tf,pp);
     p.Kzaf = -p.Kzaf;
-
-    p.Kycf = ft.RollingResistanceCoefficient;
-    p.Kyvf = ft.RollingResistanceTimeConstant*3.6;
 
     %% Rear tire parameters
 
-    % Normal force
-    fz = (p.g/wb).*[wb - p.b - k, l]*[p.mh;p.mb];
-    fz0 = rt.Pacejka.fz0;
+    fz0r = rt.Pacejka.fz0;
 
     pp = [
         rt.Pacejka.pkx1;
@@ -263,7 +270,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         rt.Pacejka.pkx3;
         ];
 
-    p.Kxkr = fxCoeffs(fz,fz0,pp);
+    p.Kxkr = fxCoeffs(fzr,fz0r,pp);
 
     pp = [
         rt.Pacejka.pky1;
@@ -273,7 +280,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         rt.Pacejka.pky7
         ];
 
-    [p.Kyar,p.Kygr]= fyCoeffs(fz,fz0,pp);
+    [p.Kyar,p.Kygr]= fyCoeffs(fzr,fz0r,pp);
     p.Kyar = -p.Kyar;
 
     pp = [
@@ -286,11 +293,8 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         rt.Pacejka.qdz9
         ];
 
-    [p.Kzar,p.Kzgr]= tzCoeffs(fz,fz0,p.tr,pp);
+    [p.Kzar,p.Kzgr]= tzCoeffs(fzr,fz0r,p.tr,pp);
     p.Kzar = -p.Kzar;
-
-    p.Kycr = rt.RollingResistanceCoefficient;
-    p.Kyvr = rt.RollingResistanceTimeConstant*3.6;
 
 end
 

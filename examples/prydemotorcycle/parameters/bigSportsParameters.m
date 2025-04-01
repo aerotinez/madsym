@@ -13,6 +13,7 @@ set(SM,'CoMHeight',532E-03);
 set(SM,'Wheelbase',1370E-03);
 set(SM,'LiftCoefficient',0.085);
 set(SM,'DragCoefficient',0.52);
+set(SM,'PitchCoefficient',0.205);
 set(SM,'FrontalArea',0.6);
 
 RU = RiderUpperBody;

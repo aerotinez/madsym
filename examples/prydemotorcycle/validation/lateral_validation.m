@@ -93,5 +93,5 @@ leg.Orientation = "horizontal";
 leg.Layout.Tile = 'south';
 
 %% Save figure
-dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-saveas(fig,string(dir) + "open_loop_results.eps",'epsc');
+% dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
+% saveas(fig,string(dir) + "open_loop_results.eps",'epsc');
