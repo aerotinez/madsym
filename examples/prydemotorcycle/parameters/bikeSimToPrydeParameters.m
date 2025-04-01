@@ -222,7 +222,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     % Normal forces at trim
     fz = normalForcesAtTrim(cell2mat(struct2cell(p)));
     fzr = fz(1);
-    fzf = fz(2);
+    fzf = -fz(2);
 
     %% Front tire parameters
 
