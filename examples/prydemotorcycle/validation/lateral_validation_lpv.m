@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 Vx = [30,50,80,110,130];
 sys = prydeMotorcycleLateralLPVStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
+results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
@@ -42,7 +42,7 @@ for k = 1:numel(Vx)
 end
 
 %% Plot results
-fig = figure("Position",[570,100,1280,720]);
+fig = figure("Position",[100,100,1280,720]);
 tl = tiledlayout(6,5,"Parent",fig);
 
 titles = arrayfun(@(x)"Speed: " + x + "km/h",Vx);
