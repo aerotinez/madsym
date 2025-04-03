@@ -7,7 +7,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p = prydeMotorcycleParameters;
 
     % normal forces
-    p.g = 9.80665;
+    p.g = 9.81;
 
     %% Geometric parameters
     p.tf = bs.FrontTire.UndeflectedCrownRadius;
@@ -205,24 +205,24 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.Ihzz = If(3,3);
 
     %% Aerodynamic parameters
-    % p.A = sm.FrontalArea;
-    % p.Cd = sm.DragCoefficient;
-    % p.Cl = sm.LiftCoefficient;
-    % p.Cp = sm.PitchCoefficient;
-    % p.rho = 1.206;
+    p.A = sm.FrontalArea;
+    p.Cd = sm.DragCoefficient;
+    p.Cl = sm.LiftCoefficient;
+    p.Cp = sm.PitchCoefficient;
+    p.rho = 1.206;
 
     %% Tire parameters
 
     % rolling resistance parameters
-    % p.Kycf = ft.RollingResistanceCoefficient;
-    % p.Kyvf = ft.RollingResistanceTimeConstant*3.6;
-    % p.Kycr = rt.RollingResistanceCoefficient;
-    % p.Kyvr = rt.RollingResistanceTimeConstant*3.6;
+    p.Kycf = ft.RollingResistanceCoefficient;
+    p.Kyvf = ft.RollingResistanceTimeConstant*3.6;
+    p.Kycr = rt.RollingResistanceCoefficient;
+    p.Kyvr = rt.RollingResistanceTimeConstant*3.6;
     
     % Normal forces at trim
     fz = normalForcesAtTrim(cell2mat(struct2cell(p)));
     fzr = fz(1);
-    fzf = -fz(2);
+    fzf = fz(2);
 
     %% Front tire parameters
 

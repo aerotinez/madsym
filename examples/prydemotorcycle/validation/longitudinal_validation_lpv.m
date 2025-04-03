@@ -4,14 +4,14 @@ setmadsympath();
 %% Parameters
 bs = bigSportsParameters;
 s2m = @(x)cell2mat(struct2cell(x));
-disp(bikeSimToPrydeParameters(bs,30/3.6));
+disp(bikeSimToPrydeParameters(bs,130/3.6));
 params = @(t,x,u)s2m(bikeSimToPrydeParameters(bs,x(1)));
 
 %% BikeSim results
 Vx = [30,50,80,110,130];
 sys = prydeMotorcycleLongitudinalLPVStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
+results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
@@ -30,9 +30,11 @@ for k = 1:numel(Vx)
     x_mes{k} = [vx,wr,wf];
     
     My = results.My_DR_2;
+    Mbr = -results.My_Bk_2;
+    Mbf = -results.My_Bk_1;
     sf = (pi/180).*[0,1,1] + [1,0,0];
     IC = sf.*x_mes{k}(1,:);
-    x_sys{k} = s.*lsim(sys,My,time,IC,params);
+    x_sys{k} = s.*lsim(sys,[My,Mbr,Mbf],time,IC,params);
 end
 
 %% Plot results

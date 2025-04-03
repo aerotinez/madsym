@@ -4,14 +4,14 @@ setmadsympath();
 %% Parameters
 bs = bigSportsParameters;
 s2m = @(x)cell2mat(struct2cell(x));
-disp(bikeSimToPrydeParameters(bs,30/3.6));
+disp(bikeSimToPrydeParameters(bs,130/3.6));
 params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 
 %% BikeSim results
 Vx = [30,50,80,110,130];
-sys = prydeMotorcycleLateralLPVStateSpace;
+plant = @prydeMotorcycleLongitudinalStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
+results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
@@ -22,38 +22,33 @@ for k = 1:numel(Vx)
     results = readtable(results_path + speed_path + file_name);
     
     time = results.Time;
-    camber = results.Roll;
-    steer = results.Steer;
-    wz = results.AVz;
-    vy = results.VyW0_2./3.6;
-    wx = results.AVx;
-    ws = -results.M_StrSys./0.2212;
-
-    vx = results.VxW0_2.';
+    vx = results.VxW0_2./3.6;
+    wr = results.AVy_W2*6;
+    wf = results.AVy_W1*6;
     
-    s = (180/pi).*[1,1,1,0,1,1] + [0,0,0,1,0,0];
-    x_mes{k} = [camber,steer,wz,vy,wx,ws];
+    s = (180/pi).*[0,1,1] + [1,0,0];
+    x_mes{k} = [vx,wr,wf];
     
-    Mz = results.M_Str_In;
-    p = cell2mat(arrayfun(params,vx,'uniform',0)).';
-    sf = (pi/180).*[1,1,1,0,1,1] + [0,0,0,1,0,0];
+    My = results.My_DR_2;
+    Mbr = -results.My_Bk_2;
+    Mbf = -results.My_Bk_1;
+    p = params(vx(k));
+    sys = plant(p);
+    sf = (pi/180).*[0,1,1] + [1,0,0];
     IC = sf.*x_mes{k}(1,:);
-    x_sys{k} = s.*lsim(sys,Mz,time,IC,p);
+    x_sys{k} = s.*lsim(sys,[My,Mbr,Mbf],time,IC,params);
 end
 
 %% Plot results
-fig = figure("Position",[570,100,1280,720]);
-tl = tiledlayout(6,5,"Parent",fig);
+fig = figure("Position",[570,100,1280,360]);
+tl = tiledlayout(3,5,"Parent",fig);
 
 titles = arrayfun(@(x)"Speed: " + x + "km/h",Vx);
 
 units = [
-    "\gamma (\circ)";
-    "\delta (\circ)";
-    "\omega_z (\circ/s)";
-    "v_y (m/s)";
-    "\omega_x (\circ/s)";
-    "\omega_\delta (\circ/s)"
+    "v_x (m/s)";
+    "\omega_\theta_r (\circ/s)";
+    "\omega_\theta_f (\circ/s)"
     ];
 
 uind = (0:5:25) + 1;
@@ -61,8 +56,8 @@ j = 1;
 
 ts = 1/60;
 
-for k = 1:6*5
-    [row,col] = ind2sub([5,6],k);
+for k = 1:3*5
+    [row,col] = ind2sub([5,3],k);
     axe = nexttile(tl,k);
     hold(axe,"on");
     ns = numel(x_sys{row}(:,col));
@@ -80,10 +75,10 @@ for k = 1:6*5
         ylabel(axe,units(j),'Interpreter','tex','FontSize',14);
         j = j + 1;
     end
-    if k <= 25
+    if k <= 12
         xticks(axe,[]);
     end
-    if k > 25
+    if k > 12
         xlabel(axe,"time (s)","FontSize",14);
     end
 end
