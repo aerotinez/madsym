@@ -1,4 +1,4 @@
-classdef DynamicVariable
+classdef DynamicVariable < handle
     properties (GetAccess = public, SetAccess = private)
         State;
         Rate;
