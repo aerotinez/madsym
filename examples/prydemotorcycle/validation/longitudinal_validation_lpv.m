@@ -20,7 +20,7 @@ for k = 1:numel(Vx)
     speed_path = "\Vx" + n2s(Vx(k)) + "Kph\";
     file_name = "bikesim_results_" + n2s(Vx(k)) + "kph.csv";
     results = readtable(results_path + speed_path + file_name);
-    
+
     time = results.Time;
     vx = results.VxW0_2./3.6;
     wr = results.AVy_W2*6;
@@ -38,7 +38,7 @@ for k = 1:numel(Vx)
 end
 
 %% Plot results
-fig = figure("Position",[570,100,1280,720]);
+fig = figure("Position",[570,100,1280,480]);
 tl = tiledlayout(3,5,"Parent",fig);
 
 titles = arrayfun(@(x)"Speed: " + x + "km/h",Vx);

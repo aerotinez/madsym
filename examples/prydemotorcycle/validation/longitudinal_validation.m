@@ -40,7 +40,7 @@ for k = 1:numel(Vx)
 end
 
 %% Plot results
-fig = figure("Position",[570,100,1280,360]);
+fig = figure("Position",[570,100,1280,480]);
 tl = tiledlayout(3,5,"Parent",fig);
 
 titles = arrayfun(@(x)"Speed: " + x + "km/h",Vx);
@@ -75,10 +75,10 @@ for k = 1:3*5
         ylabel(axe,units(j),'Interpreter','tex','FontSize',14);
         j = j + 1;
     end
-    if k <= 12
+    if k <= 10
         xticks(axe,[]);
     end
-    if k > 12
+    if k > 10
         xlabel(axe,"time (s)","FontSize",14);
     end
 end

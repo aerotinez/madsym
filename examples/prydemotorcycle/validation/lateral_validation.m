@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 vx = [30,50,80,110,130];
 plant = @prydeMotorcycleLateralStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
+results_path = "G:\My Drive\BikeSimResults\BigSports\Chicane";
 
 x_mes = cell(1,numel(vx));
 x_sys = cell(1,numel(vx));
