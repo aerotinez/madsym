@@ -7,11 +7,11 @@ function res = eq(xa,xb)
         res = arrayfun(@isequal,xa,xb);
         return
     end
-    if numel(xa) == 1
+    if isscalar(xa)
         res = arrayfun(@(x)isequal(x,xa),xb);
         return
     end
-    if numel(xb) == 1
+    if isscalar(xb)
         res = arrayfun(@(x)isequal(x,xb),xa);
         return
     end
