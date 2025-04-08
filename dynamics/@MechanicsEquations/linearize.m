@@ -8,6 +8,10 @@ function eom_lin = linearize(obj)
     if ~isempty(obj.Auxiliary)
         v = obj.Auxiliary.States;
     end
+
+    nq = numel(q);
+    nu = numel(u);
+    nv = numel(v);
     
     x = [
         q;
@@ -68,6 +72,61 @@ function eom_lin = linearize(obj)
         Hu = H(:,n + 1:end);
         H = [Hq*C0,Hu];
     end
+
+    eqns = M*x.rate - H*x.independent.state - G*F.state;
+
+    if numel(dependent(u)) > 0
+        eqns_q = eqns(1:nq);
+        eqns_u = eqns(nq + 1:nq + nu);
+
+        eqns_udep = eqns_u(end - numel(u.dependent) + 1:end);
+        [Mu,fu] = massMatrixForm(eqns_udep,u.dependent.state);
+        ud_dep = simplify(expand(syminv(Mu)*fu));
+
+        udi = u.independent.rate;
+        Ju = jacobian([udi;ud_dep],udi);
+
+        eqns_ui = Ju.'*subs(eqns_u,u.dependent.rate,ud_dep);
+
+        eqns_ind = [
+            eqns_q;
+            eqns_ui;
+            ];
+
+        if nv > 0
+            eqns_ind = [
+                eqns_ind;
+                subs(eqns(end - nv:end),u.dependent.rate,ud_dep)
+                ];
+        end
+
+        x = [
+            q;
+            u.independent;
+            v
+            ];
+
+        eqns = eqns_ind;
+    end
+
+    if numel(dependent(q)) > 0
+        eqns_q = eqns(1:nq);
+        Jq = jacobian(q.state,q.independent.state);
+
+        x = [
+            q.independent;
+            x(nq + 1:end)
+            ];
+
+        eqns = [
+            Jq.'*eqns_q;
+            eqns(nq + 1:end);
+            ];
+    end
+
+    [M,f] = massMatrixForm(eqns,x.state);
+    [H,g] = equationsToMatrix(f,x.state);
+    G = jacobian(-g,F.state);
 
     eom_lin = LinearizedMotionEquations(x,M,H,G,F);
 end

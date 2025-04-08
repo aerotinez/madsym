@@ -1,6 +1,6 @@
 function eoml = simplify(obj)
     arguments
-        obj (1,1) LinearizedMotionEquations
+        obj (1,1) LinearizedMotionEquations;
     end
     M = simplify(expand(obj.MassMatrix));
     H = simplify(expand(obj.ForcingMatrix));

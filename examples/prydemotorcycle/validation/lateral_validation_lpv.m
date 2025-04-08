@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 Vx = [30,50,80,110,130];
 sys = prydeMotorcycleLateralLPVStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
+results_path = "G:\My Drive\BikeSimResults\BigSports\Chicane";
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
@@ -87,7 +87,7 @@ for k = 1:6*5
         xlabel(axe,"time (s)","FontSize",14);
     end
 end
-ttl = "Small sinusoidal pertubation results (open loop) ";
+ttl = "Lateral: Chicane results";
 sgtitle(ttl,'FontSize',22);
 leg = legend("ref (bikesim)","est (Pryde model)",'FontSize',14);
 leg.Orientation = "horizontal";
@@ -95,4 +95,4 @@ leg.Layout.Tile = 'south';
 
 %% Save figure
 % dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-% saveas(fig,string(dir) + "open_loop_results.eps",'epsc');
+% saveas(fig,string(dir) + "chicane_results.eps",'epsc');

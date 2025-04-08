@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 Vx = [30,50,80,110,130];
 plant = @prydeMotorcycleLongitudinalStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
+results_path = "G:\My Drive\BikeSimResults\BigSports\Braking";
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
@@ -32,11 +32,12 @@ for k = 1:numel(Vx)
     My = results.My_DR_2;
     Mbr = -results.My_Bk_2;
     Mbf = -results.My_Bk_1;
-    p = params(vx(k));
+    p = params(Vx(k));
     sys = plant(p);
     sf = (pi/180).*[0,1,1] + [1,0,0];
     IC = sf.*x_mes{k}(1,:);
-    x_sys{k} = s.*lsim(sys,[My,Mbr,Mbf],time,IC,params);
+    [~,~,x] = lsim(sys,[My,Mbr,Mbf],time,IC,params);
+    x_sys{k} = s.*x;
 end
 
 %% Plot results
@@ -65,9 +66,10 @@ for k = 1:3*5
     plot(axe,time,x_mes{row}(:,col),"LineWidth",1.5);
     plot(axe,time,x_sys{row}(:,col),"LineWidth",1.5);
     hold(axe,"off");
-    xlim(axe,[0,time(end)]);
     box(axe,"on");
     axis(axe,'tight');
+    xlim(axe,[0,time(end)]);
+    % ylim(axe,[0,axe.YLim(end)]);
     if k < 6
         title(axe,titles(k),'FontSize',14)
     end

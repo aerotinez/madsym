@@ -5,13 +5,14 @@ setmadsympath();
 bs = bigSportsParameters;
 s2m = @(x)cell2mat(struct2cell(x));
 disp(bikeSimToPrydeParameters(bs,130/3.6));
-params = @(t,x,u)s2m(bikeSimToPrydeParameters(bs,x(1)));
+p = s2m(bikeSimToPrydeParameters(bs,130/3.6));
+params = @(t,x,u)[p(1:24);x(1);p(26:end)];
 
 %% BikeSim results
 Vx = [30,50,80,110,130];
 sys = prydeMotorcycleLongitudinalLPVStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
+results_path = "G:\My Drive\BikeSimResults\BigSports\Braking";
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
@@ -34,11 +35,12 @@ for k = 1:numel(Vx)
     Mbf = -results.My_Bk_1;
     sf = (pi/180).*[0,1,1] + [1,0,0];
     IC = sf.*x_mes{k}(1,:);
-    x_sys{k} = s.*lsim(sys,[My,Mbr,Mbf],time,IC,params);
+    [~,~,x] = lsim(sys,[My,Mbr,Mbf],time,IC,params);
+    x_sys{k} = s.*x;
 end
 
 %% Plot results
-fig = figure("Position",[570,100,1280,480]);
+fig = figure("Position",[570,100,1280,420]);
 tl = tiledlayout(3,5,"Parent",fig);
 
 titles = arrayfun(@(x)"Speed: " + x + "km/h",Vx);
@@ -63,9 +65,9 @@ for k = 1:3*5
     plot(axe,time,x_mes{row}(:,col),"LineWidth",1.5);
     plot(axe,time,x_sys{row}(:,col),"LineWidth",1.5);
     hold(axe,"off");
-    xlim(axe,[0,time(end)]);
     box(axe,"on");
     axis(axe,'tight');
+    xlim(axe,[0,time(end)]);
     if k < 6
         title(axe,titles(k),'FontSize',14)
     end
@@ -73,14 +75,14 @@ for k = 1:3*5
         ylabel(axe,units(j),'Interpreter','tex','FontSize',14);
         j = j + 1;
     end
-    if k <= 12
+    if k <= 10
         xticks(axe,[]);
     end
-    if k > 12
+    if k > 10
         xlabel(axe,"time (s)","FontSize",14);
     end
 end
-ttl = "Small sinusoidal pertubation results (open loop) ";
+ttl = "Longitudinal: throttle/braking results ";
 sgtitle(ttl,'FontSize',22);
 leg = legend("ref (bikesim)","est (Pryde model)",'FontSize',14);
 leg.Orientation = "horizontal";
@@ -88,4 +90,4 @@ leg.Layout.Tile = 'south';
 
 %% Save figure
 % dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-% saveas(fig,string(dir) + "open_loop_results.eps",'epsc');
+% saveas(fig,string(dir) + "throttle_braking_results.eps",'epsc');

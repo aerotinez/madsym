@@ -95,6 +95,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     Ort = -sm.Wheelbase.*N(:,1) + rt.EffectiveRollingRadius*N(:,3);
 
     rear_tire = body(N,Ort,Irt,rt.Mass);
+    p.mr = rt.Mass;
 
     %% Front tire
     ft = bs.FrontTire;
@@ -124,6 +125,7 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     steering_head = body(Nsh,Osh,Ish,sh.Mass);
 
     p.Cdelta = rad2deg(sh.Damping);
+    p.mf = ft.Mass;
 
     %% Fork
     ff = bs.Fork;
@@ -141,7 +143,6 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
         rider_lower_body
         rider_upper_body
         swing_arm
-        rear_tire
         ];
 
     % total mass
@@ -174,7 +175,6 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     front_bodies = [
         steering_head
         fork
-        front_tire
         ];
 
     % total mass

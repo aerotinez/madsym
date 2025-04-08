@@ -44,10 +44,10 @@ ylabel(axe,'Im (rad/s)');
 grid(axe,'on');
 grid(axe,'minor');
 
-sgtitle('Speed vs natural fequency');
+sgtitle('Lateral: speed vs natural fequency');
 
-dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-saveas(fig,string(dir) + "speed_natural_frequency.eps",'epsc');
+dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\';
+saveas(fig,string(dir) + "lateral_speed_natural_frequency.eps",'epsc');
 
 %% Nyquist plot
 fig = figure('Position',[100,100,640,240]);
@@ -63,7 +63,7 @@ hold(axe,'off');
 
 xticks(axe,[]);
 yticks(axe,[]);
-title(axe,"Nyquist response");
+title(axe,"Lateral: Nyquist response");
 xlabel(axe,"Re (1/s)");
 ylabel(axe,"Im (rad/s)");
 box(axe,"on");
@@ -74,8 +74,8 @@ f = @(x)string((vmax - vmin)*double(string(x)) + vmin);
 cb.TickLabels = cellfun(f,cb.TickLabels,'uniform',0);
 cb.Label.String = "Speed (km/h)";
 
-% dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-% saveas(fig,string(dir) + "nyquist.eps",'epsc');
+dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\';
+saveas(fig,string(dir) + "lateral_nyquist.eps",'epsc');
 
 function poles = sortpoles(poles)
     [n,m] = size(poles);
