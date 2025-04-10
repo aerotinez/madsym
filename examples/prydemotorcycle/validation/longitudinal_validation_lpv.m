@@ -21,6 +21,7 @@ for k = 1:numel(Vx)
     speed_path = "\Vx" + n2s(Vx(k)) + "Kph\";
     file_name = "bikesim_results_" + n2s(Vx(k)) + "kph.csv";
     results = readtable(results_path + speed_path + file_name);
+    % results = results(175:end,:);
 
     time = results.Time;
     vx = results.VxW0_2./3.6;
@@ -59,15 +60,16 @@ ts = 1/60;
 for k = 1:3*5
     [row,col] = ind2sub([5,3],k);
     axe = nexttile(tl,k);
+    axe.LineWidth = 1;
     hold(axe,"on");
     ns = numel(x_sys{row}(:,col));
-    time = linspace(0,(ns - 1)*ts,ns);
-    plot(axe,time,x_mes{row}(:,col),"LineWidth",1.5);
-    plot(axe,time,x_sys{row}(:,col),"LineWidth",1.5);
+    % time = linspace(0,(ns - 1)*ts,ns);
+    plot(axe,time,x_mes{row}(:,col),"LineWidth",2);
+    plot(axe,time,x_sys{row}(:,col),"LineWidth",2);
     hold(axe,"off");
     box(axe,"on");
     axis(axe,'tight');
-    xlim(axe,[0,time(end)]);
+    % xlim(axe,[0,time(end)]);
     if k < 6
         title(axe,titles(k),'FontSize',14)
     end
@@ -89,5 +91,5 @@ leg.Orientation = "horizontal";
 leg.Layout.Tile = 'south';
 
 %% Save figure
-% dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-% saveas(fig,string(dir) + "throttle_braking_results.eps",'epsc');
+dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
+saveas(fig,string(dir) + "throttle_braking_results.eps",'epsc');

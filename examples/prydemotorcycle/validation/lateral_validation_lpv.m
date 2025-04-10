@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 Vx = [30,50,80,110,130];
 sys = prydeMotorcycleLateralLPVStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\Chicane";
+results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
@@ -64,11 +64,12 @@ ts = 1/60;
 for k = 1:6*5
     [row,col] = ind2sub([5,6],k);
     axe = nexttile(tl,k);
+    axe.LineWidth = 1;
     hold(axe,"on");
     ns = numel(x_sys{row}(:,col));
     time = linspace(0,(ns - 1)*ts,ns);
-    plot(axe,time,x_mes{row}(:,col),"LineWidth",1.5);
-    plot(axe,time,x_sys{row}(:,col),"LineWidth",1.5);
+    plot(axe,time,x_mes{row}(:,col),"LineWidth",2);
+    plot(axe,time,x_sys{row}(:,col),"LineWidth",2);
     hold(axe,"off");
     xlim(axe,[0,time(end)]);
     box(axe,"on");
@@ -87,12 +88,12 @@ for k = 1:6*5
         xlabel(axe,"time (s)","FontSize",14);
     end
 end
-ttl = "Lateral: Chicane results";
+ttl = "Lateral: Double Lane-Change results";
 sgtitle(ttl,'FontSize',22);
 leg = legend("ref (bikesim)","est (Pryde model)",'FontSize',14);
 leg.Orientation = "horizontal";
 leg.Layout.Tile = 'south';
 
 %% Save figure
-% dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-% saveas(fig,string(dir) + "chicane_results.eps",'epsc');
+dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
+saveas(fig,string(dir) + "dlc_results.eps",'epsc');
