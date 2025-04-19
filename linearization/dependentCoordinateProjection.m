@@ -1,12 +1,12 @@
-function C = dependentCoordinateProjection(states,constraints)
+function Rcq = dependentCoordinateProjection(q,eomc)
     arguments
-        states (:,1) DynamicVariable;
-        constraints (1,1) ConstraintEquations;
+        q (:,1) DynamicVariable;
+        eomc (1,1) ConstraintEquations;
     end
-    I = eye(numel(states.state));
-    Pqi = permMatInd(states).';
-    Pqd = permMatDep(states).';
-    fc = constraints.Configuration;
-    Jc = jacobian(fc,states.state);
-    C = (I - Pqd*syminv(Jc*Pqd)*Jc)*Pqi;
+    I = eye(numel(q.state));
+    Pqi = permMatInd(q).';
+    Pqd = permMatDep(q).';
+    fc = eomc.Configuration;
+    Jc = jacobian(fc,q.state);
+    Rcq = (I - Pqd*syminv(Jc*Pqd)*Jc)*Pqi;
 end

@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 Vx = [30,50,80,110,130];
 sys = prydeMotorcycleLateralLPVStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
+results_path = "G:\My Drive\BikeSimResults\BigSports\Chicane";
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
@@ -95,5 +95,5 @@ leg.Orientation = "horizontal";
 leg.Layout.Tile = 'south';
 
 %% Save figure
-dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-saveas(fig,string(dir) + "dlc_results.eps",'epsc');
+% dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
+% saveas(fig,string(dir) + "dlc_results.eps",'epsc');

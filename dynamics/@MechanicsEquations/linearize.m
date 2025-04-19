@@ -9,9 +9,14 @@ function eom_lin = linearize(obj)
         v = obj.Auxiliary.States;
     end
 
+    qi = q.independent;
+    ui = u.independent;
+
     nq = numel(q);
     nu = numel(u);
-    nv = numel(v);
+    
+    nqi = numel(qi);
+    nui = numel(ui);
     
     x = [
         q;
@@ -21,112 +26,88 @@ function eom_lin = linearize(obj)
 
     F = obj.BodyDynamics(1).Inputs;
 
+    z = [
+        x;
+        F
+        ];
+
     eomk = linearize(obj.Kinematics,x,F);
     feomd = @(eom)linearize(eom,x,F);
     eomd = sum(arrayfun(feomd,obj.BodyDynamics));
     
-    eqns = [
-        sym(eomk);
-        sym(eomd)
-        ];
+    eqnsk = sym(eomk);
+    eqnsd = sym(eomd);
 
     if ~isempty(dependent(u))
         A = obj.Constraints.Jacobian;
         Ad = obj.Constraints.JacobianRate;
         eoma = A*u.rate() + Ad*u.state(); 
-        f0 = subsTrim(jacobian(eoma,x.rate),[x;F])*x.rate;
-        f1 = subsTrim(jacobian(eoma,x.state),[x;F])*x.state; 
+        f0 = subsTrim(jacobian(eoma,x.rate),z)*x.rate;
+        f1 = subsTrim(jacobian(eoma,x.state),z)*x.state; 
 
-        eqns = [
-            eqns;
+        eqnsd = [
+            eqnsd;
             f0 + f1 
             ];
     end
 
     if ~isempty(v)
         eomv = linearize(obj.Auxiliary,x,F);
-        eqns = [
-            eqns;
+        eqnsd = [
+            eqnsd;
             sym(eomv)
             ];
     end
 
-    [M,f] = massMatrixForm(eqns,x.state);
-    [H,g] = equationsToMatrix(f,x.state);
-    G = jacobian(-g,F.state);
- 
-    n = numel(q);
-    if numel(dependent(u)) > 0 
-        [C1,C2] = dependentVelocityProjection(q,[u;v],obj.Constraints);
-        C1 = subsTrim(C1,[x;F]);
-        C2 = subsTrim(C2,[x;F]);
-        Hq = H(:,1:n);
-        Hu = H(:,n + 1:end);
-        H = [Hq + Hu*C1,Hu*C2];
-    end
-
-    if numel(dependent(q)) > 0
-        C0 = dependentCoordinateProjection(q,obj.Constraints);
-        C0 = subsTrim(C0,[x;F]);
-        Hq = H(:,1:n);
-        Hu = H(:,n + 1:end);
-        H = [Hq*C0,Hu];
-    end
-
-    eqns = M*x.rate - H*x.independent.state - G*F.state;
-
-    if numel(dependent(u)) > 0
-        eqns_q = eqns(1:nq);
-        eqns_u = eqns(nq + 1:nq + nu);
-
-        eqns_udep = eqns_u(end - numel(u.dependent) + 1:end);
-        [Mu,fu] = massMatrixForm(eqns_udep,u.dependent.state);
-        ud_dep = simplify(expand(syminv(Mu)*fu));
-
-        udi = u.independent.rate;
-        Ju = jacobian([udi;ud_dep],udi);
-
-        eqns_ui = Ju.'*subs(eqns_u,u.dependent.rate,ud_dep);
-
-        eqns_ind = [
-            eqns_q;
-            eqns_ui;
-            ];
-
-        if nv > 0
-            eqns_ind = [
-                eqns_ind;
-                subs(eqns(end - nv:end),u.dependent.rate,ud_dep)
-                ];
-        end
-
-        x = [
-            q;
-            u.independent;
-            v
-            ];
-
-        eqns = eqns_ind;
-    end
-
-    if numel(dependent(q)) > 0
-        eqns_q = eqns(1:nq);
-        Jq = jacobian(q.state,q.independent.state);
-
-        x = [
-            q.independent;
-            x(nq + 1:end)
-            ];
-
-        eqns = [
-            Jq.'*eqns_q;
-            eqns(nq + 1:end);
-            ];
-    end
+    eqns = [
+        eqnsk;
+        eqnsd
+        ];
 
     [M,f] = massMatrixForm(eqns,x.state);
     [H,g] = equationsToMatrix(f,x.state);
     G = jacobian(-g,F.state);
 
-    eom_lin = LinearizedMotionEquations(x,M,H,G,F);
+    if nq == nqi && nu == nui
+        eom_lin = LinearizedMotionEquations(x,M,H,G,F);
+        return
+    end
+
+    Pqi = permMatInd(q).';
+    Pqd = permMatDep(q).';
+
+    Pui = permMatInd(u).';
+    Pud = permMatDep(u).';
+
+    Rcq = eye(nq,'sym');
+    if nq > nqi
+        fc = obj.Constraints.configuration;
+        Jfcq = subsTrim(jacobian(fc,q.state),z);
+        Dq = simplify(expand(-Pqd*syminv(Jfcq*Pqd)));
+        Rcq = simplify(expand((eye(nq) + Dq*Jfcq)*Pqi));
+    end
+
+    fv = obj.Constraints.velocity;
+    Jfvq = subsTrim(jacobian(fv,q.state),z);
+    Jfvu = subsTrim(jacobian(fv,u.state),z);
+    Du = simplify(expand(-Pud*syminv(Jfvu*Pud)));
+    Rvq = simplify(expand(Du*Jfvq*Rcq));
+    Rvu = simplify(expand((eye(nu) + Du*Jfvu)*Pui));
+
+    R = [
+        Rcq,zeros(nq,nui);
+        Rvq,Rvu
+        ];
+
+    xr = [
+        qi;
+        ui;
+        v
+        ];
+
+    Mr = R.'*M*R;
+    Hr = R.'*H*R;
+    Gr = R.'*G;
+
+    eom_lin = LinearizedMotionEquations(xr,Mr,Hr,Gr,F);
 end

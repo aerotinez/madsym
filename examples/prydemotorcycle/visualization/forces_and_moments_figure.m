@@ -96,7 +96,7 @@ nmc = cellstr(nmc);
 leg = legend(axe,nmc{:}, ...
     'FontSize',12, ...
     'NumColumns',2, ...
-    'Location','SouthWest', ...
+    'Location','NorthEast', ...
     'Interpreter','latex', ...
     'IconColumnWidth',32, ...
     'AutoUpdate','off');
@@ -116,7 +116,7 @@ hold(axe,'on');
 % steering axis
 p0 = [
     0,0,0;
-    0,0,2
+    0,0,1.5
     ];
 
 T = rigidtform3d(Rcaster,p_caster);
@@ -124,21 +124,10 @@ p = transformPointsForward(T,p0);
 
 plot3(axe,p(:,1),p(:,2),p(:,3),'k--','LineWidth',1.5);
 
-% camber axis
-p0 = [
-    0,0,0;
-    1.5,0,0
-    ];
-
-T = rigidtform3d(Rpitch,pb);
-p = transformPointsForward(T,p0);
-
-plot3(axe,p(:,1),p(:,2),p(:,3),'k--','LineWidth',1.5);
-
 % pitch axis
 p0 = [
     0,0,0;
-    0,2,0
+    0,0.75,0
     ];
 
 T = rigidtform3d(Rpitch,pr);
@@ -146,8 +135,52 @@ p = transformPointsForward(T,p0);
 
 plot3(axe,p(:,1),p(:,2),p(:,3),'k--','LineWidth',1.5);
 
+% front pitch axis
+p0 = [
+    0,0,0;
+    0,0.75,0
+    ];
+
+T = rigidtform3d(Rpitch,pb);
+p = transformPointsForward(T,p0);
+
+plot3(axe,p(:,1),p(:,2),p(:,3),'k--','LineWidth',1.5);
+
+% front pitch axis
+p0 = [
+    0,0,0;
+    0,0.75,0
+    ];
+
+T = rigidtform3d(Rsteer,pf);
+p = transformPointsForward(T,p0);
+
+plot3(axe,p(:,1),p(:,2),p(:,3),'k--','LineWidth',1.5);
+
+% aero reference point
+p0 = [
+    0,0,0;
+    0,0,h
+    ];
+
+T = rigidtform3d(Rpitch,pb - Rpitch*[0;0;h]);
+p = transformPointsForward(T,p0);
+
+plot3(axe,p(:,1),p(:,2),p(:,3),'k--','LineWidth',1.5);
+
+p0 = [
+    0,0,0;
+    (a - an)/cosd(caster),0,0;
+    ];
+
+T = rigidtform3d(Rpitch,pb - Rpitch*[0;0;h]);
+p = transformPointsForward(T,p0);
+
+plot3(axe,p(:,1),p(:,2),p(:,3),'k--','LineWidth',1.5);
+
 hold(axe,'off');
+axis(axe,'tight');
 
 %% Save figure
-dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\';
+dir = 'C:\Users\marti\PhD\ThesisV2\MotorcycleDynamics\ForcesAndMoments\Figures\';
 saveas(fig,string(dir) + "chassis_forces_unlabeled.eps",'epsc');
