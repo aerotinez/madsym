@@ -87,8 +87,7 @@ function eom_lin = linearize(obj)
         Jfcdq = simplify(expand(subsTrim(jacobian(fcd,q.state),z)));
         Jfcdqd = simplify(expand(subsTrim(jacobian(fcd,q.rate),z)));
         Dqd = -Pqd*syminv(Jfcdqd*Pqd);
-        Rkq = simplify(expand(Dqd*Jfcdq*Rcq));
-        Rkqd = simplify(expand((eye(nq) + Dqd*Jfcdqd)*Pqi));
+        Rkq = 
     end
 
     Rvq = zeros(nq);
@@ -114,17 +113,7 @@ function eom_lin = linearize(obj)
         Raud = simplify(expand((eye(nu) + Dud*Jfaud)*Pui));
     end
 
-    Rmd = blkdiag(Rkqd,Raud);
-
-    Rm = [
-        Rkq,zeros(nq,nui);
-        Raq,Rau
-        ];
-
-    Rh = [
-        Rcq,zeros(nq,nui);
-        Rvq,Rvu
-        ];
+    
 
     xr = [
         qi;
@@ -132,11 +121,16 @@ function eom_lin = linearize(obj)
         v
         ];
 
-    P = blkdiag(Pqi,Pui);
+    eqnsr = M*Rmd*xr.rate - (H*Rh - M*Rm)*xr.state;
 
-    Mr = P.'*M*Rmd;
-    Hr = P.'*(H*Rh - M*Rm);
-    Gr = P.'*G;
-    
+    if ~isempty(F)
+        eqnsr = eqnsr - G*F.state;
+    end
+
+    [eqnsr,~] = reduceRedundancies(eqnsr,xr.state);
+    [Mr,fr] = massMatrixForm(eqnsr,xr.state);
+    [Hr,gr] = equationsToMatrix(fr,xr.state);
+    Gr = jacobian(-gr,F.state);
+
     eom_lin = LinearizedMotionEquations(xr,Mr,Hr,Gr,F);
 end
