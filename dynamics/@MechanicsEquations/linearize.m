@@ -33,7 +33,8 @@ function eom_lin = linearize(obj)
 
     eomk = linearize(obj.Kinematics,x,F);
     feomd = @(eom)linearize(eom,x,F);
-    eomd = sum(arrayfun(feomd,obj.BodyDynamics));
+    eomd = arrayfun(feomd,obj.BodyDynamics);
+    eomd = sum(eomd);
     
     eqnsk = sym(eomk);
     eqnsd = sym(eomd);

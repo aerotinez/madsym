@@ -14,9 +14,10 @@ classdef DynamicVariable < handle
                 x0 (1,1) sym = nan(1,1);
                 dx0dt (1,1) sym = nan(1,1);
             end
-            t = sym('t');
+            t = sym('t',{'real','positive'});
             f = symfun(str + "(t)",t);
             obj.State = f(t);
+            assume(obj.State,'real');
             obj.Rate = diff(obj.State,t);
             obj.IsDependent = isdep;
             obj.TrimState = obj.State;
