@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 Vx = [30,50,80,110,130];
 sys = prydeMotorcycleLateralLPVStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
+results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
@@ -42,8 +42,9 @@ for k = 1:numel(Vx)
 end
 
 %% Plot results
-fig = figure("Position",[100,100,1280,720]);
-tl = tiledlayout(6,5,"Parent",fig);
+w = 1366;
+fig = figure("Position",[1,50,1280,1080]);
+tl = tiledlayout(6,5,"Parent",fig,"TileSpacing","tight","Padding","compact");
 
 titles = arrayfun(@(x)"Speed: " + x + "km/h",Vx);
 
@@ -68,32 +69,38 @@ for k = 1:6*5
     hold(axe,"on");
     ns = numel(x_sys{row}(:,col));
     time = linspace(0,(ns - 1)*ts,ns);
-    plot(axe,time,x_mes{row}(:,col),"LineWidth",2);
-    plot(axe,time,x_sys{row}(:,col),"LineWidth",2);
+    plot(axe,time,x_mes{row}(:,col),"LineWidth",1);
+    plot(axe,time,x_sys{row}(:,col),"LineWidth",1);
     hold(axe,"off");
-    xlim(axe,[0,time(end)]);
     box(axe,"on");
     axis(axe,'tight');
+    xlim(axe,[0,0.8*time(end)]);
+    if row < 4 
+        xlim(axe,[0,0.6*time(end)]);
+    end
     if k < 6
-        title(axe,titles(k),'FontSize',14)
+        title(axe,titles(k),'FontSize',7)
+    end
+    if col == 4
+        axe.YAxis.Exponent = -2;
     end
     if ismember(k,uind)
-        ylabel(axe,units(j),'Interpreter','tex','FontSize',14);
+        ylabel(axe,units(j),'Interpreter','tex');
         j = j + 1;
     end
     if k <= 25
         xticks(axe,[]);
     end
     if k > 25
-        xlabel(axe,"time (s)","FontSize",14);
+        xlabel(axe,"time (s)");
     end
 end
-ttl = "Lateral: Double Lane-Change results";
-sgtitle(ttl,'FontSize',22);
-leg = legend("ref (bikesim)","est (Pryde model)",'FontSize',14);
+ttl = "Lateral: Chicane results";
+sgtitle(ttl);
+leg = legend("ref (bikesim)","est (Pryde model)");
 leg.Orientation = "horizontal";
 leg.Layout.Tile = 'south';
 
 %% Save figure
-% dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-% saveas(fig,string(dir) + "dlc_results.eps",'epsc');
+% dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
+% saveThesisFig(fig,dir + "chicane_results");

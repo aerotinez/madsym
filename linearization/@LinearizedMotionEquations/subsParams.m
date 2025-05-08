@@ -6,7 +6,7 @@ function eom = subsParams(obj,ovals,nvals)
     end
     x = obj.States;
     u = obj.Inputs;
-    f = @(x)simplify(expand(subs(x,ovals,nvals)));
+    f = @(x)subs(x,ovals,nvals);
     M = f(obj.MassMatrix);
     H = f(obj.ForcingMatrix);
     G = f(obj.InputMatrix);

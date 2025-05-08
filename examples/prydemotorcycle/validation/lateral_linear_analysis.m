@@ -3,6 +3,7 @@ setmadsympath();
 
 %% Parameters
 bs = bigSportsParameters;
+% bs.SteeringHead.Damping = 0.5;
 s2m = @(x)cell2mat(struct2cell(x));
 disp(bikeSimToPrydeParameters(bs,30/3.6));
 params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
@@ -23,10 +24,11 @@ poles = sortpoles(cell2mat(cellfun(@pole,sys,"uniform",0).'));
 m = matlabColors();
 
 fig = figure('Position',[100,480,640,240]);
-tl = tiledlayout(fig,1,2);
+tl = tiledlayout(fig,1,2,'TileSpacing','tight','Padding','compact');
 axe = nexttile(tl);
 h = plot(axe,vx,real(poles),'LineWidth',2);
 h(6).LineStyle = '--';
+h(3).LineStyle = '--';
 axis(axe,'tight');
 ylim(axe,[-120,20]);
 box(axe,'on');
@@ -46,8 +48,8 @@ grid(axe,'minor');
 
 sgtitle('Lateral: speed vs natural fequency');
 
-dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\';
-saveas(fig,string(dir) + "lateral_speed_natural_frequency.eps",'epsc');
+dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
+saveThesisFig(fig,dir + "lateral_speed_natural_frequency");
 
 %% Nyquist plot
 fig = figure('Position',[100,100,640,240]);
@@ -74,8 +76,8 @@ f = @(x)string((vmax - vmin)*double(string(x)) + vmin);
 cb.TickLabels = cellfun(f,cb.TickLabels,'uniform',0);
 cb.Label.String = "Speed (km/h)";
 
-dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\';
-saveas(fig,string(dir) + "lateral_nyquist.eps",'epsc');
+dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
+saveThesisFig(fig,dir + "lateral_nyquist");
 
 function poles = sortpoles(poles)
     [n,m] = size(poles);

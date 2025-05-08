@@ -23,7 +23,7 @@ poles = sortpoles(cell2mat(cellfun(@pole,sys,"uniform",0).'));
 m = matlabColors();
 
 fig = figure('Position',[100,480,640,240]);
-tl = tiledlayout(fig,1,2);
+tl = tiledlayout(fig,1,2,'TileSpacing','tight','Padding','compact');
 axe = nexttile(tl);
 h = plot(axe,vx,real(poles),'LineWidth',2);
 axis(axe,'tight');
@@ -44,8 +44,8 @@ grid(axe,'minor');
 
 sgtitle('Longitudinal: speed vs natural fequency');
 
-dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\';
-saveas(fig,string(dir) + "longitudinal_speed_natural_frequency.eps",'epsc');
+dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
+saveThesisFig(fig,dir + "longitudinal_speed_natural_frequency");
 
 %% Nyquist plot
 fig = figure('Position',[100,100,640,240]);
@@ -72,8 +72,8 @@ f = @(x)string((vmax - vmin)*double(string(x)) + vmin);
 cb.TickLabels = cellfun(f,cb.TickLabels,'uniform',0);
 cb.Label.String = "Speed (km/h)";
 
-dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\';
-saveas(fig,string(dir) + "longitudinal_nyquist.eps",'epsc');
+dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
+saveThesisFig(fig,dir + "longitudinal_nyquist");
 
 function poles = sortpoles(poles)
     [n,m] = size(poles);

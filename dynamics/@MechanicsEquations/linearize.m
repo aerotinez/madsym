@@ -31,8 +31,8 @@ function eom_lin = linearize(obj)
         F
         ];
 
-    eomk = linearize(obj.Kinematics,x,F);
-    feomd = @(eom)linearize(eom,x,F);
+    eomk = simplify(linearize(obj.Kinematics,x,F));
+    feomd = @(eom)simplify(linearize(eom,x,F));
     eomd = arrayfun(feomd,obj.BodyDynamics);
     eomd = sum(eomd);
     
@@ -43,8 +43,8 @@ function eom_lin = linearize(obj)
         A = obj.Constraints.Jacobian;
         Ad = obj.Constraints.JacobianRate;
         eoma = A*u.rate() + Ad*u.state(); 
-        f0 = subsTrim(jacobian(eoma,x.rate),z)*x.rate;
-        f1 = subsTrim(jacobian(eoma,x.state),z)*x.state; 
+        f0 = simplify(expand(subsTrim(jacobian(eoma,x.rate),z)*x.rate));
+        f1 = simplify(expand(subsTrim(jacobian(eoma,x.state),z)*x.state)); 
 
         eqnsd = [
             eqnsd;
