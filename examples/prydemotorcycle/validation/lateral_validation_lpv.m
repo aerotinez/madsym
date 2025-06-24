@@ -22,7 +22,12 @@ for k = 1:numel(Vx)
     results = readtable(results_path + speed_path + file_name);
     
     time = results.Time;
-    camber = results.Roll;
+    yaw = deg2rad(results.Yaw);
+    pitch = deg2rad(results.Pitch);
+    roll = deg2rad(results.Roll_E);
+    R = angle2dcm(yaw,pitch,roll);
+    [yaw,camber,pitch] = dcm2angle(R,'ZXY');
+    camber = rad2deg(camber);
     steer = results.Steer;
     wz = results.AVz;
     vy = results.VyW0_2./3.6;
@@ -60,7 +65,7 @@ units = [
 uind = (0:5:25) + 1;
 j = 1;
 
-ts = 1/60;
+ts = 1/120;
 
 for k = 1:6*5
     [row,col] = ind2sub([5,6],k);
@@ -74,9 +79,9 @@ for k = 1:6*5
     hold(axe,"off");
     box(axe,"on");
     axis(axe,'tight');
-    xlim(axe,[0,0.8*time(end)]);
+    xlim(axe,[0,time(end)]);
     if row < 4 
-        xlim(axe,[0,0.6*time(end)]);
+        xlim(axe,[0,time(end)]);
     end
     if k < 6
         title(axe,titles(k),'FontSize',7)

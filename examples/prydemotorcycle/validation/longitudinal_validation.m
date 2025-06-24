@@ -20,7 +20,7 @@ for k = 1:numel(Vx)
     speed_path = "\Vx" + n2s(Vx(k)) + "Kph\";
     file_name = "bikesim_results_" + n2s(Vx(k)) + "kph.csv";
     results = readtable(results_path + speed_path + file_name);
-    results = results(101:end,:);
+    % results = results(101:end,:);
     
     time = results.Time;
     vx = results.VxW0_2./3.6;
@@ -56,13 +56,14 @@ units = [
 uind = (0:5:25) + 1;
 j = 1;
 
-ts = 1/60;
+ts = 1/120;
 
 for k = 1:3*5
     [row,col] = ind2sub([5,3],k);
     axe = nexttile(tl,k);
     hold(axe,"on");
     ns = numel(x_sys{row}(:,col));
+    time = 0:ts:ts.*size(x_sys{row},1) - ts;
     plot(axe,time,x_mes{row}(:,col),"LineWidth",1.5);
     plot(axe,time,x_sys{row}(:,col),"LineWidth",1.5);
     hold(axe,"off");

@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 vx = [30,50,80,110,130];
 plant = @prydeMotorcycleLateralStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
+results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
 
 x_mes = cell(1,numel(vx));
 x_sys = cell(1,numel(vx));
@@ -22,7 +22,12 @@ for k = 1:numel(vx)
     results = readtable(results_path + speed_path + file_name);
     
     time = results.Time;
-    camber = results.Roll;
+    yaw = deg2rad(results.Yaw);
+    pitch = deg2rad(results.Pitch);
+    roll = deg2rad(results.Roll_E);
+    R = angle2dcm(yaw,pitch,roll);
+    [yaw,camber,pitch] = dcm2angle(R,'ZXY');
+    camber = rad2deg(camber);
     steer = results.Steer;
     wz = results.AVz;
     vy = results.VyW0_2./3.6;
