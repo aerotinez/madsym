@@ -1,4 +1,4 @@
-close("all"); clear; clc;
+clc;
 setmadsympath();
 
 %% Parameters
@@ -11,7 +11,8 @@ params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 Vx = [30,50,80,110,130];
 sys = prydeMotorcycleLateralLPVStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
+scen = "Chicane";
+results_path = "G:\My Drive\BikeSimResults\BigSports\" + scen;
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
@@ -48,7 +49,8 @@ end
 
 %% Plot results
 w = 1366;
-fig = figure("Position",[1,50,1280,1080]);
+% fig = figure("Position",[1,50,1280,1080]);
+fig = figure("Position",[100,100,1280,720]);
 tl = tiledlayout(6,5,"Parent",fig,"TileSpacing","tight","Padding","compact");
 
 titles = arrayfun(@(x)"Speed: " + x + "km/h",Vx);
@@ -100,7 +102,7 @@ for k = 1:6*5
         xlabel(axe,"time (s)");
     end
 end
-ttl = "Lateral: Chicane results";
+ttl = "Lateral: " + scen + " results";
 sgtitle(ttl);
 leg = legend("ref (bikesim)","est (Pryde model)");
 leg.Orientation = "horizontal";

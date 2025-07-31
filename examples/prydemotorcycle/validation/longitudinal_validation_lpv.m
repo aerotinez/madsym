@@ -15,6 +15,7 @@ results_path = "G:\My Drive\BikeSimResults\BigSports\Braking";
 
 x_mes = cell(1,numel(Vx));
 x_sys = cell(1,numel(Vx));
+t = cell(1,numel(Vx));
 
 for k = 1:numel(Vx)
     speed_path = "\Vx" + n2s(Vx(k)) + "Kph\";
@@ -38,6 +39,7 @@ for k = 1:numel(Vx)
     IC = sf.*x_mes{k}(1,:);
     [~,~,x] = lsim(sys,[My,Mbr,Mbf],time,IC,p);
     x_sys{k} = s.*x;
+    t{k} = time;
 end
 
 %% Plot results
@@ -64,7 +66,7 @@ for k = 1:3*5
     axe.LineWidth = 1;
     hold(axe,"on");
     ns = numel(x_sys{row}(:,col));
-    % time = linspace(0,(ns - 1)*ts,ns);
+    time = linspace(0,(ns - 1)*ts,ns);
     plot(axe,time,x_mes{row}(:,col),"LineWidth",1);
     plot(axe,time,x_sys{row}(:,col),"LineWidth",1);
     hold(axe,"off");

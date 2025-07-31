@@ -46,7 +46,7 @@ for k = 1:numel(vx)
 end
 
 %% Plot results
-fig = figure("Position",[570,100,1280,720]);
+fig = figure("Position",[100,50,1280,720]);
 tl = tiledlayout(6,5,"Parent",fig);
 
 titles = arrayfun(@(x)"Speed: " + x + "km/h",vx);

@@ -220,119 +220,32 @@ function p = bikeSimToPrydeParameters(bikesim_params,vx)
     p.Kyvr = rt.RollingResistanceTimeConstant*3.6;
     
     % Normal forces at trim
-    fz = normalForcesAtTrim(cell2mat(struct2cell(p)));
-    fzr = fz(1);
-    fzf = fz(2);
+    p.fzf0 = ft.Pacejka.fz0;
+    p.fzr0 = rt.Pacejka.fz0;
 
-    %% Front tire parameters
+    p.pKxf1 = ft.Pacejka.pkx1;
+    p.pKxf2 = ft.Pacejka.pkx2;
+    p.pKyf1 = ft.Pacejka.pky1;
+    p.pKxf3 = ft.Pacejka.pkx3;
+    p.pKyf2 = ft.Pacejka.pky2;
+    p.pKyf3 = ft.Pacejka.pky3;
+    p.pKyf6 = ft.Pacejka.pky6;
+    p.pKyf7 = ft.Pacejka.pky7;
+    p.pKxr1 = rt.Pacejka.pkx1;
+    p.pKxr2 = rt.Pacejka.pkx2;
+    p.pKyr1 = rt.Pacejka.pky1;
+    p.pKxr3 = rt.Pacejka.pkx3;
+    p.pKyr2 = rt.Pacejka.pky2;
+    p.pKyr3 = rt.Pacejka.pky3;
+    p.pKyr6 = rt.Pacejka.pky6;
+    p.pKyr7 = rt.Pacejka.pky7;
+    p.qDzf1 = ft.Pacejka.qdz1;
+    p.qDzf2 = ft.Pacejka.qdz2;
+    p.qDzf8 = ft.Pacejka.qdz8;
+    p.qDzf9 = ft.Pacejka.qdz9;
+    p.qDzr1 = rt.Pacejka.qdz1;
+    p.qDzr2 = rt.Pacejka.qdz2;
+    p.qDzr8 = rt.Pacejka.qdz8;
+    p.qDzr9 = rt.Pacejka.qdz9;
 
-    fz0f = ft.Pacejka.fz0;
-
-    pp = [
-        ft.Pacejka.pkx1;
-        ft.Pacejka.pkx2;
-        ft.Pacejka.pkx3;
-        ];
-
-    p.Kxkf = fxCoeffs(fzf,fz0f,pp);
-
-    pp = [
-        ft.Pacejka.pky1;
-        ft.Pacejka.pky2;
-        ft.Pacejka.pky3;
-        ft.Pacejka.pky6;
-        ft.Pacejka.pky7
-        ];
-
-    [p.Kyaf,p.Kygf]= fyCoeffs(fzf,fz0f,pp);
-    p.Kyaf = -p.Kyaf;
-
-    pp = [
-        ft.Pacejka.pky1;
-        ft.Pacejka.pky2;
-        ft.Pacejka.pky3;
-        ft.Pacejka.qdz1;
-        ft.Pacejka.qdz2;
-        ft.Pacejka.qdz8;
-        ft.Pacejka.qdz9
-        ];
-
-    [p.Kzaf,p.Kzgf]= tzCoeffs(fzf,fz0f,p.tf,pp);
-    p.Kzaf = -p.Kzaf;
-
-    %% Rear tire parameters
-
-    fz0r = rt.Pacejka.fz0;
-
-    pp = [
-        rt.Pacejka.pkx1;
-        rt.Pacejka.pkx2;
-        rt.Pacejka.pkx3;
-        ];
-
-    p.Kxkr = fxCoeffs(fzr,fz0r,pp);
-
-    pp = [
-        rt.Pacejka.pky1;
-        rt.Pacejka.pky2;
-        rt.Pacejka.pky3;
-        rt.Pacejka.pky6;
-        rt.Pacejka.pky7
-        ];
-
-    [p.Kyar,p.Kygr]= fyCoeffs(fzr,fz0r,pp);
-    p.Kyar = -p.Kyar;
-
-    pp = [
-        rt.Pacejka.pky1;
-        rt.Pacejka.pky2;
-        rt.Pacejka.pky3;
-        rt.Pacejka.qdz1;
-        rt.Pacejka.qdz2;
-        rt.Pacejka.qdz8;
-        rt.Pacejka.qdz9
-        ];
-
-    [p.Kzar,p.Kzgr]= tzCoeffs(fzr,fz0r,p.tr,pp);
-    p.Kzar = -p.Kzar;
-
-end
-
-function dfz = fzRatio(fz,fz0)
-    dfz = (fz - fz0)/fz0;
-end
-
-function K = fxCoeffs(fz,fz0,p)
-    p1 = p(1);
-    p2 = p(2);
-    p3 = p(3);
-    dfz = fzRatio(fz,fz0);
-    n = p3*dfz;
-    K = fz*(p1 + p2*dfz)*exp(n);
-end
-
-function [Ka,Kg] = fyCoeffs(fz,fz0,p)
-    p1 = p(1);
-    p2 = p(2);
-    p3 = p(3);
-    p6 = p(4);
-    p7 = p(5);
-    dfz = fzRatio(fz,fz0);
-    ang = p2*atan(fz/(fz0*p3));
-    Ka = fz0*p1*sin(ang);
-    Kg = fz*(p6 + p7*dfz);
-end
-
-function [Ka,Kg] = tzCoeffs(fz,fz0,R0,p)
-    p1 = p(1);
-    p2 = p(2);
-    p3 = p(3);
-    q1 = p(4);
-    q2 = p(5);
-    q8 = p(6);
-    q9 = p(7);
-    dfz = fzRatio(fz,fz0);
-    ang = p2*atan(fz/(fz0*p3));
-    Ka = -R0*fz*p1*sin(ang)*(q1 + q2*dfz);
-    Kg = R0*fz*(q8 + q9*dfz);
 end

@@ -5,6 +5,7 @@ function eom_lin = linearize(obj)
     q = obj.Kinematics.States;
     u = obj.Kinematics.Inputs;
     v = DynamicVariable.empty(0,1);
+
     if ~isempty(obj.Auxiliary)
         v = obj.Auxiliary.States;
     end
@@ -14,14 +15,15 @@ function eom_lin = linearize(obj)
 
     nq = numel(q);
     nu = numel(u);
+    nv = numel(v);
     
     nqi = numel(qi);
     nui = numel(ui);
     
     x = [
         q;
-        u;
         v;
+        u
         ];
 
     F = obj.BodyDynamics(1).Inputs;
@@ -55,8 +57,8 @@ function eom_lin = linearize(obj)
     if ~isempty(v)
         eomv = linearize(obj.Auxiliary,x,F);
         eqnsd = [
-            eqnsd;
             sym(eomv)
+            eqnsd
             ];
     end
 
@@ -72,8 +74,8 @@ function eom_lin = linearize(obj)
     Pqi = permMatInd(q).';
     Pqd = permMatDep(q).';
 
-    Pui = permMatInd(u).';
-    Pud = permMatDep(u).';
+    Pui = permMatInd([v;u]).';
+    Pud = permMatDep([v;u]).';
 
     Rcq = eye(nq);
     Rkq = zeros(nq);
@@ -93,44 +95,44 @@ function eom_lin = linearize(obj)
     end
 
     Rvq = zeros(nq);
-    Rvu = eye(nu);
+    Rvu = eye(nu + nv);
     Raq = zeros(nq);
-    Rau = zeros(nu);
-    Raud = eye(nu);
+    Rau = zeros(nu + nv);
+    Raud = eye(nu + nv);
     if nu > nui
         fv = obj.Constraints.velocity;
         Jfvq = simplify(expand(subsTrim(jacobian(fv,q.state),z)));
-        Jfvu = simplify(expand(subsTrim(jacobian(fv,u.state),z)));
+        Jfvu = simplify(expand(subsTrim(jacobian(fv,state([v;u])),z)));
         Du = -Pud*syminv(Jfvu*Pud);
         Rvq = simplify(expand(Du*Jfvq*Rcq));
-        Rvu = simplify(expand((eye(nu) + Du*Jfvu)*Pui));
+        Rvu = simplify(expand((eye(nu + nv) + Du*Jfvu)*Pui));
 
         fa = obj.Constraints.acceleration;
         Jfaq = simplify(expand(subsTrim(jacobian(fa,q.state),z)));
-        Jfau = simplify(expand(subsTrim(jacobian(fa,u.state),z)));
-        Jfaud = simplify(expand(subsTrim(jacobian(fa,u.rate),z)));
+        Jfau = simplify(expand(subsTrim(jacobian(fa,state([v;u])),z)));
+        Jfaud = simplify(expand(subsTrim(jacobian(fa,rate([v;u])),z)));
         Dud = -Pud*syminv(Jfaud*Pud);
         Raq = simplify(expand(Dud*(Jfaq*Rcq + Jfau*Rvq)));
         Rau = simplify(expand(Dud*Jfau*Rvu));
-        Raud = simplify(expand((eye(nu) + Dud*Jfaud)*Pui));
+        Raud = simplify(expand((eye(nu + nv) + Dud*Jfaud)*Pui));
     end
 
     Rmd = blkdiag(Rkqd,Raud);
 
     Rm = [
-        Rkq,zeros(nq,nui);
+        Rkq,zeros(nq,nui + nv);
         Raq,Rau
         ];
 
     Rh = [
-        Rcq,zeros(nq,nui);
+        Rcq,zeros(nq,nui + nv);
         Rvq,Rvu
         ];
 
     xr = [
         qi;
-        ui;
-        v
+        v;
+        ui
         ];
 
     P = blkdiag(Pqi,Pui);
