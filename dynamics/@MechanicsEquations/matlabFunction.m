@@ -15,8 +15,10 @@ function matlabFunction(obj,name,parameters)
     matlabFunction(obj.Kinematics,name,parameters);
     movefile(name + "Kinematics",dir_name);
 
-    matlabFunction(obj.Constraints,name,parameters);
-    movefile(name + "Constraints",dir_name);
+    if ~isempty(obj.Constraints)
+        matlabFunction(obj.Constraints,name,parameters);
+        movefile(name + "Constraints",dir_name);
+    end
 
     for k = 1:numel(obj.BodyDynamics)
         matlabFunction(obj.BodyDynamics(k),name + "Body" + k,x,parameters);
@@ -42,11 +44,19 @@ function matlabFunction(obj,name,parameters)
         end
     end
     fprintf(fid,";\n");
-    fprintf(fid,"    Mc = " + name + "ConstraintMassMatrix(x,p);\n");
+
+    if ~isempty(obj.Constraints)
+        fprintf(fid,"    Mc = " + name + "ConstraintMassMatrix(x,p);\n");
+    end
+
     fprintf(fid,"    M = [\n");
     fprintf(fid,"        Mk,zeros(" + nq + "," + nu + ");\n");
     fprintf(fid,"        zeros(" + nui + "," + nq + "),Md;\n");
-    fprintf(fid,"        zeros(" + nud + "," + nq + "),Mc\n");
+
+    if ~isempty(obj.Constraints)
+        fprintf(fid,"        zeros(" + nud + "," + nq + "),Mc\n");
+    end
+
     fprintf(fid,"        ];\n");
     fprintf(fid,"end\n");
     fclose(fid);
@@ -64,11 +74,19 @@ function matlabFunction(obj,name,parameters)
         end
     end
     fprintf(fid,";\n");
-    fprintf(fid,"    fc = " + name + "ConstraintForcingVector(x(1:" + nq + "),x(" + (nq + 1) + ":end),p);\n");
+
+    if ~isempty(obj.Constraints)
+        fprintf(fid,"    fc = " + name + "ConstraintForcingVector(x(1:" + nq + "),x(" + (nq + 1) + ":end),p);\n");
+    end
+
     fprintf(fid,"    f = [\n");
     fprintf(fid,"        fk;\n");
     fprintf(fid,"        fd;\n");
-    fprintf(fid,"        fc\n");
+
+    if ~isempty(obj.Constraints)
+        fprintf(fid,"        fc\n");
+    end
+    
     fprintf(fid,"        ];\n");
     fprintf(fid,"end\n");
     fclose(fid);

@@ -48,8 +48,8 @@ grid(axe,'minor');
 
 sgtitle('Lateral: speed vs natural fequency');
 
-dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
-saveThesisFig(fig,dir + "lateral_speed_natural_frequency");
+% dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
+% saveThesisFig(fig,dir + "lateral_speed_natural_frequency");
 
 %% Nyquist plot
 fig = figure('Position',[100,100,640,240]);
@@ -76,8 +76,8 @@ f = @(x)string((vmax - vmin)*double(string(x)) + vmin);
 cb.TickLabels = cellfun(f,cb.TickLabels,'uniform',0);
 cb.Label.String = "Speed (km/h)";
 
-dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
-saveThesisFig(fig,dir + "lateral_nyquist");
+% dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
+% saveThesisFig(fig,dir + "lateral_nyquist");
 
 function poles = sortpoles(poles)
     [n,m] = size(poles);

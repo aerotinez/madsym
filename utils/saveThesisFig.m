@@ -12,8 +12,8 @@ function saveThesisFig(fig, name)
     % Screen DPI and figure aspect
     dpi = get(0, 'ScreenPixelsPerInch');
     fig_px = fig.Position;
-    fig_cm = fig_px(3:4) * 2.54 / dpi;
-    aspect_ratio = fig_cm(2) / fig_cm(1);
+    fig_cm = fig_px(3:4) / dpi;
+    aspect_ratio = fig_cm(1) / fig_cm(2);
 
     % Detect tiledlayout and compute padding
     hasTiledLayout = any(arrayfun(@(c) isa(c, 'matlab.graphics.layout.TiledChartLayout'), fig.Children));

@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeParameters(bs,v/3.6));
 vx = [30,50,80,110,130];
 plant = @prydeMotorcycleLateralStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
+results_path = "G:\My Drive\BikeSimResults\BigSports\Chicane";
 
 x_mes = cell(1,numel(vx));
 x_sys = cell(1,numel(vx));
@@ -46,8 +46,12 @@ for k = 1:numel(vx)
 end
 
 %% Plot results
-fig = figure("Position",[100,50,1280,720]);
-tl = tiledlayout(6,5,"Parent",fig);
+fig = figure("Position",[100,50,840,640]);
+
+tl = tiledlayout(6,5, ...
+    "Parent",fig, ...
+    "Padding","compact", ...
+    "TileSpacing","tight");
 
 titles = arrayfun(@(x)"Speed: " + x + "km/h",vx);
 
@@ -78,22 +82,22 @@ for k = 1:6*5
     box(axe,"on");
     axis(axe,'tight');
     if k < 6
-        title(axe,titles(k),'FontSize',14)
+        title(axe,titles(k),'FontSize',12)
     end
     if ismember(k,uind)
-        ylabel(axe,units(j),'Interpreter','tex','FontSize',14);
+        ylabel(axe,units(j),'Interpreter','tex','FontSize',12);
         j = j + 1;
     end
     if k <= 25
         xticks(axe,[]);
     end
     if k > 25
-        xlabel(axe,"time (s)","FontSize",14);
+        xlabel(axe,"time (s)","FontSize",12);
     end
 end
 ttl = "Small sinusoidal pertubation results (open loop) ";
-sgtitle(ttl,'FontSize',22);
-leg = legend("ref (bikesim)","est (Pryde model)",'FontSize',14);
+sgtitle(ttl,'FontSize',12);
+leg = legend("ref (bikesim)","est (Pryde model)",'FontSize',12);
 leg.Orientation = "horizontal";
 leg.Layout.Tile = 'south';
 

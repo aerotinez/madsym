@@ -2,36 +2,462 @@ close("all"); clear; clc;
 setmadsympath;
 dir = "C:\Users\marti\madsym\examples\prydemotorcycle\visualization\BigSports\STL\";
 
-fig = animationCanvas;
-axe = fig.Children;
+m = matlabColors;
 
-%% Global geometric parameters
-geom_params = bikeSimGeometricParameters();
-geom_params.RearCrownRadius = 70E-03;
-geom_params.RearRadius = 290E-03;
-geom_params.Trim = 10;
-geom_params.SwingArmOffset = 70E-03;
-geom_params.Wheelbase = 1300E-03;
-geom_params.Caster = 24;
-geom_params.Rake = 26.5E-03;
-geom_params.ForkLength = 650E-03;
-geom_params.HandlebarOffset = 40E-03;
-geom_params.HandlebarHeight = 30E-03;
-geom_params.RiderLean = 45;
-geom_params.RiderWidth = 404E-03;
-geom_params.RiderDepth = 296E-03;
-geom_params.StepOffset = 940E-03;
-geom_params.StepHeight = 400E-03;
-geom_params.ThighLength = 500E-03;
-geom_params.ShinHeight = 500E-03;
-geom_params.LegHeight = 170E-03;
-geom_params.BackHeight = 500E-03;
+fig = anim.canvas;
+axe = fig.Children;
+view(axe,-225,12);
+% view(axe,-180,0);
+
+%% Time
+t_pause = 1;
+ts = 1/30;
+v = 1;
+w = 10;
+a = 0.2;
+
+%% -------------------- VIDEO WRITING SETUP --------------------
+fps = round(1/ts);                                % 30 (matches ts)
+outFile    = "C:/Users/marti/PhD/Viva/Videos/bigsports_pose.mp4";
+posterFile = "C:/Users/marti/PhD/Viva/Videos/bigsports_pose_poster.png";
+
+vw = VideoWriter(outFile,"MPEG-4");               % or "Motion JPEG AVI" for less compression
+vw.FrameRate = fps;
+vw.Quality   = 100;
+open(vw);
+
+% Set output resolution by fixing figure size (pixels)
+fig.Units = "pixels";
+% fig.Position(3:4) = [1920 1080];               % <- set your desired resolution here
+drawnow;
+
+% Helper: write N frames to represent a pause of "seconds"
+writePause = @(seconds) ...
+    arrayfun(@(~) writeVideo(vw, getframe(fig)), 1:round(seconds*fps));
+
+% Helper: capture one frame (figure) and write it both to video and (once) as poster PNG
+posterWritten = false;
+writeFrame = @() localWriteFrame(fig, vw, posterFile);
+%% ------------------------------------------------------------
+
+%% Pose
+yaw = -22.5;
+px = 0.13;
+py = -0.75;
+camber = -22.5;
+pitch_r = 11.25;
+pitch = 3;
+steer = 22.5;
+pitch_f = 11.25;
+
+%% World Frame
+Nw = anim.frame("Color",ones(1,3));
+anim.introduce({Nw});
+drawnow; writeFrame();  % <-- first recorded frame also exports poster PNG
 
 %% Rear tire
-stl_file = dir + "rear_tire";
-ang = [0,0,0];
-scale = 0.95.*[1,1,1];
-coord = [0,0,0];
-ref = [0,0,0];
-anim_params = bikeSimAnimatorParameters(ang,scale,coord,ref);
-rt = RearTire(stl_file,anim_params,geom_params);
+rear_tire = anim.bigsports.reartire;
+setColor(rear_tire,m.blue);
+
+anim.introduce({rear_tire},a);
+drawnow; writeFrame();
+
+Nv = anim.frame("Color", [1,1,1],"DimensionLines",'y');
+setPose(Nv,"Orientation",rear_tire.Orientation,"Position",rear_tire.Position);
+anim.introduce({Nv});
+drawnow; writeFrame();
+
+tf = px/v;
+ns = abs(tf/ts);
+Px = linspace(0,px,ns);
+for k = 1:ns
+    setPose(rear_tire,"PosX",Px(k));
+
+    setPose(Nv, ...
+        "Orientation",rear_tire.Orientation, ...
+        "Position",rear_tire.Position ...
+        );
+
+    drawnow;
+    writeFrame();
+end
+
+writePause(t_pause);
+
+tf = abs(py)/v;
+ns = abs(tf/ts);
+Py = linspace(0,py,ns);
+for k = 1:ns
+    setPose(rear_tire, ...
+        "PosX",px, ...
+        "PosY",Py(k) ...
+        );
+
+    setPose(Nv, ...
+        "Orientation",rear_tire.Orientation, ...
+        "Position",rear_tire.Position ...
+        );
+
+    drawnow;
+    writeFrame();
+end
+
+writePause(t_pause);
+
+Nyaw = anim.frame("Color", m.blue,"DimensionLines",'y');
+
+setPose(Nyaw, ...
+    "Orientation",rear_tire.Orientation, ...
+    "Position",rear_tire.Position ...
+    );
+
+anim.introduce({Nyaw});
+drawnow; writeFrame();
+
+tf = yaw/w;
+ns = abs(tf/ts);
+Yaw = linspace(0,yaw,ns);
+for k = 1:ns
+    setPose(rear_tire, ...
+        "PosX",px, ...
+        "PosY",py, ...
+        "Yaw",Yaw(k) ...
+        );
+
+    setPose(Nyaw, ...
+        "Orientation",rear_tire.Orientation, ...
+        "Position",rear_tire.Position ...
+        );
+
+    drawnow;
+    writeFrame();
+end
+
+str = {'\boldmath$$\psi$$'};
+t = annotation(fig, ...
+    'textbox',[0.67,0.29,0.01,0.01], ...
+    "Interpreter","latex", ...
+    'String',str, ...
+    "Color",m.blue, ...
+    "FontSize",32, ...
+    "FontWeight","bold","EdgeColor","none","FitBoxToText","on");
+drawnow; writeFrame();
+
+writePause(t_pause);
+
+Ncamber = anim.frame("Color", m.orange, "DimensionLines",'yz');
+
+setPose(Ncamber, ...
+    "Orientation",rear_tire.Orientation, ...
+    "Position",rear_tire.Position ...
+    );
+
+anim.introduce({Ncamber});
+drawnow; writeFrame();
+
+tf = camber/w;
+ns = abs(tf/ts);
+Camber = linspace(0,camber,ns);
+for k = 1:ns
+    setPose(rear_tire, ...
+        "PosX",px, ...
+        "PosY",py, ...
+        "Yaw",yaw, ...
+        "Camber",Camber(k) ...
+        );
+
+    setPose(Ncamber, ...
+        "Orientation",rear_tire.Orientation, ...
+        "Position",rear_tire.Position ...
+        );
+
+    drawnow;
+    writeFrame();
+end
+
+str = {'\boldmath$$\gamma$$'};
+t = annotation(fig, ...
+    'textbox',[0.61,0.28,0.01,0.01], ...
+    "Interpreter","latex", ...
+    'String',str, ...
+    "Color",m.orange, ...
+    "FontSize",32, ...
+    "FontWeight","bold","EdgeColor","none","FitBoxToText","on");
+
+str = {'\boldmath$$(x,y)$$'};
+t = annotation(fig, ...
+    'textbox',[0.57,0.38,0.01,0.01], ...
+    "Interpreter","latex", ...
+    'String',str, ...
+    "Color",m.orange, ...
+    "FontSize",32, ...
+    "FontWeight","bold","EdgeColor","none","FitBoxToText","on");
+
+hold on
+h = scatter3(rear_tire.Position(1),rear_tire.Position(2),rear_tire.Position(3),500,"red",'filled');
+hold off
+uistack(h,"top");
+
+drawnow; writeFrame();
+
+writePause(t_pause);
+
+Npitchr = anim.frame("Color", m.yellow, "DimensionLines",'z');
+
+setPose(Npitchr, ...
+    "Orientation",rear_tire.Orientation, ...
+    "Position",rear_tire.Position ...
+    );
+
+anim.introduce({Npitchr});
+drawnow; writeFrame();
+
+tf = pitch_r/w;
+ns = abs(tf/ts);
+RearPitch = linspace(0,pitch_r,ns);
+for k = 1:ns
+    setPose(rear_tire, ...
+        "PosX",px, ...
+        "PosY",py, ...
+        "Yaw",yaw, ...
+        "Camber",camber, ...
+        "RearPitch",RearPitch(k) ...
+        );
+
+    setPose(Npitchr, ...
+        "Orientation",rear_tire.Orientation, ...
+        "Position",rear_tire.Position ...
+        );
+
+    drawnow;
+    writeFrame();
+end
+
+str = {'\boldmath$$\theta_{r}$$'};
+t = annotation(fig, ...
+    'textbox',[0.565,0.63,0.01,0.01], ...
+    "Interpreter","latex", ...
+    'String',str, ...
+    "Color",m.yellow, ...
+    "FontSize",32, ...
+    "FontWeight","bold","EdgeColor","none","FitBoxToText","on");
+
+drawnow; writeFrame();
+
+writePause(t_pause);
+
+%% Rear chassis
+rear_chassis = anim.bigsports.rearchassis;
+setColor(rear_chassis,m.orange);
+setPose(rear_chassis,"Yaw",yaw,"PosX",px,"PosY",py,"Camber",camber);
+anim.introduce({rear_chassis},a);
+drawnow; writeFrame();
+
+Npitch = anim.frame("Color",m.purple, "DimensionLines",'z');
+
+setPose(Npitch, ...
+    "Orientation",Ncamber.Orientation, ...
+    "Position",Ncamber.Position ...
+    );
+
+anim.introduce({Npitch});
+drawnow; writeFrame();
+
+tf = pitch/w;
+ns = abs(tf/ts);
+Pitch = linspace(0,pitch,ns);
+for k = 1:ns
+    setPose(rear_chassis, ...
+        "PosX",px, ...
+        "PosY",py, ...
+        "Yaw",yaw, ...
+        "Camber",camber, ...
+        "Pitch",Pitch(k) ...
+        );
+
+    setPose(Npitch, ...
+        "Orientation",rear_chassis.Base.Orientation, ...
+        "Position",Ncamber.Position ...
+        );
+
+    drawnow;
+    writeFrame();
+end
+
+str = {'\boldmath$$\vartheta$$'};
+t = annotation(fig, ...
+    'textbox',[0.605,0.87,0.01,0.01], ...
+    "Interpreter","latex", ...
+    'String',str, ...
+    "Color",m.purple, ...
+    "FontSize",32, ...
+    "FontWeight","bold","EdgeColor","none","FitBoxToText","on");
+
+drawnow; writeFrame();
+
+writePause(t_pause);
+
+%% Front chassis
+front_chassis = anim.bigsports.frontchassis;
+setColor(front_chassis,m.yellow);
+
+setPose(front_chassis, ...
+    "Yaw",yaw, ...
+    "PosX",px, ...
+    "PosY",py, ...
+    "Camber",camber, ...
+    "Pitch",pitch ...
+    );
+
+anim.introduce({front_chassis},a);
+drawnow; writeFrame();
+
+front_tire = anim.bigsports.fronttire;
+setColor(front_tire,m.purple);
+
+setPose(front_tire, ...
+    "Yaw",yaw, ...
+    "PosX",px, ...
+    "PosY",py, ...
+    "Camber",camber, ...
+    "Pitch",pitch ...
+    );
+
+Ncaster = anim.frame("Color",m.green, "DimensionLines",'x');
+
+setPose(Ncaster, ...
+    "Orientation",front_tire.Orientation, ...
+    "Position",front_tire.Position ...
+    );
+
+anim.introduce({Ncaster});
+drawnow; writeFrame();
+
+Nsteer = anim.frame("Color",m.cyan, "DimensionLines",'xz');
+
+setPose(Nsteer, ...
+    "Orientation",front_tire.Orientation, ...
+    "Position",front_tire.Position ...
+    );
+
+anim.introduce({Nsteer});
+drawnow; writeFrame();
+
+tf = steer/w;
+ns = abs(tf/ts);
+Steer = linspace(0,steer,ns);
+for k = 1:ns
+    setPose(front_chassis, ...
+        "PosX",px, ...
+        "PosY",py, ...
+        "Yaw",yaw, ...
+        "Camber",camber, ...
+        "Pitch",pitch, ...
+        "Steer",Steer(k) ...
+        );
+
+    setPose(Nsteer, ...
+        "Orientation",front_chassis.HandleBars.Orientation, ...
+        "Position",front_tire.Position ...
+        );
+
+    drawnow;
+    writeFrame();
+end
+
+str = {'\boldmath$$\delta$$'};
+t = annotation(fig, ...
+    'textbox',[0.2,0.305,0.01,0.01], ...
+    "Interpreter","latex", ...
+    'String',str, ...
+    "Color",m.cyan, ...
+    "FontSize",32, ...
+    "FontWeight","bold","EdgeColor","none","FitBoxToText","on");
+
+drawnow; writeFrame();
+
+writePause(t_pause);
+
+%% Front tire
+setPose(front_tire, ...
+    "Yaw",yaw, ...
+    "PosX",px, ...
+    "PosY",py, ...
+    "Camber",camber, ...
+    "Pitch",pitch, ...
+    "Steer",steer ...
+    );
+
+anim.introduce({front_tire},a);
+drawnow; writeFrame();
+
+Npitchf = anim.frame("Color",m.red, "DimensionLines",'z');
+setPose(Npitchf, ...
+    "Orientation",front_tire.Orientation, ...
+    "Position",front_tire.Position ...
+    );
+
+anim.introduce({Npitchf});
+drawnow; writeFrame();
+
+tf = pitch_f/w;
+ns = abs(tf/ts);
+FrontPitch = linspace(0,pitch_f,ns);
+for k = 1:ns
+    setPose(front_tire, ...
+        "PosX",px, ...
+        "PosY",py, ...
+        "Yaw",yaw, ...
+        "Camber",camber, ...
+        "Pitch",pitch, ...
+        "Steer",steer, ...
+        "FrontPitch",FrontPitch(k) ...
+        );
+
+    setPose(Npitchf, ...
+        "Orientation",front_tire.Orientation, ...
+        "Position",front_tire.Position ...
+        );
+
+    drawnow;
+    writeFrame();
+end
+
+str = {'\boldmath$$\theta_{f}$$'};
+t = annotation(fig, ...
+    'textbox',[0.39,0.665,0.01,0.01], ...
+    "Interpreter","latex", ...
+    'String',str, ...
+    "Color",m.red, ...
+    "FontSize",32, ...
+    "FontWeight","bold","EdgeColor","none","FitBoxToText","on");
+
+drawnow; writeFrame();
+
+writePause(t_pause);
+
+%% -------------------- FINISH VIDEO --------------------
+close(vw);
+disp("Saved video to: " + outFile);
+disp("Saved poster to: " + posterFile);
+
+%% ---------- LOCAL HELPER (place at end of script) ----------
+function localWriteFrame(fig, vw, posterFile)
+    persistent posterDone
+    if isempty(posterDone)
+        posterDone = false;
+    end
+
+    fr = getframe(fig);
+    writeVideo(vw, fr);
+
+    if ~posterDone
+        try
+            imwrite(fr.cdata, posterFile);  % PNG inferred from extension
+            posterDone = true;
+        catch ME
+            warning("Poster export failed: %s", ME.message);
+            posterDone = true; % avoid retry spamming
+        end
+    end
+end

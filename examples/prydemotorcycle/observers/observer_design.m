@@ -3,7 +3,7 @@ setmadsympath();
 
 %% Load validation data
 speed = 130;
-results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
+results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
 speed_path = "\Vx" + num2str(speed) + "Kph\";
 file_name = "bikesim_results_" + num2str(speed) + "kph.csv";
 results = readtable(results_path + speed_path + file_name);
@@ -22,13 +22,10 @@ vx = results.VxW0_2./3.6;
 vz = results.VzW0_2./3.6;
 g = 9.80665;
 
-wx2 = deg2rad(results.AVx_2);
-wz2 = deg2rad(results.AVz_2);
-vdy = (g.*results.Ay_WC2) - (wz2.*vx - wx2.*vz);
-
-t = time;
-ref = [camber,steer,wz,vy,wx,ws];
-u = Mz;
+ns = 10*numel(time);
+t = interp1(linspace(0,1,numel(time)),time,linspace(0,1,ns));
+ref = interp1(time,[camber,steer,wz,vy,wx,ws],t,"makima");
+u = interp1(time,Mz,t,"makima")';
 
 %% Parameters
 bs = bigSportsParameters;
@@ -58,47 +55,35 @@ sys = ss(A,B,C,D, ...
     'InputName',sys.InputName, ...
     'OutputName',sys.StateName(idxy));
 
-%% Analysis
+%% Design observer
+y_meas = ref(:,idxy);
 
-disp(rank(obsv(A,C)) == size(A,1));
+% Observability check
+if rank(obsv(A,C)) < nx
+    error('System (A,C) is not observable: rank=%d < n=%d',rank(obsv(A,C)),nx);
+end
 
-ObsvCond = cond(obsv(A,C));
-GrammCond = cond(gram(sys,'o'));
+L = place(A',C',7*pole(sys)')';   % observer gain
 
-tab = table(ObsvCond,GrammCond);
-disp(tab);
+% Observer dynamics:  xhat_dot = (A - L*C) xhat + [B  L] * [u; y_meas]
+Aobs = A - L*C;
+Bobs = [B, L];
+Cobs = eye(nx);
+Dobs = zeros(nx, nu + ny);
+obs  = ss(Aobs, Bobs, Cobs, Dobs);
 
-%% Balancing
-[~,g,Tl,Tr] = balreal(sys,"noperm");
-
-sysb = ss(Tl*A*Tr,Tl*B,C*Tr,0);
-
-ObsvCond = cond(obsv(sysb));
-GrammCond = cond(gram(sysb,'o'));
-
-tab = table(ObsvCond,GrammCond);
-disp(tab);
-
-%% Design gains
-L = lqr(sysb.A',sysb.C',sysb.C'*sysb.C,eye(ny))';
-
-%% Construct observer
-Ao = sysb.A - L*sysb.C;
-Bo = [sysb.B,L];
-Co = eye(nx);
-Do = zeros(nx, size(Bo,2));
-syso = ss(Ao,Bo,Co,Do);
-
-%% Test observer
-z = ref(:,idxy);
-
-[~,~,est] = lsim(syso,[u,z],t);
-y = (Tr*est.').';
+Uobs  = [u,y_meas];
+xhat0 = zeros(nx,1);
+y = lsim(obs, Uobs, t, xhat0);
 
 %% Plot results
 
-fig = figure;
-tl = tiledlayout(3,2,"Parent",fig);
+idx = [1:3,5,6];
+ref(:,idx) = rad2deg(ref(:,idx));
+y(:,idx) = rad2deg(y(:,idx));
+
+fig = figure("Position",[100,100,840,300]);
+tl = tiledlayout(2,3,"Parent",fig,"TileSpacing","compact","Padding","compact");
 
 titles = [
     "Camber";
@@ -109,6 +94,15 @@ titles = [
     "Steer rate"
     ];
 
+labels = [
+    "angle (\circ)";
+    "angle (\circ)";
+    "speed (\circ/s)";
+    "speed (m/s)";
+    "speed (\circ/s)";
+    "speed (\circ/s)"
+    ];
+
 for k = 1:6
     axe = nexttile(tl,k);
     hold(axe,'on');
@@ -117,8 +111,9 @@ for k = 1:6
     hold(axe,'off');
     box(axe,'on');
     axis(axe,'tight');
-    title(axe,titles(k));
-    if ismember(k,[5,6])
-        xlabel(axe,'Time (seconds)');
+    title(axe,titles(k),"FontSize",12);
+    ylabel(axe,labels(k),"FontSize",12);
+    if ismember(k,[4,5,6])
+        xlabel(axe,'Time (seconds)',"FontSize",12);
     end
 end

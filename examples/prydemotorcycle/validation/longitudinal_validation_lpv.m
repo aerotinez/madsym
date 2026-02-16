@@ -43,7 +43,7 @@ for k = 1:numel(Vx)
 end
 
 %% Plot results
-fig = figure("Position",[570,100,1080,480]);
+fig = figure("Position",[570,100,720,320]);
 tl = tiledlayout(3,5,"Parent",fig,"TileSpacing","compact","Padding","tight");
 % tl.TileSpacing = "loose";
 
@@ -60,6 +60,9 @@ j = 1;
 
 ts = 1/60;
 
+rmse_results = zeros(3,numel(Vx));
+percentage_rmse_results = zeros(3,numel(Vx));
+
 for k = 1:3*5
     [row,col] = ind2sub([5,3],k);
     axe = nexttile(tl,k);
@@ -67,8 +70,8 @@ for k = 1:3*5
     hold(axe,"on");
     ns = numel(x_sys{row}(:,col));
     time = linspace(0,(ns - 1)*ts,ns);
-    plot(axe,time,x_mes{row}(:,col),"LineWidth",1);
-    plot(axe,time,x_sys{row}(:,col),"LineWidth",1);
+    plot(axe,time,x_mes{row}(:,col),"LineWidth",1.5);
+    plot(axe,time,x_sys{row}(:,col),"LineWidth",1.5);
     hold(axe,"off");
     box(axe,"on");
     axis(axe,'tight');
@@ -77,25 +80,89 @@ for k = 1:3*5
     %     axe.YAxis.Exponent = 3;
     % end
     if k < 6
-        title(axe,titles(k),'FontSize',7);
+        title(axe,titles(k),'FontSize',12);
     end
     if ismember(k,uind)
-        ylabel(axe,units(j),'Interpreter','tex');
+        ylabel(axe,units(j),'Interpreter','tex','FontSize',12);
         j = j + 1;
     end
     if k <= 10
         xticks(axe,[]);
     end
     if k > 10
-        xlabel(axe,"time (s)");
+        xlabel(axe,"time (s)",'FontSize',12);
     end
+    rmse_results(col,row) = rmse(x_sys{row}(:,col),x_mes{row}(:,col))';
+    percentage_rmse_results(col,row) = 100*(rmse(x_sys{row}(:,col),x_mes{row}(:,col))./(max(x_mes{row}(:,col)) - min(x_mes{row}(:,col))))';
 end
 ttl = "Longitudinal: throttle/braking results ";
-sgtitle(ttl);
-leg = legend("ref (bikesim)","est (Pryde model)");
+sgtitle(ttl,'FontSize',12);
+leg = legend("ref (bikesim)","est (Pryde model)",'FontSize',12);
 leg.Orientation = "horizontal";
 leg.Layout.Tile = 'south';
 
 %% Save figure
-% dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
-% saveThesisFig(fig,dir + "throttle_braking_results");
+dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
+saveas(fig,dir + "throttle_braking_results",'epsc');
+
+%% Error table
+
+txt = [
+    "\\begin{tabularx}{\\textwidth}{|C|C||*{5}{C|}}\n";
+    "\\hline\n";
+    "\\multirow{2}{*}{State} &\n";
+    "\\multirow{2}{*}{Units} &\n";
+    "\\multicolumn{5}{c|}{\n";
+    "Speed ($\\unit[per-mode=symbol]{\\kilo\\meter\\per\\hour}$)\n";
+    "} \\\\\n";
+    "\\cline{3-7}\n";
+    "& & 30 & 50 & 80 & 110 & 130 \\\\\n";
+    "\\hline\\hline\n"
+    ];
+
+states = [
+    "$v_{x}$";
+    "$\\omega_{r}$";
+    "$\\omega_{f}$"
+    ];
+
+units = [
+    "\\meter\\per\\second";
+    "\\degree\\per\\second";
+    "\\degree\\per\\second"
+    ];
+
+dir_name = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\";
+
+fid = fopen(dir_name + "throttle_braking_rmse_results.tex","w");
+arrayfun(@(s)fprintf(fid,s),txt);
+ftxt = @(x)"& " + num2str(x,'%.4f');
+
+for k = 1:3
+    txt = states(k) + " & $\\unit[per-mode=symbol]{" + units(k) + "}$ ";
+    txt = txt + strjoin(arrayfun(ftxt,rmse_results(k,:)));
+    txt = txt + "\\\\\n\\hline\n";
+    fprintf(fid,txt);
+end
+
+fprintf(fid,"\\end{tabularx}");
+fclose(fid);
+
+percentage_rmse_results(isnan(percentage_rmse_results)) = 0;
+percentage_rmse_results = mean(percentage_rmse_results,2)';
+
+fid = fopen(dir_name + "throttle_braking_prmse_results.tex","w");
+ftxt = @(x)string(num2str(x,'%.4f'));
+
+txt = [
+    "\\begin{tabularx}{\\textwidth}{|C|C|C|C|C|C|}\n";
+    "\\hline\n";
+    strjoin(states'," & ") + "\\\\\n";
+    "\\hline\\hline\n";
+    strjoin(arrayfun(ftxt,percentage_rmse_results)," & ") + "\\\\\n";
+    "\\hline\n";
+    "\\end{tabularx}\n"
+    ];
+
+arrayfun(@(s)fprintf(fid,s),txt);
+fclose(fid);

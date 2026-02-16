@@ -263,4 +263,4 @@ camproj(axe,'perspective');
 
 %% Save figure
 dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\RigidBodies\Figures\';
-saveas(fig,string(dir) + "motorcycle_dof_unlabled.eps",'epsc');
+% saveas(fig,string(dir) + "motorcycle_dof_unlabled.eps",'epsc');

@@ -63,7 +63,7 @@ for k = 1:3*5
     axe = nexttile(tl,k);
     hold(axe,"on");
     ns = numel(x_sys{row}(:,col));
-    time = 0:ts:ts.*size(x_sys{row},1) - ts;
+    time = 0:ts:ts*size(x_sys{row},1) - ts;
     plot(axe,time,x_mes{row}(:,col),"LineWidth",1.5);
     plot(axe,time,x_sys{row}(:,col),"LineWidth",1.5);
     hold(axe,"off");
