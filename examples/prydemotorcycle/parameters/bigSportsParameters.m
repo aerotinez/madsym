@@ -69,10 +69,11 @@ set(FT,'SpringRate',130E03);
 set(FT,'Mass',7);
 set(FT,'UndeflectedCrownRadius',50E-03);
 set(FT,'SpinInertia',0.484);
-set(FT,'LateralTireLag',200E-03);
 set(FT,'RollingResistanceCoefficient',0.002);
 set(FT,'RollingResistanceTimeConstant',0.000015);
 set(FT,'Pacejka',pacejkaParametersFromBikeSim("Example_Front_v102.par"));
+set(FT,'LongitudinalRelaxationLength',25E-03);
+set(FT,'LateralRelaxationLength',200E-03);
 
 SA = SwingArm;
 set(SA,'Mass',8);
@@ -88,9 +89,10 @@ set(RT,'SpringRate',141E03);
 set(RT,'Mass',14.7);
 set(RT,'UndeflectedCrownRadius',70E-03);
 set(RT,'SpinInertia',0.638);
-set(RT,'LateralTireLag',200E-03);
 set(RT,'RollingResistanceCoefficient',0.004);
 set(RT,'RollingResistanceTimeConstant',0.000025);
 set(RT,'Pacejka',pacejkaParametersFromBikeSim("Example_Rear_v102.par"));
+set(RT,'LongitudinalRelaxationLength',25E-03);
+set(RT,'LateralRelaxationLength',200E-03);
 
 params = BikeSimMotorcycleParameters(RU,RL,SM,SA,SH,F,FT,RT);

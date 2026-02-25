@@ -5,9 +5,10 @@ classdef Tire < matlab.mixin.SetGet
         Mass;
         UndeflectedCrownRadius;
         SpinInertia;
-        LateralTireLag;
         Pacejka;
         RollingResistanceCoefficient;
         RollingResistanceTimeConstant;
+        LongitudinalRelaxationLength;
+        LateralRelaxationLength;
     end
 end
