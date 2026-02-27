@@ -183,8 +183,8 @@ function p = bikeSimToSharpParameters(bikesim_params,vx)
     Gh = Nsh.'*(Oh - B);
     p.e = Gh(1);
     p.f = Gh(3);
-    p.j = abs(Ob(1) - Oh(1));
-    p.k = Oh(3);
+    p.k = Oh(1) - p.b + sm.Wheelbase;
+    p.j = Oh(3);
 
     % inertia tensor
     I = zeros(3,3,numel(front_bodies));
@@ -201,18 +201,47 @@ function p = bikeSimToSharpParameters(bikesim_params,vx)
 
     %% Tire parameters
     p.g = 9.80665;
+    fz = sharpMotorcycleTrimNormalForces(cell2mat(struct2cell(p)));
 
-    % normal forces
-    Zr = rt.NominalVerticalForce;
-    p.Zf = ft.NominalVerticalForce;
+    %% Front tire parameters
+    fzf0 = ft.Pacejka.fz0;
+    p.Zf = fz(1);
 
-    % sideslip stiffness
-    p.Cf1 = abs(ft.Pky1*sin(ft.Pky2*atan(1/ft.Pky3))*p.Zf);
-    p.Cr1 = abs(rt.Pky1*sin(rt.Pky2*atan(1/rt.Pky3))*Zr);
+    pKyf1 = ft.Pacejka.pky1;
+    pKyf2 = ft.Pacejka.pky2;
+    pKyf3 = ft.Pacejka.pky3;
+    pKyf6 = ft.Pacejka.pky6;
+    pKyf7 = ft.Pacejka.pky7;
 
-    % camber stiffness
-    p.Cf2 = abs(ft.Pky6*p.Zf);
-    p.Cr2 = abs(rt.Pky6*Zr);
+    [p.Cf1,p.Cf2] = fyCoeffs(p.Zf,fzf0,[pKyf1,pKyf2,pKyf3,pKyf6,pKyf7]);
+
+    %% Rear tire parameters
+    fzr0 = rt.Pacejka.fz0;
+    Zr = fz(2);
+
+    pKyr1 = rt.Pacejka.pky1;
+    pKyr2 = rt.Pacejka.pky2;
+    pKyr3 = rt.Pacejka.pky3;
+    pKyr6 = rt.Pacejka.pky6;
+    pKyr7 = rt.Pacejka.pky7;
+
+    [p.Cr1,p.Cr2] = fyCoeffs(Zr,fzr0,[pKyr1,pKyr2,pKyr3,pKyr6,pKyr7]);
 
     p.sigma = 0.2;
+end
+
+function dfz = fzRatio(fz,fz0)
+    dfz = (fz - fz0)/fz0;
+end
+
+function [Ka,Kg] = fyCoeffs(fz,fz0,p)
+    p1 = p(1);
+    p2 = p(2);
+    p3 = p(3);
+    p6 = p(4);
+    p7 = p(5);
+    dfz = fzRatio(fz,fz0);
+    ang = p2*atan(fz/(fz0*p3));
+    Ka = fz0*p1*sin(ang);
+    Kg = fz*(p6 + p7*dfz);
 end

@@ -215,19 +215,20 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
     Cl = sm.LiftCoefficient;
     Cp = sm.PitchCoefficient;
     rho = 1.206;
-    mp = (1/2)*rho*Cp*A*p.p*p.v^2;
-    fl = (1/2)*rho*Cl*A*p.v^2;
+    p.mp = (1/2)*rho*Cp*A*p.p*p.v^2;
+    p.fl = (1/2)*rho*Cl*A*p.v^2;
     p.fd = (1/2)*rho*Cd*A*p.v^2; 
  
     %% Front tire parameters 
+    fz = prydeMotoTrimNormalForces(cell2mat(struct2cell(p)));
 
     fzf0 = ft.Pacejka.fz0;
-    p.fzf = p.g*(p.mf + (p.b*p.mb + (p.b + p.k)*p.mh)/p.p) - mp/p.p - fl/2;
+    p.fzf = fz(1);
 
     pKxf1 = ft.Pacejka.pkx1;
     pKxf2 = ft.Pacejka.pkx2;
-    pKyf1 = ft.Pacejka.pky1;
     pKxf3 = ft.Pacejka.pkx3;
+    pKyf1 = ft.Pacejka.pky1;
     pKyf2 = ft.Pacejka.pky2;
     pKyf3 = ft.Pacejka.pky3;
     pKyf6 = ft.Pacejka.pky6;
@@ -240,18 +241,18 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
 
     p.Kxkf = fxCoeffs(p.fzf,fzf0,[pKxf1,pKxf2,pKxf3]);
     [p.Kyaf,p.Kygf] = fyCoeffs(p.fzf,fzf0,[pKyf1,pKyf2,pKyf3,pKyf6,pKyf7]);
-    [p.Kzaf,p.Kzgf] = tzCoeffs(p.fzf,fzf0,p.Rf,[pKyf1,pKyf2,pKyf3,qDzf1,qDzf2,qDzf8,qDzf9]);
+    [p.Kzaf,p.Kzgf] = tzCoeffs(p.fzf,fzf0,p.tf,[pKyf1,pKyf2,pKyf3,qDzf1,qDzf2,qDzf8,qDzf9]);
 
 
     %% Rear tire parameters
 
     fzr0 = rt.Pacejka.fz0;
-    p.fzr = p.g*(p.mb + p.mh + p.mr - (p.b*p.mb + (p.b + p.k)*p.mh)/p.p) + mp/p.p - fl/2;
+    p.fzr = fz(2);
 
     pKxr1 = rt.Pacejka.pkx1;
     pKxr2 = rt.Pacejka.pkx2;
-    pKyr1 = rt.Pacejka.pky1;
     pKxr3 = rt.Pacejka.pkx3;
+    pKyr1 = rt.Pacejka.pky1;
     pKyr2 = rt.Pacejka.pky2;
     pKyr3 = rt.Pacejka.pky3;
     pKyr6 = rt.Pacejka.pky6;
@@ -264,7 +265,7 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
 
     p.Kxkr = fxCoeffs(p.fzr,fzr0,[pKxr1,pKxr2,pKxr3]);
     [p.Kyar,p.Kygr] = fyCoeffs(p.fzr,fzr0,[pKyr1,pKyr2,pKyr3,pKyr6,pKyr7]);
-    [p.Kzar,p.Kzgr] = tzCoeffs(p.fzr,fzr0,p.Rr,[pKyr1,pKyr2,pKyr3,qDzr1,qDzr2,qDzr8,qDzr9]);
+    [p.Kzar,p.Kzgr] = tzCoeffs(p.fzr,fzr0,p.tr,[pKyr1,pKyr2,pKyr3,qDzr1,qDzr2,qDzr8,qDzr9]);
 
     %% Trim wheel speeds
     p.wf0 = p.v/p.Rf;

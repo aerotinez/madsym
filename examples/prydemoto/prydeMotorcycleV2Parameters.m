@@ -22,6 +22,7 @@ function params = prydeMotorcycleV2Parameters()
     params.b = 0;
     params.e = 0;
     params.fd = 0;
+    params.fl = 0;
     params.fzf = 0;
     params.fzr = 0;
     params.g = 0;
@@ -46,5 +47,6 @@ function params = prydeMotorcycleV2Parameters()
     params.rlrx = 0;
     params.tf = 0;
     params.tr = 0;
+    params.mp = 0;
     params.caster = 0;
 end
