@@ -29,6 +29,8 @@ set(RU,'ForwardLean',45);
 set(RU,'LeanAxisHeight',830E-03);
 set(RU,'CoMOffset',1049E-3);
 set(RU,'CoMHeight',100E-03);
+set(RU,"Stiffness",6.63);
+set(RU,"Damping",0.59);
 
 RL = RiderLowerBody;
 set(RL,'Mass',25.84);
@@ -41,6 +43,8 @@ set(RL,'Ry',139E-03);
 set(RL,'Rz',139E-03);
 set(RL,'CoMOffset',859E-03);
 set(RL,'CoMHeight',532E-03);
+set(RL,"Stiffness",10E03);
+set(RL,"Damping",1E03);
 
 SH = SteeringHead;
 set(SH,'Mass',9.99);

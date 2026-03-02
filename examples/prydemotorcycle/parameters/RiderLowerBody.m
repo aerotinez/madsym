@@ -10,5 +10,7 @@ properties
     Rz;
     CoMOffset;
     CoMHeight;
+    Stiffness;
+    Damping;
 end
 end

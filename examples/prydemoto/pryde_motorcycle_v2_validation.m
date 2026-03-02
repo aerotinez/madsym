@@ -16,6 +16,8 @@ results_path = "G:\My Drive\BikeSimResults\BigSports\Chicane";
 x_mes = cell(1,numel(vx));
 x_sys = cell(1,numel(vx));
 
+idx = [1,0,1,1,1,0,1,0,1,1,1,1];
+
 for k = 1:numel(vx)
     speed_path = "\Vx" + n2s(vx(k)) + "Kph\";
     file_name = "bikesim_results_" + n2s(vx(k)) + "kph.csv";
@@ -28,29 +30,37 @@ for k = 1:numel(vx)
     R = angle2dcm(yaw,pitch,roll);
     [yaw,camber,pitch] = dcm2angle(R,'ZXY');
     camber = rad2deg(camber);
+    pwy = 1E-03*results.Y_Rd_Mov;
+    lean = -results.Roll_RDR;
     steer = results.Steer;
     wz = results.AVz;
     vy = results.VyW0_2./3.6;
     wx = results.AVx;
+    vl = 1E-03*results.VY_Rd_Mv;
+    wu = 0*results.Roll;
     ws = -results.M_StrSys./0.2212;
     af = results.Alpha_1;
     ar = results.Alpha_2;
     
-    s = (180/pi).*[1,1,1,0,1,1,1,1] + [0,0,0,1,0,0,0,0];
-    x_mes{k} = [camber,steer,wz,vy,wx,ws,ar,af];
+    s = (180/pi).*idx + not(idx);
+    x_mes{k} = [camber,pwy,lean,steer,wz,vy,wx,vl,wu,ws,ar,af];
     
+    flegs = results.Fy_Rider;
+    Mx = results.Mx_Rider;
     Mz = results.M_Str_In;
+    F = [flegs,Mx,Mz];
+
     p = params(vx(k));
     sys = plant(p);
-    sf = (pi/180).*[1,1,1,0,1,1,1,1] + [0,0,0,1,0,0,0,0];
+    sf = (pi/180).*idx + not(idx);
     IC = sf.*x_mes{k}(1,:);
-    x_sys{k} = s.*lsim(sys,Mz,time,IC);
+    x_sys{k} = s.*lsim(sys,F,time,IC);
 end
 
 %% Plot results
-fig = figure("Position",[100,50,1280,720]);
+fig = figure("Position",[100,50,720,960]);
 
-tl = tiledlayout(8,5, ...
+tl = tiledlayout(12,5, ...
     "Parent",fig, ...
     "Padding","compact", ...
     "TileSpacing","tight");
@@ -59,22 +69,26 @@ titles = arrayfun(@(x)"Speed: " + x + "km/h",vx);
 
 units = [
     "\gamma (\circ)";
+    "y_w (m)";
+    "\phi (\circ)";
     "\delta (\circ)";
     "\omega_z (\circ/s)";
     "v_y (m/s)";
     "\omega_x (\circ/s)";
+    "v_w (m/s)";
+    "\omega_\phi (\circ/s)";
     "\omega_\delta (\circ/s)";
     "\alpha_r (\circ)";
     "\alpha_f (\circ)"
     ];
 
-uind = (0:5:35) + 1;
+uind = (0:5:55) + 1;
 j = 1;
 
 ts = 1/60;
 
-for k = 1:8*5
-    [row,col] = ind2sub([5,8],k);
+for k = 1:12*5
+    [row,col] = ind2sub([5,12],k);
     axe = nexttile(tl,k);
     hold(axe,"on");
     ns = numel(x_sys{row}(:,col));
@@ -92,10 +106,10 @@ for k = 1:8*5
         ylabel(axe,units(j),'Interpreter','tex','FontSize',12);
         j = j + 1;
     end
-    if k <= 35
+    if k <= 55
         xticks(axe,[]);
     end
-    if k > 35
+    if k > 55
         xlabel(axe,"time (s)","FontSize",12);
     end
 end

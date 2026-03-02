@@ -12,5 +12,7 @@ properties
     LeanAxisHeight;
     CoMOffset;
     CoMHeight;
+    Stiffness;
+    Damping;
 end
 end
