@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeV2Parameters(bs,v/3.6));
 vx = [30,50,80,110,130];
 plant = @prydeMotoLateralStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\Chicane";
+results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
 
 x_mes = cell(1,numel(vx));
 x_sys = cell(1,numel(vx));
@@ -29,15 +29,16 @@ for k = 1:numel(vx)
     roll = deg2rad(results.Roll_E);
     R = angle2dcm(yaw,pitch,roll);
     [yaw,camber,pitch] = dcm2angle(R,'ZXY');
+    
     camber = rad2deg(camber);
     pwy = 1E-03*results.Y_Rd_Mov;
-    lean = -results.Roll_RDR;
+    lean = results.Roll_RDR;
     steer = results.Steer;
     wz = results.AVz;
     vy = results.VyW0_2./3.6;
     wx = results.AVx;
     vl = 1E-03*results.VY_Rd_Mv;
-    wu = 0*results.Roll;
+    wu = gradient(results.Roll_RDR,diff(results.Time(1:2)));
     ws = -results.M_StrSys./0.2212;
     af = results.Alpha_1;
     ar = results.Alpha_2;
@@ -58,7 +59,7 @@ for k = 1:numel(vx)
 end
 
 %% Plot results
-fig = figure("Position",[100,50,720,960]);
+fig = figure("Position",[100,50,840,720]);
 
 tl = tiledlayout(12,5, ...
     "Parent",fig, ...

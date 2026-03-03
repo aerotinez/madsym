@@ -192,7 +192,6 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
     p.Ibxz = Ib(1,3);
     p.Ibzz = Ib(3,3);
 
-
     %% Front body
 
     front_bodies = [

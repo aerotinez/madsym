@@ -9,9 +9,9 @@ disp(bikeSimToPrydeV2Parameters(bs,30/3.6));
 params = @(v)s2m(bikeSimToPrydeV2Parameters(bs,v/3.6));
 
 %% Model
-nv = 500;
-vmin = 1;
-vmax = 300;
+nv = 1000;
+vmin = 30;
+vmax = 130;
 vx = linspace(vmin,vmax,nv);
 plant = @prydeMotoLateralStateSpace;
 f = @(v)plant(params(v));
@@ -34,8 +34,9 @@ xticks(axe,[]);
 yticks(axe,[]);
 title(axe,"Lateral: Nyquist response","FontSize",12);
 xlabel(axe,"Re (1/s)","FontSize",12);
-ylabel(axe,"Im (rad/s)","FontSize",12);
+ylabel(axe,"Im (1/s)","FontSize",12);
 box(axe,"on");
+axis(axe,'tight');
 % xlim(axe,[-450,6])
 sgrid(axe);
 cb = colorbar(axe);
