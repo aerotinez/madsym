@@ -4,33 +4,37 @@ setmadsympath();
 %% Parameters
 bs = bigSportsParameters;
 s2m = @(x)cell2mat(struct2cell(x));
-disp(bikeSimToSharpParameters(bs,30/3.6));
+pars = bikeSimToSharpParameters(bs,30/3.6);
+disp(pars);
 params = @(v)s2m(bikeSimToSharpParameters(bs,v/3.6));
 
 %% BikeSim results
 vx = [30,50,80,110,130];
 plant = @sharpMotorcycleStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
+results_path = "G:\My Drive\BikeSimResults\BigSports\Chicane";
 
 x_mes = cell(1,numel(vx));
 x_sys = cell(1,numel(vx));
+
+l = (pars.a -pars.an)/cos(pars.caster);
 
 for k = 1:numel(vx)
     speed_path = "\Vx" + n2s(vx(k)) + "Kph\";
     file_name = "bikesim_results_" + n2s(vx(k)) + "kph.csv";
     results = readtable(results_path + speed_path + file_name);
+    p = params(vx(k));
+
+    w = deg2rad(table2array(results(:,["AVx","AVy","AVz"])));
+    v = table2array(results(:,["Vxo","Vyo","Vzo"]))/3.6;
+
+    va = cross(w,[-l,0,0].*ones(size(w))) + v;
     
     time = results.Time;
-    yaw = deg2rad(results.Yaw);
-    pitch = deg2rad(results.Pitch);
-    roll = deg2rad(results.Roll_E);
-    R = angle2dcm(yaw,pitch,roll);
-    [yaw,camber,pitch] = dcm2angle(R,'ZXY');
-    camber = -rad2deg(camber);
+    camber = -results.Roll;
     steer = results.Steer;
     wz = results.AVz;
-    vy = results.VyW0_2./3.6;
+    vy = va(:,2);
     wx = -results.AVx;
     ws = -results.M_StrSys./0.2212;
     Yf = results.Fy_1;
@@ -40,7 +44,6 @@ for k = 1:numel(vx)
     x_mes{k} = [camber,steer,wz,vy,wx,ws,Yr,Yf];
     
     Mz = results.M_Str_In;
-    p = params(vx(k));
     sys = plant(p);
     sf = (pi/180).*[1,1,1,0,1,1,0,0] + [0,0,0,1,0,0,1,1];
     IC = sf.*x_mes{k}(1,:);
