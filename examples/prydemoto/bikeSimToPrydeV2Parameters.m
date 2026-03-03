@@ -48,9 +48,9 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
     %% Rider lower body
     rl = bs.RiderLowerBody;
 
-    p.Ilxx = rl.Ixx;
-    p.Ilzz = rl.Izz;
-    p.ml = rl.Mass;
+    % p.Ilxx = rl.Ixx;
+    % p.Ilzz = rl.Izz;
+    % p.ml = rl.Mass;
 
     Irl = [
         rl.Ixx, 0, rl.Ixz;
@@ -64,20 +64,20 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
         rl.CoMHeight
         ];
 
-    p.bl = sm.Wheelbase - rl.CoMOffset;
-    p.hl = rl.CoMHeight;
+    % p.bl = sm.Wheelbase - rl.CoMOffset;
+    % p.hl = rl.CoMHeight;
         
     rider_lower_body = body(N,Orl,Irl,rl.Mass);
-    p.klegs = rl.Stiffness;
-    p.Clegs = rl.Damping;
+    % p.klegs = rl.Stiffness;
+    % p.Clegs = rl.Damping;
 
     %% Rider upper body
     ru = bs.RiderUpperBody;
 
-    p.Iuxx = ru.Ixx;
-    p.Iuxz = ru.Ixz;
-    p.Iuzz = ru.Izz;
-    p.mu = ru.Mass;
+    % p.Iuxx = ru.Ixx;
+    % p.Iuxz = ru.Ixz;
+    % p.Iuzz = ru.Izz;
+    % p.mu = ru.Mass;
 
     Iru = [
         ru.Ixx, 0, ru.Ixz;
@@ -89,14 +89,14 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
 
     Oru = -ru.CoMOffset.*N(:,1) + ru.LeanAxisHeight.*N(:,3) + ru.CoMHeight.*Nru(:,3);
 
-    p.hunch = deg2rad(ru.ForwardLean);
-    p.bw = sm.Wheelbase - ru.CoMOffset;
-    p.hw = ru.LeanAxisHeight;
-    p.hu = ru.CoMHeight;
+    % p.hunch = deg2rad(ru.ForwardLean);
+    % p.bw = sm.Wheelbase - ru.CoMOffset;
+    % p.hw = ru.LeanAxisHeight;
+    % p.hu = ru.CoMHeight;
 
     rider_upper_body = body(Nru,Oru,Iru,ru.Mass);
-    p.klean = rad2deg(ru.Stiffness);
-    p.Clean = rad2deg(ru.Damping);
+    % p.klean = rad2deg(ru.Stiffness);
+    % p.Clean = rad2deg(ru.Damping);
 
     %% Swing arm
     sa = bs.SwingArm;
@@ -164,7 +164,9 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
 
     rear_bodies = [
         sprung_mass;
-        swing_arm
+        swing_arm;
+        rider_upper_body;
+        rider_lower_body
         ];
 
     % total mass

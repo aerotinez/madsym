@@ -11,7 +11,7 @@ params = @(v)s2m(bikeSimToPrydeV2Parameters(bs,v/3.6));
 vx = [30,50,80,110,130];
 plant = @prydeMotoLateralStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\DLC";
+results_path = "G:\My Drive\BikeSimResults\BigSports\OpenLoop";
 
 x_mes = cell(1,numel(vx));
 x_sys = cell(1,numel(vx));
@@ -52,9 +52,9 @@ for k = 1:numel(vx)
 end
 
 %% Plot results
-fig = figure("Position",[-1080,1,1080,840]);
+fig = figure("Position",[100,50,840,720]);
 
-tl = tiledlayout(8,5, ...
+tl = tiledlayout(12,5, ...
     "Parent",fig, ...
     "Padding","compact", ...
     "TileSpacing","tight");
@@ -77,7 +77,7 @@ j = 1;
 
 ts = 1/60;
 
-for k = 1:8*5
+for k = 1:12*5
     [row,col] = ind2sub([5,12],k);
     axe = nexttile(tl,k);
     hold(axe,"on");
@@ -96,10 +96,10 @@ for k = 1:8*5
         ylabel(axe,units(j),'Interpreter','tex','FontSize',12);
         j = j + 1;
     end
-    if k <= 35
+    if k <= 55
         xticks(axe,[]);
     end
-    if k > 35
+    if k > 55
         xlabel(axe,"time (s)","FontSize",12);
     end
 end
