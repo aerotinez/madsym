@@ -83,10 +83,10 @@ hf = plotFrame(axe,Tf,'Color',m.purple);
 
 %% Legend
 names = [
-    "$\mathbf{T}_{r}$";
-    "$\mathbf{T}_{b}$";
-    "$\mathbf{T}_{h}$";
-    "$\mathbf{T}_{f}$";
+    "$T_{r}$";
+    "$T_{b}$";
+    "$T_{h}$";
+    "$T_{f}$";
     ];
 
 nmc = repelem("",3*numel(names));
@@ -94,12 +94,14 @@ nmc(1:3:3*numel(names)) = names;
 nmc = cellstr(nmc);
 
 leg = legend(axe,nmc{:}, ...
-    'FontSize',12, ...
+    'FontSize',24, ...
     'NumColumns',2, ...
     'Location','NorthEast', ...
     'Interpreter','latex', ...
     'IconColumnWidth',32, ...
     'AutoUpdate','off');
+
+title(leg,"Pose","FontSize",24,"FontWeight","bold",'Interpreter','none');
 
 %% Plot and format motorcycle
 mf = bigSportsFigure();
@@ -182,5 +184,5 @@ hold(axe,'off');
 axis(axe,'tight');
 
 %% Save figure
-dir = 'C:\Users\marti\PhD\ThesisV2\MotorcycleDynamics\ForcesAndMoments\Figures\';
+dir = 'C:\Users\marti\PhD\Articles\VSD26\Figures\';
 saveas(fig,string(dir) + "chassis_forces_unlabeled.eps",'epsc');

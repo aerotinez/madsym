@@ -12,7 +12,9 @@ params = @(v)s2m(bikeSimToSharpParameters(bs,v/3.6));
 vx = [30,50,80,110,130];
 plant = @sharpMotorcycleStateSpace;
 n2s = @num2str;
-results_path = "G:\My Drive\BikeSimResults\BigSports\Chicane";
+
+scen = "Chicane";
+results_path = "G:\My Drive\BikeSimResults\BigSports\" + scen;
 
 x_mes = cell(1,numel(vx));
 x_sys = cell(1,numel(vx));
@@ -51,7 +53,7 @@ for k = 1:numel(vx)
 end
 
 %% Plot results
-fig = figure("Position",[100,50,1280,720]);
+fig = figure("Position",[-1080,1,1080,840]);
 
 tl = tiledlayout(8,5, ...
     "Parent",fig, ...
@@ -102,12 +104,19 @@ for k = 1:8*5
         xlabel(axe,"time (s)","FontSize",12);
     end
 end
-ttl = "Small sinusoidal pertubation results (open loop) ";
+
+dict = dictionary(["OpenLoop","DLC","Chicane"],["Open loop","Double Lane-Change","Chicane"]);
+
+ttl = "Sharp model (" + dict(scen) + ")";
 sgtitle(ttl,'FontSize',12);
-leg = legend("ref (bikesim)","est (Pryde model)",'FontSize',12);
+
+leg = legend("ref","est",'FontSize',12);
 leg.Orientation = "horizontal";
 leg.Layout.Tile = 'south';
 
 %% Save figure
-% dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\Validation\Figures\';
-% saveas(fig,string(dir) + "open_loop_results.eps",'epsc');
+
+dict = dictionary(["OpenLoop","DLC","Chicane"],["open_loop","dlc","chicane"]);
+
+dir = "C:\Users\marti\PhD\Articles\VSD26\Figures\";
+saveas(fig,dir + dict(scen) + "_results_sharp.eps",'epsc');

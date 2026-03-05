@@ -24,7 +24,7 @@ poles = cell2mat(cellfun(@pole,sys,"uniform",0).');
 m = matlabColors();
 
 %% Nyquist plot
-fig = figure('Position',[100,100,640,360]);
+fig = figure('Position',[100,100,640,240]);
 axe = axes(fig);
 cm = parula;
 c = interp1(linspace(0,1,size(cm,1)).',cm,linspace(0,1,numel(vx)).');
@@ -45,5 +45,5 @@ cb.TickLabels = cellfun(f,cb.TickLabels,'uniform',0);
 cb.Label.String = "Speed (km/h)";
 cb.Label.FontSize = 12;
 
-% dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\LinearModeling\Figures\";
-% saveThesisFig(fig,dir + "lateral_nyquist");
+dir = "C:\Users\marti\PhD\Articles\VSD26\Figures\";
+saveas(fig,dir + "lateral_nyquist.eps",'epsc');
