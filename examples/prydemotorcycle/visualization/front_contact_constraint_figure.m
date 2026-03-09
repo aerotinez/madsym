@@ -140,21 +140,23 @@ plotFrame(axe,rigidtform3d(R*rotx(rad2deg(camber_f)).',Cf), ...
     'LineStyle',':');
 
 nms = {
-    '$\mathbf{T}_{w}$';
+    '$T_{w}$';
     '';
     '';
-    '$\mathbf{T}_{f}$';
+    '$T_{f}$';
     '';
     '';
-    '$\mathbf{T}_{\beta}$';
+    '$T_{\beta}$';
     };
 
-legend(axe,nms{:}, ...
+leg = legend(axe,nms{:}, ...
     'FontSize',12, ...
     'Position',[0.73,0.66,0.15,0.1], ...
     'Orientation','Vertical',...
     'AutoUpdate','off', ...
     'Interpreter','latex');
+
+title(leg,"Pose","FontSize",12,"FontWeight","bold","Interpreter","none");
 
 %% Plot dimension lines
 plotDoFLine(axe, ...

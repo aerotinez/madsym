@@ -51,7 +51,7 @@ axis(axe,'tight');
 I = eye(3);
 p0 = [0,0,0];
 
-hw = plotFrame(axe,rigidtform3d(rotz(-60),p0), ...
+hw = plotFrame(axe,rigidtform3d(rotz(-40),p0), ...
     'Color',p0);
 
 Ryaw = rotz(q(1));
@@ -71,7 +71,7 @@ h = plotFrame(axe,rigidtform3d(Rpitch,prr), ...
 %%
 
 plotDoFLine(axe, ...
-    rigidtform3d(rotz(-60),p0), ...
+    rigidtform3d(rotz(-40),p0), ...
     rigidtform3d(Ryaw,p0), ...
     'y',0.5.*[1,1]);
 
@@ -96,6 +96,29 @@ plotDoFLine(axe, ...
     'x',[0.8,0.7]);
 
 camproj(axe,'perspective');
+
+%% Legend
+
+strs = [
+    repelem("",13).';
+    "$T_{w}$";
+    "";
+    "";
+    "$T_{\psi}$";
+    "";
+    "";
+    "$T_{\gamma}$";
+    "";
+    "";
+    "$T_{\theta}$";
+    ];
+
+leg = legend(axe,strs, ...
+    'FontSize',12, ...
+    'Interpreter','latex', ...
+    'NumColumns',2,"Position",[0.18,0.65,0.3,0.1]);
+
+title(leg,"Pose","FontSize",12,"FontWeight","bold","Interpreter","none");
 
 %% Save figure
 dir = 'C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\';
