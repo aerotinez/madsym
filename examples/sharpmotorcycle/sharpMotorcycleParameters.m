@@ -27,5 +27,5 @@ function p = sharpMotorcycleParameters()
     p.rf = 0.3048;
     p.rr = 0.3048;
     p.sigma = 0.2438;
-    p.varepsilon = 0.4715;
+    p.caster = 0.4715;
 end

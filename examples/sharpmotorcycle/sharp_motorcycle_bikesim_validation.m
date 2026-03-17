@@ -13,7 +13,7 @@ vx = [30,50,80,110,130];
 plant = @sharpMotorcycleStateSpace;
 n2s = @num2str;
 
-scen = "DLC";
+scen = "Chicane";
 results_path = "G:\My Drive\BikeSimResults\BigSports\" + scen;
 
 x_mes = cell(1,numel(vx));
