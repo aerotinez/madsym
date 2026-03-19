@@ -86,5 +86,5 @@ hold(axe,'off');
 f = @(x)char(string(double(string(x))./1E03));
 yticklabels(axe,cellfun(f,axe.YTickLabels,'uniform',0));
 
-dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\";
-saveas(fig,dir + "magic_formula.eps",'epsc');
+% dir = "C:\Users\marti\PhD\Thesis\MotorcycleDynamics\ForcesAndMoments\Figures\";
+% saveas(fig,dir + "magic_formula.eps",'epsc');
