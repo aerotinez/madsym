@@ -118,53 +118,53 @@ leg.Orientation = "horizontal";
 leg.Layout.Tile = 'south';
 
 %% Save figure
-
-dict = dictionary(["OpenLoop","DLC","Chicane"],["open_loop","dlc","chicane"]);
-
-dir = "C:\Users\marti\PhD\Articles\VSD26\Figures\";
-saveas(fig,dir + dict(scen) + "_results_sharp.eps",'epsc');
-
-%% RMSE table
-states = [
-    "$\gamma$";
-    "$\delta$";
-    "$\omega_{z}$";
-    "$v_{y}$";
-    "$\omega_{x}$";
-    "$\omega_{\delta}$";
-    "$Y_{r}$";
-    "$Y_{f}$"
-    ];
-
-latex_units = [
-    "\degree";
-    "\degree";
-    "\degree\per\second";
-    "\meter\per\second";
-    "\degree\per\second";
-    "\degree\per\second";
-    "\newton";
-    "\newton"
-    ];
-
-table_dir = "C:\Users\marti\PhD\Articles\VSD26\";
-
-fid = fopen(table_dir + dict(scen) + "_rmse_results_sharp.tex","w");
-
-fprintf(fid,"\\begin{tabularx}{\\textwidth}{|C|C||*{5}{C|}}\n");
-fprintf(fid,"\\hline\n");
-fprintf(fid,"\\multirow{2}{*}{State} &\n");
-fprintf(fid,"\\multirow{2}{*}{Units} &\n");
-fprintf(fid,"\\multicolumn{5}{c|}{Speed ($\\unit[per-mode=symbol]{\\kilo\\meter\\per\\hour}$)} \\\\\n");
-fprintf(fid,"\\cline{3-7}\n");
-fprintf(fid,"& & 30 & 50 & 80 & 110 & 130 \\\\\n");
-fprintf(fid,"\\hline\\hline\n");
-
-for k = 1:8
-    fprintf(fid,"%s & $\\unit[per-mode=symbol]{%s}$ ", states(k), latex_units(k));
-    fprintf(fid,"& %.4f & %.4f & %.4f & %.4f & %.4f ", rmse_results(k,:));
-    fprintf(fid,"\\\\\n\\hline\n");
-end
-
-fprintf(fid,"\\end{tabularx}\n");
-fclose(fid);
+% 
+% dict = dictionary(["OpenLoop","DLC","Chicane"],["open_loop","dlc","chicane"]);
+% 
+% dir = "C:\Users\marti\PhD\Articles\VSD26\Figures\";
+% saveas(fig,dir + dict(scen) + "_results_sharp.eps",'epsc');
+% 
+% %% RMSE table
+% states = [
+%     "$\gamma$";
+%     "$\delta$";
+%     "$\omega_{z}$";
+%     "$v_{y}$";
+%     "$\omega_{x}$";
+%     "$\omega_{\delta}$";
+%     "$Y_{r}$";
+%     "$Y_{f}$"
+%     ];
+% 
+% latex_units = [
+%     "\degree";
+%     "\degree";
+%     "\degree\per\second";
+%     "\meter\per\second";
+%     "\degree\per\second";
+%     "\degree\per\second";
+%     "\newton";
+%     "\newton"
+%     ];
+% 
+% table_dir = "C:\Users\marti\PhD\Articles\VSD26\";
+% 
+% fid = fopen(table_dir + dict(scen) + "_rmse_results_sharp.tex","w");
+% 
+% fprintf(fid,"\\begin{tabularx}{\\textwidth}{|C|C||*{5}{C|}}\n");
+% fprintf(fid,"\\hline\n");
+% fprintf(fid,"\\multirow{2}{*}{State} &\n");
+% fprintf(fid,"\\multirow{2}{*}{Units} &\n");
+% fprintf(fid,"\\multicolumn{5}{c|}{Speed ($\\unit[per-mode=symbol]{\\kilo\\meter\\per\\hour}$)} \\\\\n");
+% fprintf(fid,"\\cline{3-7}\n");
+% fprintf(fid,"& & 30 & 50 & 80 & 110 & 130 \\\\\n");
+% fprintf(fid,"\\hline\\hline\n");
+% 
+% for k = 1:8
+%     fprintf(fid,"%s & $\\unit[per-mode=symbol]{%s}$ ", states(k), latex_units(k));
+%     fprintf(fid,"& %.4f & %.4f & %.4f & %.4f & %.4f ", rmse_results(k,:));
+%     fprintf(fid,"\\\\\n\\hline\n");
+% end
+% 
+% fprintf(fid,"\\end{tabularx}\n");
+% fclose(fid);
