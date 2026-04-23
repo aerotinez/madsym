@@ -5,5 +5,5 @@ function eomc = simplify(obj)
     eomc = obj;
     eomc.Configuration = simplify(expand(eomc.Configuration));
     eomc.Jacobian = simplify(expand(eomc.Jacobian));
-    eomc.JacobianRate = simplify(expand(eomc.JacobianRate)); 
+    eomc.JacobianRate = eomc.JacobianRate; 
 end
