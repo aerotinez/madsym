@@ -4,6 +4,7 @@ classdef MotionEquations
         Inputs;
         MassMatrix;
         ForcingVector;
+        IsTrimmed;
     end
     methods (Access = public)
         function obj = MotionEquations(states,mass_matrix,forcing_vector,inputs)
@@ -17,6 +18,7 @@ classdef MotionEquations
             obj.MassMatrix = mass_matrix;
             obj.ForcingVector = forcing_vector;
             obj.Inputs = inputs;
+            obj.IsTrimmed = false;
         end 
     end 
 end

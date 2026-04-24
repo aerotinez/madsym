@@ -5,6 +5,7 @@ classdef ConstraintEquations
         Configuration;
         Jacobian;
         JacobianRate;
+        IsTrimmed;
     end
     methods (Access = public)
         function obj = ConstraintEquations(q,configuration,velocity)
@@ -25,6 +26,7 @@ classdef ConstraintEquations
             fAd = @(a)jacobian(a,q.state())*q.rate();
             a = reshape(obj.Jacobian,[],1);
             obj.JacobianRate = reshape(arrayfun(fAd,a),size(obj.Jacobian));
+            obj.IsTrimmed = false;
         end
     end
 end
