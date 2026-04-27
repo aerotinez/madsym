@@ -2,11 +2,15 @@ function eomd = simplify(obj)
     arguments
         obj (1,1) DynamicEquations
     end
-    u = obj.States;
-    F = obj.Inputs;
-    M = simplify(expand(obj.MassMatrix));
-    f0 = simplify(expand(obj.f0));
-    f1 = simplify(expand(obj.f1));
-    f2 = simplify(expand(obj.f2));
-    eomd = DynamicEquations(u,M,f0,f1,f2,F);
+
+    eomd = obj;
+
+    eomd.SpatialInertia = simplify(expand(obj.SpatialInertia));
+    eomd.Jacobian = simplify(expand(obj.Jacobian));
+    eomd.JacobianRate = simplify(expand(obj.JacobianRate));
+    eomd.ActiveForces = simplify(expand(obj.ActiveForces));
+    eomd.ConstraintJacobian = simplify(expand(obj.ConstraintJacobian));
+
+    eomd.MassMatrix = eomd.massMatrix();
+    eomd.ForcingVector = eomd.forcingVector();
 end

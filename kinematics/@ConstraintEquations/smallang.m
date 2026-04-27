@@ -6,5 +6,5 @@ function out = smallang(obj,x)
     out = obj;
     out.Configuration = smallang(obj.Configuration,x);
     out.Jacobian = smallang(obj.Jacobian,x);
-    out.JacobianRate = smallang(obj.JacobianRate,x);
+    out.JacobianRate = smallang(simplify(obj.JacobianRate),x);
 end

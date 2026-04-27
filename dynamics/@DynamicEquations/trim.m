@@ -1,13 +1,17 @@
 function out = trim(obj,z)
     arguments
-        obj (:,1) DynamicEquations
+        obj (1,1) DynamicEquations
         z (:,1) DynamicVariable
     end
+
     out = obj;
-    out.MassMatrix = subsTrim(obj.MassMatrix,z);
-    out.f0 = subsTrim(obj.f0,z);
-    out.f1 = subsTrim(obj.f1,z);
-    out.f2 = subsTrim(obj.f2,z);
-    out.ForcingVector = out.f0 + out.f1 + out.f2;
+
+    out.SpatialInertia = subsTrim(obj.SpatialInertia,z);
+    out.Jacobian = subsTrim(obj.Jacobian,z);
+    out.JacobianRate = subsTrim(obj.JacobianRate,z);
+    out.ActiveForces = subsTrim(obj.ActiveForces,z);
+    out.ConstraintJacobian = subsTrim(obj.ConstraintJacobian,z);
     out.IsTrimmed = true;
+    out.MassMatrix = out.massMatrix();
+    out.ForcingVector = out.forcingVector();
 end

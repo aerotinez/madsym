@@ -22,7 +22,7 @@ function out = trim(obj)
         out.Constraints.Jacobian;
         ];
 
-    Mv = out.Auxiliary.MassMatrix;
+    Mv = subsTrim(out.Auxiliary.MassMatrix,z);
 
     out.MassMatrix = blkdiag(Mk,Md,Mv);
 
@@ -33,7 +33,7 @@ function out = trim(obj)
         out.Kinematics.ForcingVector;
         fd;
         -out.Constraints.JacobianRate*[out.Kinematics.Inputs.TrimState].';
-        out.Auxiliary.ForcingVector
+        subsTrim(out.Auxiliary.ForcingVector,z)
         ];
 
     out.IsTrimmed = true;

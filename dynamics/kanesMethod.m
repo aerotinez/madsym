@@ -16,7 +16,7 @@ function eom = kanesMethod(q,u,kdes,bodies,F,cons,v,ades)
     Jc = sym.empty(0,1);
     if ~isempty(cons)
         eomc = simplify(partition(cons).reformulate(eomk)); 
-        Jc = partitionJacobian(eomc);
+        Jc = eomc.Jacobian;
     end
     eomd_list = arrayfun(@(b)bodyDynamics(b,eomk,F,Jc),bodies);
     eomv = MotionEquations.empty(0,1);
@@ -33,27 +33,14 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
         inputs (:,1) DynamicVariable = DynamicVariable.empty(0,1);
         Jc sym = sym.empty(0,1);
     end
-
     V = body.Twist.reformulate(eomk);
-    ad = V.adjoint();
-
     Vbar = V.partial(eomk);
     Vdbar = V.partialRate(eomk);
-
     G = blkdiag(body.Inertia,body.Mass.*eye(3));
-    M = Vbar.'*G*Vbar;
-
-    u = eomk.Inputs.state;
-    f0 = -Vbar.'*G*Vdbar*u;
-    f1 = Vbar.'*ad.'*G*Vbar*u;
-
     T = Pose(body.ReferenceFrame,body.MassCenter);
     W = simplify(expand(body.ActiveForces.vector(T)));
-    f2 = Vbar.'*subs(W,eomk.States.rate,eomk.ForcingVector);
-
-    eomd = DynamicEquations(eomk.Inputs,M,f0,f1,f2,inputs);
-
+    eomd = DynamicEquations(eomk.Inputs,G,Vbar,Vdbar,W,inputs);
     if ~isempty(Jc)
-        eomd = constrain(eomd,Jc); 
+        eomd = constrain(eomd,Jc);
     end
 end

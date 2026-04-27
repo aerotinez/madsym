@@ -1,12 +1,12 @@
 function eom = uminus(obj)
     arguments
-        obj (:,1) DynamicEquations;
+        obj (1,1) DynamicEquations
     end
-    u = obj.States;
-    M = -obj.MassMatrix;
-    f0 = -obj.f0;
-    f1 = -obj.f1;
-    f2 = -obj.f2;
-    F = obj.Inputs;
-    eom = DynamicEquations(u,M,f0,f1,f2,F);
+
+    eom = obj;
+
+    eom.SpatialInertia = -obj.SpatialInertia;
+    eom.ActiveForces   = -obj.ActiveForces;
+    eom.MassMatrix = eom.massMatrix();
+    eom.ForcingVector = eom.forcingVector();
 end
