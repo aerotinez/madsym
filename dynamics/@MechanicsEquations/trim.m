@@ -12,7 +12,11 @@ function out = trim(obj)
     out.Constraints = trim(obj.Constraints);
     out.Kinematics = trim(obj.Kinematics);
     out.BodyDynamics = arrayfun(@(b)trim(b,z),obj.BodyDynamics);
-    out.Auxiliary = trim(obj.Auxiliary);
+
+    out.Auxiliary = MotionEquations( ...
+        obj.Auxiliary.States,subsTrim(obj.Auxiliary.MassMatrix,z), ...
+        subsTrim(obj.Auxiliary.ForcingVector,z), ...
+        obj.Auxiliary.Inputs);
 
     Mk = out.Kinematics.MassMatrix;
 
