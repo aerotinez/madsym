@@ -28,6 +28,11 @@ classdef Pose
                 R, zeros(3,3);
                 simplify(expand(vec2skew(p)*R)),R
                 ];
+
+            % obj.Adjoint = [
+            %     R, zeros(3,3);
+            %     vec2skew(p)*R,R
+            %     ];
         end 
     end
 end

@@ -6,4 +6,5 @@ function J = jacobian(obj,q,pose)
     end
     V = obj.vector(pose);
     J = simplify(expand(jacobian(V,q.rate)));
+    % J = jacobian(V,q.rate);
 end

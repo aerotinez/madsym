@@ -6,5 +6,6 @@ function Jd = jacobianRate(obj,q,pose)
     end
     J = obj.jacobian(q,pose);
     f = @(j)simplify(expand(jacobian(j,q.state)*q.rate));
+    % f = @(j)jacobian(j,q.state)*q.rate;
     Jd = reshape(arrayfun(f,reshape(J,[],1)),size(J));
 end

@@ -7,4 +7,5 @@ function d = posFrom(obj,P,N)
     p0 = [obj.x,obj.y,obj.z].';
     p = [P.x,P.y,P.z].';
     d = simplify(expand(N.dcm.'*(p0 - p)));
+    % d = N.dcm.'*(p0 - p);
 end
