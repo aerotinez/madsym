@@ -7,7 +7,7 @@ function out = smallang(obj,x)
     out.Jacobian = smallang(obj.Jacobian,x);
     out.JacobianRate = smallang(obj.JacobianRate,x);
     if obj.IsTrimmed
-        out.ForcingVector = out.Jacobian*[obj.Inputs.TrimState].';
+        out.ForcingVector = smallang(out.Jacobian*[obj.Inputs.TrimState].',x);
     else
         out.ForcingVector = out.Jacobian*state(obj.Inputs);
     end

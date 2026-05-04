@@ -24,10 +24,18 @@ function f0 = smallang(f, angs)
         x.^2;
         x.^3;
         x.^4;
-        x.^5
+        x.^5;
+        x.^6;
+        x.^7;
+        x.^8;
+        x.^9;
+        x.^10;
+        x.^11;
+        x.^12
         ];
 
     f0 = subs(f0,x0,zeros(size(x0)));
     f0 = simplify(collect(f0,x));
     f0 = subs(f0,x0,zeros(size(x0)));
+    f0 = simplify(expand(f0));
 end

@@ -12,21 +12,58 @@ function out = smallang(obj,x)
     out.ActiveForces = smallang(obj.ActiveForces,x);
     out.ConstraintJacobian = smallang(obj.ConstraintJacobian,x);
 
-    vals = [
-        nonzeros(triu(x*x.',1));
-        x.^2;
-        x.^3;
-        x.^4;
-        x.^5;
-        x.^6;
-        x.^7;
-        x.^8;
-        x.^9;
-        x.^10;
-        x.^11;
-        x.^12
-        ];
+    B = obj.ConstraintJacobian;
+    Bind = simplify(expand(B(:,1:numel(out.States.independent))));
+    Bdep = simplify(expand(B(:,numel(out.States.independent) + 1:end)));
+    A = syminv(Bdep);
+    Jc = -A*Bind;
 
-    out.MassMatrix = subs(expand(out.massMatrix()),vals,0*vals);
-    out.ForcingVector = subs(expand(out.forcingVector()),vals,0*vals);
+    M = smallang(obj.Jacobian.'*obj.SpatialInertia*obj.Jacobian,x);
+
+    if ~isequal(Jc, eye(numel(obj.States),'sym'))
+        n = numel(obj.States);
+        m = size(Jc,1);
+        k = n - m;
+
+        M = M(1:k,:) + Jc.'*M(k+1:end,:);
+    end
+
+    out.MassMatrix = smallang(M,x);
+
+    if obj.IsTrimmed
+        u = [obj.States.TrimState].';
+    else
+        u = state(obj.States);
+    end
+
+    J  = obj.Jacobian;
+    dJ = obj.JacobianRate;
+    G  = obj.SpatialInertia;
+    W  = obj.ActiveForces;
+
+    V = smallang(J*u,x);
+
+    nb = size(G,1)/6;
+    adw = sym.zeros(6*nb);
+
+    for i = 1:nb
+        idx = (6*(i - 1) + 1):(6*i);
+        w = V(idx(1:3));
+        adw(idx,idx) = blkdiag(vec2skew(w),vec2skew(w));
+    end
+
+    f0 = smallang(J.'*W,x);
+    f1 = smallang(-J.'*G*dJ*u,x);
+    f2 = smallang(-J.'*adw*G*J*u,x);
+    f = f0 + f1 + f2;
+
+    if ~isequal(Jc, eye(numel(obj.States),'sym'))
+        n = numel(obj.States);
+        m = size(Jc,1);
+        k = n - m;
+
+        f = f(1:k) + Jc.'*f(k+1:end);
+    end
+
+    out.ForcingVector = smallang(f,x);
 end
