@@ -12,13 +12,13 @@ function out = smallang(obj,x)
     out.ActiveForces = smallang(obj.ActiveForces,x);
     out.ConstraintJacobian = smallang(obj.ConstraintJacobian,x);
 
-    B = obj.ConstraintJacobian;
+    B = out.ConstraintJacobian;
     Bind = simplify(expand(B(:,1:numel(out.States.independent))));
     Bdep = simplify(expand(B(:,numel(out.States.independent) + 1:end)));
     A = syminv(Bdep);
-    Jc = -A*Bind;
+    Jc = smallang(-A*Bind,x);
 
-    M = smallang(obj.Jacobian.'*obj.SpatialInertia*obj.Jacobian,x);
+    M = smallang(out.Jacobian.'*out.SpatialInertia*out.Jacobian,x);
 
     if ~isequal(Jc, eye(numel(obj.States),'sym'))
         n = numel(obj.States);
@@ -36,10 +36,10 @@ function out = smallang(obj,x)
         u = state(obj.States);
     end
 
-    J  = obj.Jacobian;
-    dJ = obj.JacobianRate;
-    G  = obj.SpatialInertia;
-    W  = obj.ActiveForces;
+    J  = out.Jacobian;
+    dJ = out.JacobianRate;
+    G  = out.SpatialInertia;
+    W  = out.ActiveForces;
 
     V = smallang(J*u,x);
 
