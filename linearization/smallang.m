@@ -35,7 +35,4 @@ function f0 = smallang(f, angs)
         ];
 
     f0 = subs(f0,x0,zeros(size(x0)));
-    f0 = simplify(collect(f0,x));
-    f0 = subs(f0,x0,zeros(size(x0)));
-    f0 = simplify(expand(f0));
 end
