@@ -4,7 +4,7 @@ setmadsympath();
 %% Parameters
 bs = bigSportsParameters;
 s2m = @(x)cell2mat(struct2cell(x));
-params = @(v)s2m(bikeSimToPrydeV2Parameters(bs,v/3.6));
+params = @(v)s2m(bikeSimToMotoParameters(bs,v/3.6));
 
 %% Model sweep
 nv = 3000;

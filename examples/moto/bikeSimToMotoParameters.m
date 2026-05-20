@@ -1,4 +1,4 @@
-function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
+function p = bikeSimToMotoParameters(bikesim_params,vx)
     arguments
         bikesim_params (1,1) BikeSimMotorcycleParameters;
         vx (1,1) double {mustBePositive};
@@ -192,6 +192,7 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
 
     p.Ibxx = Ib(1,1);
     p.Ibxz = Ib(1,3);
+    p.Ibyy = Ib(2,2);
     p.Ibzz = Ib(3,3);
 
     %% Front body
@@ -239,8 +240,10 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
     p.fl = (1/2)*rho*Cl*A*p.v^2;
     p.fd = (1/2)*rho*Cd*A*p.v^2; 
  
-    %% Front tire parameters 
-    fz = prydeMotoTrimNormalForces(cell2mat(struct2cell(p)));
+    %% Front tire parameters
+    pt = cell2mat(struct2cell(p));
+    pt(4) = [];
+    fz = prydeMotoTrimNormalForces(pt);
 
     fzf0 = ft.Pacejka.fz0;
     p.fzf = fz(1);
