@@ -5,6 +5,6 @@ function out = smallang(obj,x)
     end
     out = obj;
     out.MassMatrix = smallang(obj.MassMatrix,x);
-    obj.ForcingMatrix = smallang(obj.ForcingMatrix,x);
-    obj.InputMatrix = smallang(obj.InputMatrix,x);
+    out.ForcingMatrix = smallang(obj.ForcingMatrix,x);
+    out.InputMatrix = smallang(obj.InputMatrix,x);
 end
