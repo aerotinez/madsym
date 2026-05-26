@@ -47,8 +47,8 @@ function eom_lin = linearize(obj,options)
         feomd = @(eom)simplify(linearize(eom,x,F,"SmallAngs",options.SmallAngs));
     end
 
-    eomd = arrayfun(feomd,obj.BodyDynamics);
-    eomd = sum(eomd);
+    eomd_b = arrayfun(feomd,obj.BodyDynamics);
+    eomd = sum(eomd_b);
     
     eqnsk = sym(eomk);
     eqnsd = sym(eomd);
