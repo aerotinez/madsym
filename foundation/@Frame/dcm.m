@@ -5,6 +5,5 @@ function R = dcm(obj,N)
     end
     Rb = [obj.x,obj.y,obj.z];
     Rs = [N.x,N.y,N.z];
-    R = simplify(expand(Rs.'*Rb));
-    % R = Rs.'*Rb;
+    R = Rs.'*Rb;
 end

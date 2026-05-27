@@ -7,7 +7,7 @@ function G = inertiaMatrix(obj,pose)
     if pose ~= Pose(obj.ReferenceFrame,obj.MassCenter)
         Adbw = Pose(obj.ReferenceFrame,obj.MassCenter).inv().adjoint();
         Adwa = pose().adjoint;
-        Ad = simplify(expand(Adwa*Adbw));
+        Ad = Adwa*Adbw;
         G = Ad.'*G*Ad;
     end
 end

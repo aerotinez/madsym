@@ -5,7 +5,7 @@ function Vd = rateVector(obj,pose)
     end
     Ad = eye(6,"sym");
     if pose ~= obj.Pose 
-        Ad = simplify(expand(pose.inv().adjoint()*obj.Pose.adjoint()));
+        Ad = pose.inv().adjoint()*obj.Pose.adjoint();
     end
-    Vd = simplify(expand(Ad*obj.RateVector));
+    Vd = Ad*obj.RateVector;
 end

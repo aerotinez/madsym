@@ -5,5 +5,5 @@ function pd = linVel(obj)
     T = obj.Pose.transform(); 
     Vm = obj.matrix();
     Td = T*Vm;
-    pd = simplify(expand(Td(1:3,4)));
+    pd = Td(1:3,4);
 end

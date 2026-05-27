@@ -6,5 +6,5 @@ function pdd = linAccel(obj)
     w = obj.angVel();
     v = obj.transVel();
     vd = obj.transAccel();
-    pdd = simplify(expand(R*vec2skew(w)*v + R*vd));
+    pdd = R*vec2skew(w)*v + R*vd;
 end

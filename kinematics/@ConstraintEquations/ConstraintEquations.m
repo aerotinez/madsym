@@ -18,7 +18,7 @@ classdef ConstraintEquations
             obj.Configuration = configuration;
 
             nhc = [
-                simplify(expand(diff(configuration,sym('t'))));
+                diff(configuration,sym('t'));
                 velocity
                 ];
 

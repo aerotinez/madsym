@@ -4,8 +4,8 @@ function J = constrainingJacobian(obj)
     end
     x = obj.States;
     B = obj.ConstraintJacobian;
-    Bind = simplify(expand(B(:,1:numel(x.independent))));
-    Bdep = simplify(expand(B(:,numel(x.independent) + 1:end)));
+    Bind = B(:,1:numel(x.independent));
+    Bdep = B(:,numel(x.independent) + 1:end);
     A = syminv(Bdep);
     J = -A*Bind;
 end
