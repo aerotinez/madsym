@@ -42,7 +42,7 @@ opts = optimoptions("fsolve", ...
     "Display","none");
 
 %% Sweep
-X = zeros(ns,ns,13);
+X = zeros(ns,ns,12);
 
 idx0 = ceil(ns/2);
 
@@ -50,7 +50,6 @@ for idx_vx = 1:ns
     params = bikeSimToMotoParameters(bs,vx(idx_vx));
 
     x0 = [
-        0;
         zeros(6,1);
         vx(idx_vx)/params.rf;
         vx(idx_vx)/params.rr;
@@ -96,7 +95,6 @@ titles = [
     "Rear slip angle";
     "Front slip ratio";
     "Rear slip ratio";
-    "Side speed";
     "Front wheel speed";
     "Rear wheel speed";
     "Front normal force";
@@ -112,7 +110,6 @@ units = [
     "angle (\circ)";
     "ratio (%)";
     "ratio (%)";
-    "speed (m/s)";
     "speed (rad/s)";
     "speed (rad/s)";
     "force (N)";
@@ -121,7 +118,7 @@ units = [
     "torque (Nm)"
     ];
 
-tl = tiledlayout(3,5,"TileSpacing","tight","Padding","compact");
+tl = tiledlayout(3,4,"TileSpacing","tight","Padding","compact");
 
 for k = 1:numel(titles)
     axe = nexttile(tl,k);
