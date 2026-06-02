@@ -6,6 +6,7 @@ function out = subsParams(obj,ovals,nvals)
     end
     out = obj;
     f = @(x)subs(x,ovals,nvals);
+    out.Pose = f(obj.Pose);
     out.SpatialInertia = f(obj.SpatialInertia);
     out.Twist = f(obj.Twist);
     out.TwistRate = f(obj.TwistRate);

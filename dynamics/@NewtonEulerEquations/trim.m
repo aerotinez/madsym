@@ -4,6 +4,7 @@ function out = trim(obj,z)
         z (:,1) DynamicVariable
     end
     out = obj;
+    out.Pose = subsTrim(obj.Pose,z);
     out.SpatialInertia = subsTrim(obj.SpatialInertia,z);
     out.Twist = subsTrim(obj.Twist,z);
     out.TwistRate = subsTrim(obj.TwistRate,z);

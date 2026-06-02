@@ -12,9 +12,9 @@ function eqns = newtonEuler(obj,pose,eomk)
         Wa = subs(Wa,eomk.States.rate,eomk.ForcingVector);
     end
     V = twist.vector();
-    adV = twist.adjoint();
+    adV = blkdiag(vec2skew(V(1:3)),vec2skew(V(1:3)));
     Vd = twist.rateVector();
     G = obj.inertiaMatrix();
-    W = Wrench(G*Vd - adV.'*G*V - Wa,T);
+    W = Wrench(G*Vd + adV*G*V - Wa,T);
     eqns = W.vector(pose);
 end

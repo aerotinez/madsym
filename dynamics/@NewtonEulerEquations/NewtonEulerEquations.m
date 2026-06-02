@@ -1,5 +1,6 @@
 classdef NewtonEulerEquations
     properties (GetAccess = public, SetAccess = protected)
+        Pose;
         SpatialInertia;
         Twist;
         TwistRate;
@@ -11,10 +12,11 @@ classdef NewtonEulerEquations
             arguments
                 body (1,1) Body;
             end
-            T = Pose(Frame(),Point());
-            obj.SpatialInertia = body.inertiaMatrix(T);
-            obj.Twist = body.Twist.vector(T);
-            obj.TwistRate = body.Twist.rateVector(T);
+            T = Pose(body.ReferenceFrame,body.MassCenter);
+            obj.Pose = T.transform();
+            obj.SpatialInertia = body.inertiaMatrix();
+            obj.Twist = body.Twist.vector();
+            obj.TwistRate = body.Twist.rateVector();
             obj.ActiveForces = body.ActiveForces.vector(T);
             obj.IsTrimmed = false;
         end

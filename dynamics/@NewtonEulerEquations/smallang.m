@@ -4,6 +4,7 @@ function out = smallang(obj,x)
         x (:,1) sym;
     end
     out = obj;
+    out.Pose = smallang(obj.Pose,x);
     out.SpatialInertia = smallang(obj.SpatialInertia,x);
     out.Twist = smallang(obj.Twist,x);
     out.TwistRate = smallang(obj.TwistRate,x);

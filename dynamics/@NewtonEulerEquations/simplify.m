@@ -4,6 +4,7 @@ function out = simplify(obj)
     end
     out = obj;
     f = @(x)simplify(expand(x));
+    out.Pose = f(obj.Pose);
     out.SpatialInertia = f(obj.SpatialInertia);
     out.Twist = f(obj.Twist);
     out.TwistRate = f(obj.TwistRate);

@@ -23,13 +23,13 @@ function f = forcingVector(obj)
 
     f = J.'*(W - (G*dJ + adw*G*J)*u);
 
-    % Jc = obj.constrainingJacobian();
-    % 
-    % if ~isequal(Jc, eye(numel(obj.States),'sym'))
-    %     n = numel(obj.States);
-    %     m = size(Jc,1);
-    %     k = n - m;
-    % 
-    %     f = f(1:k) + Jc.'*f(k+1:end);
-    % end
+    Jc = obj.constrainingJacobian();
+
+    if ~isequal(Jc, eye(numel(obj.States),'sym'))
+        n = numel(obj.States);
+        m = size(Jc,1);
+        k = n - m;
+
+        f = f(1:k) + Jc.'*f(k+1:end);
+    end
 end

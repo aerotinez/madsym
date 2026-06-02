@@ -7,7 +7,7 @@ classdef DynamicEquations < MotionEquations
         ConstraintJacobian;
     end
     methods (Access = public)
-        function obj = DynamicEquations(u,G,J,dJ,W,F)
+        function obj = DynamicEquations(u,G,J,dJ,W,F,Jc)
             arguments
                 u (:,1) DynamicVariable
                 G (6,6) sym
@@ -15,10 +15,8 @@ classdef DynamicEquations < MotionEquations
                 dJ (6,:) sym
                 W (6,1) sym = zeros(6,1,'sym')
                 F (:,1) DynamicVariable = DynamicVariable.empty(0,1)
+                Jc (:,:) sym = eye(numel(u),'sym');
             end
-        
-            Jc = eye(numel(u),'sym');
-        
             V = J*state(u);
             w = V(1:3);
             wm = vec2skew(w);
