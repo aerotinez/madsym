@@ -38,7 +38,7 @@ function eomd = bodyDynamics(body,eomk,inputs,Jc)
     Vdbar = V.partialRate(eomk);
     G = blkdiag(body.Inertia,body.Mass.*eye(3));
     T = Pose(body.ReferenceFrame,body.MassCenter);
-    W = simplify(expand(body.ActiveForces.vector(T)));
+    W = subs(body.ActiveForces.vector(T),rate(eomk.States),eomk.ForcingVector);
     eomd = DynamicEquations(eomk.Inputs,G,Vbar,Vdbar,W,inputs);
     if ~isempty(Jc)
         eomd = constrain(eomd,Jc);

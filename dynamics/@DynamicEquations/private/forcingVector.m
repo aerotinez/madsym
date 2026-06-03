@@ -23,9 +23,8 @@ function f = forcingVector(obj)
 
     f = J.'*(W - (G*dJ + adw*G*J)*u);
 
-    Jc = obj.constrainingJacobian();
-
-    if ~isequal(Jc, eye(numel(obj.States),'sym'))
+    if numel(dependent(obj.States)) > 0
+        Jc = obj.constrainingJacobian();
         n = numel(obj.States);
         m = size(Jc,1);
         k = n - m;

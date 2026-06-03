@@ -4,7 +4,7 @@ function p = bikeSimToPrydeV2Parameters(bikesim_params,vx)
         vx (1,1) double {mustBePositive};
     end
     bs = bikesim_params;
-    p = motoParameters;
+    p = prydeMotorcycleV2Parameters;
 
     % normal forces
     p.g = 9.81;

@@ -11,6 +11,6 @@ function eomd = simplify(obj)
     eomd.ActiveForces = simplify(expand(obj.ActiveForces));
     eomd.ConstraintJacobian = simplify(expand(obj.ConstraintJacobian));
 
-    eomd.MassMatrix = eomd.massMatrix();
-    eomd.ForcingVector = eomd.forcingVector();
+    eomd.MassMatrix = simplify(expand(eomd.massMatrix()));
+    eomd.ForcingVector = simplify(expand(eomd.forcingVector()));
 end

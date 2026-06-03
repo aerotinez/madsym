@@ -1,8 +1,8 @@
 function M = massMatrix(obj)
     M = obj.Jacobian.' * obj.SpatialInertia * obj.Jacobian;
 
-    Jc = obj.constrainingJacobian();
-    if ~isequal(Jc, eye(numel(obj.States),'sym'))
+    if numel(dependent(obj.States)) > 0
+        Jc = obj.constrainingJacobian();
         n = numel(obj.States);
         m = size(Jc,1);
         k = n - m;

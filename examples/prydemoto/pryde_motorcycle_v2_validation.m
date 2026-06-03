@@ -5,7 +5,7 @@ setmadsympath();
 bs = bigSportsParameters;
 s2m = @(x) cell2mat(struct2cell(x));
 
-prydeParams = @(v) s2m(bikeSimToMotoParameters(bs, v/3.6));
+prydeParams = @(v) s2m(bikeSimToPrydeV2Parameters(bs, v/3.6));
 sharpStruct30 = bikeSimToSharpParameters(bs, 30/3.6);
 sharpParamsStruct = @(v) bikeSimToSharpParameters(bs, v/3.6);
 sharpParams = @(v) s2m(sharpParamsStruct(v));
@@ -14,7 +14,7 @@ sharpParams = @(v) s2m(sharpParamsStruct(v));
 vx = [30, 50, 80, 110, 130];
 n2s = @num2str;
 
-scen = "OpenLoop";
+scen = "Chicane";
 results_path = "G:\My Drive\BikeSimResults\BigSports\" + scen;
 
 prydePlant = @prydeMotoLateralStateSpace;
