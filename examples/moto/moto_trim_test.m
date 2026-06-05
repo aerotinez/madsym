@@ -136,8 +136,8 @@ for k = 1:numel(titles)
     view(axe,az + 45,el);
 
     title(axe,titles(k),"FontSize",12);
-    xlabel(axe,"Yaw rate (\circ/s)","FontSize",12);
-    ylabel(axe,"Speed (kph)","FontSize",12);
+    xlabel(axe,"\omega_\delta (\circ/s)","FontSize",12);
+    ylabel(axe,"v_x (kph)","FontSize",12);
     zlabel(axe,units(k),"FontSize",12);
     axis(axe,"square");
     box(axe,"on");

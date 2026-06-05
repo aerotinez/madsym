@@ -13,7 +13,7 @@ classdef LinearizedMotionEquations
                 M sym;
                 H sym;
                 G sym = sym.empty(numel(x.All),0);
-                u (:,1) DynamicVariable = DynamicVariable.empry(0,1);
+                u (:,1) DynamicVariable = DynamicVariable.empty(0,1);
             end
             obj.States = x;
             obj.MassMatrix = M;

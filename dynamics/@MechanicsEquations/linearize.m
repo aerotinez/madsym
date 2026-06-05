@@ -42,9 +42,9 @@ function eom_lin = linearize(obj,options)
 
     eomk = simplify(strat(linearize(obj.Kinematics,x,F)));
 
-    feomd = @(eom)simplify(linearize(eom,x,F));
+    feomd = @(eom)linearize(eom,x,F);
     if ~isempty(options.SmallAngs)
-        feomd = @(eom)simplify(linearize(eom,x,F,"SmallAngs",options.SmallAngs));
+        feomd = @(eom)linearize(eom,x,F,"SmallAngs",options.SmallAngs);
     end
 
     eomd_b = arrayfun(feomd,obj.BodyDynamics);
@@ -57,8 +57,8 @@ function eom_lin = linearize(obj,options)
         A = obj.Constraints.Jacobian;
         Ad = obj.Constraints.JacobianRate;
         eoma = A*u.rate() + Ad*u.state(); 
-        f0 = simplify(expand(strat(subsTrim(jacobian(eoma,x.rate),z))*x.rate));
-        f1 = simplify(expand(strat(subsTrim(jacobian(eoma,x.state),z))*x.state)); 
+        f0 = strat(subsTrim(jacobian(eoma,x.rate),z))*x.rate;
+        f1 = strat(subsTrim(jacobian(eoma,x.state),z))*x.state; 
 
         eqnsd = [
             eqnsd;
@@ -101,7 +101,7 @@ function eom_lin = linearize(obj,options)
         fcd = diff(obj.Constraints.configuration,sym('t'));
         Jfcdq = simplify(expand(strat(subsTrim(jacobian(fcd,q.state),z))));
         Jfcdqd = simplify(expand(strat(subsTrim(jacobian(fcd,q.rate),z))));
-        Dqd = -Pqd*syminv(Jfcdqd*Pqd);
+        Dqd = strat(-Pqd*syminv(Jfcdqd*Pqd));
         Rkq = simplify(strat(expand(Dqd*Jfcdq*Rcq)));
         Rkqd = simplify(strat(expand((eye(nq) + Dqd*Jfcdqd)*Pqi)));
     end
@@ -123,7 +123,7 @@ function eom_lin = linearize(obj,options)
         Jfaq = simplify(expand(strat(subsTrim(jacobian(fa,q.state),z))));
         Jfau = simplify(expand(strat(subsTrim(jacobian(fa,state([v;u])),z))));
         Jfaud = simplify(expand(strat(subsTrim(jacobian(fa,rate([v;u])),z))));
-        Dud = -Pud*syminv(Jfaud*Pud);
+        Dud = strat(-Pud*syminv(Jfaud*Pud));
         Raq = simplify(strat(expand(Dud*(Jfaq*Rcq + Jfau*Rvq))));
         Rau = simplify(strat(expand(Dud*Jfau*Rvu)));
         Raud = simplify(strat(expand((eye(nu + nv) + Dud*Jfaud)*Pui)));
