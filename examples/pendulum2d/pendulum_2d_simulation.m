@@ -3,13 +3,18 @@ close("all"); clear; clc;
 l = 1;
 g = 9.81;
 
-filename = "pendulum_vxy.h5";
+filename = "pendulum_2d_cranmer.h5";
+
+if isfile(filename)
+    delete(filename);
+end
 
 Ntraj = 100;
 ns = 1000;
 tspan = linspace(0,10,ns);
 
 for k = 1:Ntraj
+
     x0 = [
         deg2rad(-40 + 80*rand)
         deg2rad(-40 + 80*rand)
@@ -18,21 +23,35 @@ for k = 1:Ntraj
     ];
 
     f = @(t,y) pendulum2d(y,[l,g]');
-    [t,y] = ode45(f,tspan,x0);
 
-    yd = zeros(size(y));
+    [t,x] = ode45(f,tspan,x0);
+
+    xdot = zeros(size(x));
+
     for i = 1:length(t)
-        yd(i,:) = f(t(i), y(i,:).').';
+        xdot(i,:) = f(t(i),x(i,:).').';
     end
 
-    group = sprintf("/traj_%04d", k);
+    group = sprintf("/traj_%04d",k);
 
-    h5create(filename, group + "/t", size(t));
-    h5write(filename, group + "/t", t);
+    h5create(filename,group+"/t",size(t));
+    h5write(filename,group+"/t",t);
 
-    h5create(filename, group + "/x", size(y));
-    h5write(filename, group + "/x", y);
+    names = ["q1","q2","w1","w2"];
+    dnames = ["q1dot","q2dot","w1dot","w2dot"];
 
-    h5create(filename, group + "/xdot", size(yd));
-    h5write(filename, group + "/xdot", yd);
+    for j = 1:4
+
+        h5create(filename,group+"/"+names(j),size(x(:,j)));
+        h5write(filename,group+"/"+names(j),x(:,j));
+
+        h5create(filename,group+"/"+dnames(j),size(xdot(:,j)));
+        h5write(filename,group+"/"+dnames(j),xdot(:,j));
+
+    end
+
+    h5writeatt(filename,group,"l",l);
+    h5writeatt(filename,group,"g",g);
+    h5writeatt(filename,group,"x0",x0);
+
 end

@@ -167,17 +167,3 @@ function eoml = linearize(obj,x,F,options)
 
     eoml = LinearizedMotionEquations(x,Mlin,Hlin,Glin,F);
 end
-
-function DA = matdiff(A,x)
-    DA = zeros([size(A),numel(x)],'sym');
-    for k = 1:size(DA,1)
-        DA(k,:,:) = reshape(jacobian(A(k,:),x),1,size(DA,2),[]);
-    end
-end
-
-function J = tprod(T,x)
-    J = sym(zeros(size(T,1),size(T,3)));
-    for k = 1:size(T,3)
-        J(:,k) = T(:,:,k)*x;
-    end
-end

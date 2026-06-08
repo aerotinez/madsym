@@ -5,8 +5,10 @@ function eom_lin = linearize(obj,options)
     end
 
     strat = @(f)f;
+    strat0 = @(f)f;
     if ~isempty(options.SmallAngs)
-        strat = @(f)smallang(f,[options.SmallAngs.TrimState].');
+        strat = @(f)smallang(f,state(options.SmallAngs));
+        strat0 = @(f)smallang(f,[options.SmallAngs.TrimState].');
     end
 
     q = obj.Kinematics.States;
@@ -40,7 +42,7 @@ function eom_lin = linearize(obj,options)
         F
         ];
 
-    eomk = simplify(strat(linearize(obj.Kinematics,x,F)));
+    eomk = simplify(strat0(linearize(obj.Kinematics,x,F)));
 
     feomd = @(eom)linearize(eom,x,F);
     if ~isempty(options.SmallAngs)
@@ -54,20 +56,29 @@ function eom_lin = linearize(obj,options)
     eqnsd = sym(eomd);
 
     if ~isempty(dependent(u))
-        A = obj.Constraints.Jacobian;
-        Ad = obj.Constraints.JacobianRate;
-        eoma = A*u.rate() + Ad*u.state(); 
-        f0 = strat(subsTrim(jacobian(eoma,x.rate),z))*x.rate;
-        f1 = strat(subsTrim(jacobian(eoma,x.state),z))*x.state; 
+        A = strat(obj.Constraints.Jacobian);
+        dA = strat(obj.Constraints.JacobianRate);
+
+        u0 = [u.TrimState].';
+        du0 = [u.TrimRate].';
+        A0 = strat0(subsTrim(A,z));
+        dA0 = strat0(subsTrim(dA,z));
+
+        DqA0 = strat0(subsTrim(matdiff(A,state([q;v])),z));
+        DqdA0 = strat0(subsTrim(matdiff(dA,state([q;v])),z));
+        DudA0 = strat0(subsTrim(matdiff(dA,state(u)),z));
+
+        MA = [zeros(size(A,1),nq + nv),A0];
+        HA = [tprod(DqA0,du0) + tprod(DqdA0,u0),tprod(DudA0,u0) + dA0];
 
         eqnsd = [
             eqnsd;
-            f0 + f1 
+            MA*x.rate + HA*x.state
             ];
     end
 
     if ~isempty(v)
-        eomv = linearize(obj.Auxiliary,x,F);
+        eomv = strat0(linearize(obj.Auxiliary,x,F));
         eqnsd = [
             sym(eomv)
             eqnsd
@@ -94,16 +105,16 @@ function eom_lin = linearize(obj,options)
     Rkqd = eye(nq);
     if nq > nqi
         fc = obj.Constraints.configuration;
-        Jfcq = simplify(expand(strat(subsTrim(jacobian(fc,q.state),z))));
+        Jfcq = simplify(expand(strat0(subsTrim(jacobian(fc,q.state),z))));
         Dq = -Pqd*syminv(Jfcq*Pqd);
-        Rcq = simplify(strat(expand((eye(nq) + Dq*Jfcq)*Pqi)));
+        Rcq = simplify(strat0(expand((eye(nq) + Dq*Jfcq)*Pqi)));
 
         fcd = diff(obj.Constraints.configuration,sym('t'));
-        Jfcdq = simplify(expand(strat(subsTrim(jacobian(fcd,q.state),z))));
-        Jfcdqd = simplify(expand(strat(subsTrim(jacobian(fcd,q.rate),z))));
-        Dqd = strat(-Pqd*syminv(Jfcdqd*Pqd));
-        Rkq = simplify(strat(expand(Dqd*Jfcdq*Rcq)));
-        Rkqd = simplify(strat(expand((eye(nq) + Dqd*Jfcdqd)*Pqi)));
+        Jfcdq = simplify(expand(strat0(subsTrim(jacobian(fcd,q.state),z))));
+        Jfcdqd = simplify(expand(strat0(subsTrim(jacobian(fcd,q.rate),z))));
+        Dqd = strat0(-Pqd*syminv(Jfcdqd*Pqd));
+        Rkq = simplify(strat0(expand(Dqd*Jfcdq*Rcq)));
+        Rkqd = simplify(strat0(expand((eye(nq) + Dqd*Jfcdqd)*Pqi)));
     end
 
     Rvq = zeros(nq);
@@ -113,20 +124,20 @@ function eom_lin = linearize(obj,options)
     Raud = eye(nu + nv);
     if nu > nui
         fv = obj.Constraints.velocity;
-        Jfvq = simplify(expand(strat(subsTrim(jacobian(fv,q.state),z))));
-        Jfvu = simplify(expand(strat(subsTrim(jacobian(fv,state([v;u])),z))));
+        Jfvq = simplify(expand(strat0(subsTrim(jacobian(fv,q.state),z))));
+        Jfvu = simplify(expand(strat0(subsTrim(jacobian(fv,state([v;u])),z))));
         Du = -Pud*syminv(Jfvu*Pud);
-        Rvq = simplify(strat(expand(Du*Jfvq*Rcq)));
-        Rvu = simplify(strat(expand((eye(nu + nv) + Du*Jfvu)*Pui)));
+        Rvq = simplify(strat0(expand(Du*Jfvq*Rcq)));
+        Rvu = simplify(strat0(expand((eye(nu + nv) + Du*Jfvu)*Pui)));
 
         fa = obj.Constraints.acceleration;
-        Jfaq = simplify(expand(strat(subsTrim(jacobian(fa,q.state),z))));
-        Jfau = simplify(expand(strat(subsTrim(jacobian(fa,state([v;u])),z))));
-        Jfaud = simplify(expand(strat(subsTrim(jacobian(fa,rate([v;u])),z))));
-        Dud = strat(-Pud*syminv(Jfaud*Pud));
-        Raq = simplify(strat(expand(Dud*(Jfaq*Rcq + Jfau*Rvq))));
-        Rau = simplify(strat(expand(Dud*Jfau*Rvu)));
-        Raud = simplify(strat(expand((eye(nu + nv) + Dud*Jfaud)*Pui)));
+        Jfaq = simplify(expand(strat0(subsTrim(jacobian(fa,q.state),z))));
+        Jfau = simplify(expand(strat0(subsTrim(jacobian(fa,state([v;u])),z))));
+        Jfaud = simplify(expand(strat0(subsTrim(jacobian(fa,rate([v;u])),z))));
+        Dud = strat0(-Pud*syminv(Jfaud*Pud));
+        Raq = simplify(strat0(expand(Dud*(Jfaq*Rcq + Jfau*Rvq))));
+        Rau = simplify(strat0(expand(Dud*Jfau*Rvu)));
+        Raud = simplify(strat0(expand((eye(nu + nv) + Dud*Jfaud)*Pui)));
     end
 
     Rmd = blkdiag(Rkqd,Raud);
