@@ -43,125 +43,133 @@ function eoml = linearize(obj,x,F,options)
         adw(idx,idx) = blkdiag(vec2skew(w),vec2skew(w));
     end
 
-    u0 = [obj.States.TrimState].';
+    u0  = [obj.States.TrimState].';
     du0 = [obj.States.TrimRate].';
 
-    J0 = subsTrim(J,vars);
-    dJ0 = subsTrim(dJ,vars);
-    adw0 = subsTrim(adw,vars);
-    W0 = subsTrim(W,vars);
+    J0    = subsTrim(J,vars);
+    dJ0   = subsTrim(dJ,vars);
+    adw0  = subsTrim(adw,vars);
+    W0    = subsTrim(W,vars);
 
-    DqJ0 = strat0(subsTrim(matdiff(J,q),vars));
-    DqJ0t = permute(DqJ0,[2,1,3]);
-    DqdJ0 = strat0(subsTrim(matdiff(dJ,q),vars));
+    DqJ0   = strat0(subsTrim(matdiff(J,q),vars));
+    DqJ0t  = permute(DqJ0,[2,1,3]);
+    DqdJ0  = strat0(subsTrim(matdiff(dJ,q),vars));
     Dqadw0 = strat0(subsTrim(matdiff(adw,q),vars));
-    DqW0 = strat0(subsTrim(jacobian(W,q),vars));
+    DqW0   = strat0(subsTrim(jacobian(W,q),vars));
 
-    DudJ0 = strat0(subsTrim(matdiff(dJ,u),vars));
+    DudJ0  = strat0(subsTrim(matdiff(dJ,u),vars));
     Duadw0 = strat0(subsTrim(matdiff(adw,u),vars));
-    DuW0 = strat0(subsTrim(jacobian(W,u),vars));
+    DuW0   = strat0(subsTrim(jacobian(W,u),vars));
+
+    Jt0 = J0.';
+    JG0 = Jt0*G;
 
     if numel(dependent(obj.States)) < 1
-        df0dq = tprod(DqJ0t,G*J0*du0) + J0.'*G*tprod(DqJ0,du0);
-        df1dq = tprod(DqJ0t,G*dJ0*du0) + J0.'*G*trpod(DqdJ0,u0);
-        df2dq = tprod(DqJ0t,adw0*G*J0*u0) + J0.'*trpod(Dqadw0,G*J0*u0) + J0.'*adw0*G*tprod(DqJ0,u0);
-        df3dq = -tprod(DqJ0t,W0) - J0.'*DqW0;
+        GJ0du0    = G*J0*du0;
+        GdJ0u0    = G*dJ0*u0;
+        adwGJ0u0  = adw0*G*J0*u0;
+        GJ0u0     = G*J0*u0;
 
-        df1du = J0.'*G*tprod(DudJ0,u0) + J0.'*G*dJ0;
-        df2du = J0.'*tprod(Duadw0,G*J0*u0) + J0.'*adw0*G*J0;
-        df3du = -J0.'*DuW0;
+        JGJ0 = JG0*J0;
 
-        Mlin = [zeros(nu,nq),J0.'*G*J0];
-        Hlin = -[df0dq + df1dq + df2dq + df3dq,df1du + df2du + df3du];
-        Glin = -subsTrim(jacobian(-J.'*W,state(F)),vars);
+        df0dq = tprod(DqJ0t,GJ0du0) ...
+              + JG0*tprod(DqJ0,du0);
+
+        df1dq = tprod(DqJ0t,GdJ0u0) ...
+              + JG0*tprod(DqdJ0,u0);
+
+        df2dq = tprod(DqJ0t,adwGJ0u0) ...
+              + Jt0*tprod(Dqadw0,GJ0u0) ...
+              + Jt0*adw0*G*tprod(DqJ0,u0);
+
+        df3dq = -tprod(DqJ0t,W0) ...
+                -Jt0*DqW0;
+
+        df1du = JG0*tprod(DudJ0,u0) ...
+              + JG0*dJ0;
+
+        df2du = Jt0*tprod(Duadw0,GJ0u0) ...
+              + Jt0*adw0*G*J0;
+
+        df3du = -Jt0*DuW0;
+
+        Mlin = [zeros(nu,nq),JGJ0];
+
+        Hlin = -[df0dq + df1dq + df2dq + df3dq, ...
+                 df1du + df2du + df3du];
+
+        Glin = -subsTrim(jacobian(-Jt0*W,state(F)),vars);
+
     else
         ui = state(independent(obj.States));
         ud = state(dependent(obj.States));
-    
-        % Your jacobian(state(u),state(ui)) gives nu x nui,
-        % but the equations use row selectors, so transpose them.
+
         Si = jacobian(u,ui).';
         Sd = jacobian(u,ud).';
-    
-        Jc = strat(constrainingJacobian(obj));
-    
+
+        Jc = strat(obj.ConstraintJacobian);
+
         Si0 = subsTrim(Si,vars);
         Sd0 = subsTrim(Sd,vars);
         Jc0 = strat0(subsTrim(Jc,vars));
-    
+
         DqJc0t = strat0(subsTrim(matdiff(Jc.',q),vars));
-    
-        % Useful repeated blocks
-        B0 = strat0(J0.'*G*J0);
-        B1 = strat0(J0.'*G*dJ0);
-        B2 = strat0(J0.'*adw0*G*J0);
-    
-        % df0 / dq
-        df0dq_i = strat0(Si0*tprod(DqJ0t,G*J0*du0)) ...
-                + strat0(Si0*J0.'*G*tprod(DqJ0,du0));
-    
-        df0dq_d = strat0(tprod(DqJc0t,Sd0*B0*du0)) ...
-                + strat0(Jc0.'*Sd0*tprod(DqJ0t,G*J0*du0)) ...
-                + strat0(Jc0.'*Sd0*J0.'*G*tprod(DqJ0,du0));
-    
-        df0dq = df0dq_i + df0dq_d;
-    
-        % df1 / dq
-        df1dq_i = strat0(Si0*tprod(DqJ0t,G*dJ0*u0)) ...
-                + strat0(Si0*J0.'*G*tprod(DqdJ0,u0));
-    
-        df1dq_d = strat0(tprod(DqJc0t,Sd0*B1*u0)) ...
-                + strat0(Jc0.'*Sd0*tprod(DqJ0t,G*dJ0*u0)) ...
-                + strat0(Jc0.'*Sd0*J0.'*G*tprod(DqdJ0,u0));
-    
-        df1dq = df1dq_i + df1dq_d;
-    
-        % df2 / dq
-        df2dq_i = strat0(Si0*tprod(DqJ0t,adw0*G*J0*u0)) ...
-                + strat0(Si0*J0.'*tprod(Dqadw0,G*J0*u0)) ...
-                + strat0(Si0*J0.'*adw0*G*tprod(DqJ0,u0));
-    
-        df2dq_d = strat0(tprod(DqJc0t,Sd0*B2*u0)) ...
-                + strat0(Jc0.'*Sd0*tprod(DqJ0t,adw0*G*J0*u0)) ...
-                + strat0(Jc0.'*Sd0*J0.'*tprod(Dqadw0,G*J0*u0)) ...
-                + strat0(Jc0.'*Sd0*J0.'*adw0*G*tprod(DqJ0,u0));
-    
-        df2dq = df2dq_i + df2dq_d;
-    
-        % df3 / dq
-        df3dq_i = strat0(-Si0*tprod(DqJ0t,W0)) ...
-                  -strat0(Si0*J0.'*DqW0);
-    
-        df3dq_d = -strat0(tprod(DqJc0t,Sd0*J0.'*W0)) ...
-                  -strat0(Jc0.'*Sd0*tprod(DqJ0t,W0)) ...
-                  -strat0(Jc0.'*Sd0*J0.'*DqW0);
-    
-        df3dq = df3dq_i + df3dq_d;
-    
-        % df / du
-        df1du = strat0(Si0*J0.'*G*tprod(DudJ0,u0)) ...
-              + strat0(Si0*J0.'*G*dJ0) ...
-              + strat0(Jc0.'*Sd0*J0.'*G*tprod(DudJ0,u0)) ...
-              + strat0(Jc0.'*Sd0*J0.'*G*dJ0);
-    
-        df2du = strat0(Si0*J0.'*tprod(Duadw0,G*J0*u0)) ...
-              + strat0(Si0*J0.'*adw0*G*J0) ...
-              + strat0(Jc0.'*Sd0*J0.'*tprod(Duadw0,G*J0*u0)) ...
-              + strat0(Jc0.'*Sd0*J0.'*adw0*G*J0);
-    
-        df3du = -strat0(Si0*J0.'*DuW0) ...
-                -strat0(Jc0.'*Sd0*J0.'*DuW0);
-    
-        % Mass-like linear term wrt du
-        Mdu = strat0(Si0*J0.'*G*J0) ...
-            + strat0(Jc0.'*Sd0*J0.'*G*J0);
-    
+
+        P0  = strat0(Si0 + Jc0.'*Sd0);
+        PJ0 = strat0(P0*Jt0);
+        PJG0 = strat0(PJ0*G);
+
+        B0 = strat0(JG0*J0);
+        B1 = strat0(JG0*dJ0);
+        B2 = strat0(Jt0*adw0*G*J0);
+
+        PJGJ0   = strat0(PJG0*J0);
+        PJadGJ0 = strat0(PJ0*adw0*G*J0);
+
+        GJ0du0   = strat0(G*J0*du0);
+        GdJ0u0   = strat0(G*dJ0*u0);
+        adwGJ0u0 = strat0(adw0*G*J0*u0);
+        GJ0u0    = strat0(G*J0*u0);
+
+        c0 = strat0(Sd0*B0*du0);
+        c1 = strat0(Sd0*B1*u0);
+        c2 = strat0(Sd0*B2*u0);
+        c3 = strat0(Sd0*Jt0*W0);
+
+        df0dq = strat0(P0*tprod(DqJ0t,GJ0du0)) ...
+              + strat0(PJG0*tprod(DqJ0,du0)) ...
+              + strat0(tprod(DqJc0t,c0));
+
+        df1dq = strat0(P0*tprod(DqJ0t,GdJ0u0)) ...
+              + strat0(PJG0*tprod(DqdJ0,u0)) ...
+              + strat0(tprod(DqJc0t,c1));
+
+        df2dq = strat0(P0*tprod(DqJ0t,adwGJ0u0)) ...
+              + strat0(PJ0*tprod(Dqadw0,GJ0u0)) ...
+              + strat0(PJadGJ0*tprod(DqJ0,u0)) ...
+              + strat0(tprod(DqJc0t,c2));
+
+        df3dq = -strat0(P0*tprod(DqJ0t,W0)) ...
+                -strat0(PJ0*DqW0) ...
+                -strat0(tprod(DqJc0t,c3));
+
+        df1du = strat0(PJG0*tprod(DudJ0,u0)) ...
+              + strat0(PJG0*dJ0);
+
+        df2du = strat0(PJ0*tprod(Duadw0,GJ0u0)) ...
+              + strat0(PJadGJ0);
+
+        df3du = -strat0(PJ0*DuW0);
+
+        Mdu = PJGJ0;
+
         Mlin = [zeros(size(Mdu,1),nq),Mdu];
-    
-        Hlin = -[df0dq + df1dq + df2dq + df3dq,df1du + df2du + df3du];
-    
+
+        Hlin = -[df0dq + df1dq + df2dq + df3dq, ...
+                 df1du + df2du + df3du];
+
         Csym = Si + Jc.'*Sd;
-    
+
         Glin = -strat0(subsTrim(jacobian(-Csym*J.'*W,state(F)),vars));
     end
 

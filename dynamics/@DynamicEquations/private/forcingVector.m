@@ -24,7 +24,7 @@ function f = forcingVector(obj)
     f = J.'*(W - (G*dJ + adw*G*J)*u);
 
     if numel(dependent(obj.States)) > 0
-        Jc = obj.constrainingJacobian();
+        Jc = obj.ConstraintJacobian;
         n = numel(obj.States);
         m = size(Jc,1);
         k = n - m;
