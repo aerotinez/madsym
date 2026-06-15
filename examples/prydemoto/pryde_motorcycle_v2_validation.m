@@ -14,7 +14,7 @@ sharpParams = @(v) s2m(sharpParamsStruct(v));
 vx = [30, 50, 80, 110, 130];
 n2s = @num2str;
 
-scen = "Chicane";
+scen = "OpenLoop";
 results_path = "G:\My Drive\BikeSimResults\BigSports\" + scen;
 
 prydePlant = @prydeMotoLateralStateSpace;
