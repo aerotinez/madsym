@@ -17,9 +17,7 @@ translate([wheelbase,0,front_radius + front_crown_radius])
     wheel(radius = front_radius, crown_radius = front_crown_radius);
     
 translate([wheelbase,0,front_radius + front_crown_radius])
-    rotate([0,-caster,0])
         front_chassis(rake=rake);
         
 translate([0,0,rear_radius + rear_crown_radius])
-    rotate([0,90 - caster,0])
         rear_chassis(rake=rake);
