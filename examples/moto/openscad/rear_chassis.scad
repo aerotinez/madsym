@@ -5,7 +5,9 @@ module rear_chassis(
     rear_radius = 227,
     rake = 26.5,
     caster = 24,
-    wheelbase = 1370
+    wheelbase = 1370,
+    com_offset = 681.8797,
+    com_height = 591.87
 ) {
     d_radius = (front_radius + front_crown_radius)
              - (rear_radius + rear_crown_radius);
@@ -15,7 +17,9 @@ module rear_chassis(
     fork_length = rear_radius + 2 * rear_crown_radius;
     head_tube_length = rear_chassis_length - fork_length;
 
-    rotate([0,90 - caster,0]){
+    translate(-[com_offset,0,com_height - (rear_radius + rear_crown_radius)])
+    rotate([0,90 - caster,0])
+    {
         // Left fork lower
         translate([0, -1.5 * rear_crown_radius, 0])
             rotate([90, 0, 0])
