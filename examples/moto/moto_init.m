@@ -181,9 +181,3 @@ dR = ft.EffectiveRollingRadius - rt.EffectiveRollingRadius;
 lb = sm.Wheelbase*cos(caster) + dR*sin(caster) - sh.Rake;
 lh = sm.Wheelbase*sin(caster) - dR*cos(caster);
 lz = l*sin(caster) - ft.EffectiveRollingRadius*cos(caster);
-
-%% Front tire
-ftp = tireModel.new("MF");
-export(ftp,"my_tire.tir","overwrite",true);
-tire_params = simscape.multibody.tirread("my_tire.tir");
-tire_params.MODEL.TYRESIDE = "Left";
