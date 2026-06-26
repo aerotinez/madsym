@@ -181,3 +181,6 @@ dR = ft.EffectiveRollingRadius - rt.EffectiveRollingRadius;
 lb = sm.Wheelbase*cos(caster) + dR*sin(caster) - sh.Rake;
 lh = sm.Wheelbase*sin(caster) - dR*cos(caster);
 lz = l*sin(caster) - ft.EffectiveRollingRadius*cos(caster);
+
+%% Magic formula parameters
+pr = table2struct(rt.Pacejka);
