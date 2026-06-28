@@ -8,8 +8,5 @@ Ixx = m*(5*r^2 + 4*t^2)/8;
 Iyy = m*(4*r^2 + 3*t^2)/4;
 Izz = Ixx;
 
-tp = tireModel.new("MF");
-tp.export('my_tire.tir','overwrite',true);
-tire_params = simscape.multibody.tirread('my_tire.tir');
-tire_params.MODEL.TYRESIDE = "Left";
-
+bs = bigSportsParameters();
+pr = struct2array(table2struct(bs.RearTire.Pacejka))';
