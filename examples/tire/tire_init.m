@@ -10,3 +10,8 @@ Izz = Ixx;
 
 bs = bigSportsParameters();
 pr = struct2array(table2struct(bs.RearTire.Pacejka))';
+tr = bs.RearTire.UndeflectedCrownRadius;
+Lx = bs.RearTire.LongitudinalRelaxationLength;
+Ly = bs.RearTire.LateralRelaxationLength;
+Rr = bs.RearTire.EffectiveRollingRadius;
+Vlow = 5/3.6;

@@ -3,7 +3,8 @@ setmadsympath();
 
 %% Setup
 bs = bigSportsParameters();
-p = bikeSimToPrydeV2Parameters(bs,130/3.6);
+vx = 50/3.6;
+p = bikeSimToPrydeV2Parameters(bs,vx);
 caster = deg2rad(bs.SteeringHead.Caster);
 
 %% Initialize pose
@@ -183,4 +184,9 @@ lh = sm.Wheelbase*sin(caster) - dR*cos(caster);
 lz = l*sin(caster) - ft.EffectiveRollingRadius*cos(caster);
 
 %% Magic formula parameters
-pr = table2struct(rt.Pacejka);
+pr = struct2array(table2struct(rt.Pacejka));
+pf = struct2array(table2struct(ft.Pacejka));
+Vlow = 5/3.6;
+
+wr0 = vx/p.Rr;
+wf0 = vx/p.Rf;
