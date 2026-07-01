@@ -15,3 +15,4 @@ Lx = bs.RearTire.LongitudinalRelaxationLength;
 Ly = bs.RearTire.LateralRelaxationLength;
 Rr = bs.RearTire.EffectiveRollingRadius;
 Vlow = 5/3.6;
+vx = 50/3.6;
