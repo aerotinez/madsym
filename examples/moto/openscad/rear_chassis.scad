@@ -1,8 +1,8 @@
 module rear_chassis(
-    front_crown_radius = 50,
-    front_radius = 232,
-    rear_crown_radius = 70,
-    rear_radius = 227,
+    front_crown_radius = 300 - 215.9,
+    front_radius = 215.9,
+    rear_crown_radius = 325 - 215.9,
+    rear_radius = 215.9,
     rake = 26.5,
     caster = 24,
     wheelbase = 1370,
