@@ -1,10 +1,22 @@
 close("all"); clear; clc;
 setmadsympath();
 
+%% Magic formula parameters
+tpf = simscape.multibody.tirread("front_tire.tir");
+tpr = simscape.multibody.tirread("rear_tire.tir");
+
 %% Setup
 bs = bigSportsParameters();
-vx = 50/3.6;
-p = bikeSimToPrydeV2Parameters(bs,vx);
+bs.FrontTire.EffectiveRollingRadius = tpf.DIMENSION.UNLOADED_RADIUS;
+bs.FrontTire.Mass = tpf.INERTIA.MASS;
+bs.FrontTire.SpinInertia = tpf.INERTIA.IYY;
+bs.FrontTire.UndeflectedCrownRadius = tpf.DIMENSION.UNLOADED_RADIUS - tpf.DIMENSION.RIM_RADIUS;
+bs.RearTire.EffectiveRollingRadius = tpr.DIMENSION.UNLOADED_RADIUS;
+bs.RearTire.Mass = tpr.INERTIA.MASS;
+bs.RearTire.SpinInertia = tpr.INERTIA.IYY;
+bs.RearTire.UndeflectedCrownRadius = tpr.DIMENSION.UNLOADED_RADIUS - tpr.DIMENSION.RIM_RADIUS;
+vx = 130/3.6;
+p = bikeSimToPrydeV2Parameters(bs,vx + 1);
 caster = deg2rad(bs.SteeringHead.Caster);
 
 %% Initialize pose
@@ -79,22 +91,20 @@ swing_arm = body(Nsa,Osa,Isa,sa.Mass);
 %% Rear tire
 rt = bs.RearTire;
 
-Irt = zeros(3);
-Irt(2,2) = rt.SpinInertia;
+Irt = diag([tpr.INERTIA.IXX,tpr.INERTIA.IYY,tpr.INERTIA.IXX]);
 
-Ort = -sm.Wheelbase.*N(:,1) + rt.EffectiveRollingRadius*N(:,3);
+Ort = -sm.Wheelbase.*N(:,1) + tpr.DIMENSION.UNLOADED_RADIUS*N(:,3);
 
-rear_tire = body(N,Ort,Irt,rt.Mass);
+rear_tire = body(N,Ort,Irt,tpr.INERTIA.MASS);
 
 %% Front tire
 ft = bs.FrontTire;
 
-Ift = zeros(3);
-Ift(2,2) = ft.SpinInertia;
+Ift = diag([tpf.INERTIA.IXX,tpf.INERTIA.IYY,tpf.INERTIA.IXX]);
 
-Oft = ft.EffectiveRollingRadius.*N(:,3);
+Oft = tpf.DIMENSION.UNLOADED_RADIUS.*N(:,3);
 
-front_tire = body(N,Oft,Ift,ft.Mass);
+front_tire = body(N,Oft,Ift,tpf.INERTIA.MASS);
 
 %% Steering head
 sh = bs.SteeringHead;
@@ -162,10 +172,11 @@ mh = sum([front_bodies.m]);
 Oh = sum([front_bodies.O].*[front_bodies.m],2)/mh;
 rf = Oh - [front_bodies.O];
 l = abs(Ob(1));
-an = ft.EffectiveRollingRadius*sin(caster) - sh.Rake;
+an = tpf.DIMENSION.UNLOADED_RADIUS*sin(caster) - sh.Rake;
 a = l*cos(caster) + an;
 B = O - l.*N(:,1) + a.*Nsh(:,1);
 Gf = Nsh.'*(Oh - B);
+f = p.j*cos(caster) - p.k*sin(caster);
 
 % inertia tensor
 I = zeros(3,3,numel(front_bodies));
@@ -178,15 +189,14 @@ for k = 1:numel(front_bodies)
 end
 If = sum(I,3);
 
-dR = ft.EffectiveRollingRadius - rt.EffectiveRollingRadius;
+dR = tpf.DIMENSION.UNLOADED_RADIUS - tpr.DIMENSION.UNLOADED_RADIUS;
 lb = sm.Wheelbase*cos(caster) + dR*sin(caster) - sh.Rake;
 lh = sm.Wheelbase*sin(caster) - dR*cos(caster);
-lz = l*sin(caster) - ft.EffectiveRollingRadius*cos(caster);
+lz = l*sin(caster) - tpf.DIMENSION.UNLOADED_RADIUS*cos(caster);
 
-%% Magic formula parameters
-pr = struct2array(table2struct(rt.Pacejka));
-pf = struct2array(table2struct(ft.Pacejka));
-Vlow = 5/3.6;
+m = p.mf + p.mb + p.mh + p.mr;
 
-wr0 = vx/p.Rr;
-wf0 = vx/p.Rf;
+%% Initial conditions
+z0 = 0.31567;
+wr0 = vx/tpr.DIMENSION.UNLOADED_RADIUS;
+wf0 = vx/tpf.DIMENSION.UNLOADED_RADIUS;
