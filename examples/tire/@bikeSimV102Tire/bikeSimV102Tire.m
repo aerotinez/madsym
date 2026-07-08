@@ -72,7 +72,10 @@ classdef bikeSimV102Tire < handle
     end
     methods (Access = public)
         function obj = bikeSimV102Tire()
-
+            props = properties(obj);
+            for k = 1:numel(props)
+                obj.(props{k}) = 0;
+            end
         end
         [Fx,Fy,Fz,Mx,My,Mz] = compute(obj,k,a,g,fz)
         export(obj)
@@ -85,13 +88,21 @@ classdef bikeSimV102Tire < handle
         importPar(obj,par)
         importPac(obj,par)
         dfz = fzRatio(obj,fz)
-        fx0 = fxPureSlip(obj,k,fz,dfz)
-        fx = fxCombinedSlip(obj,fx0,a)
-        fy0 = fyPureSlip(obj,a,g,fz,dfz)
-        fy = fyCombinedSlip(obj,fy0,k)
-        tx = overturningMoment(obj,fz)
-        ty = rollingResistance(obj,k,a)
-        tz0 = aligningMomentPureSlip(obj,a,g,fz,dfz)
-        tz = aligningMomentCombinedSlip(obj,k)
+        Dx = lonPeakFactor(obj,fz,dfz)
+        Ex = lonCurvatureFactor(obj,k,dfz)
+        Kx = lonStiffnessFactor(obj,fz,dfz)
+        Fx0 = lonForcePureSlip(obj,k,fz,dfz)
+        Dy = latPeakFactorSlip(obj,g,fz,dfz)
+        Ey = latCurvatureFactorSlip(obj,a,g)
+        Kya = latStiffnessFactorSlip(obj,g,fz)
+        Kyg = latStiffnessFactorCamber(obj,fz,dfz)
+        Fy0 = latForcePureSlip(obj,a,g,fz,dfz)
+        SHr = horizontalShift(obj,g,dfz)
+        Bt = trailStiffnessFactor(obj,g,dfz)
+        Dt = trailPeakFactor(obj,g,fz,dfz)
+        Et = trailCurvatureFactor(obj,a,g,dfz,Bt)
+        Br = resStiffnessFactor(obj,By)
+        Dr = resPeakFactor(obj,a,g,fz,dfz)
+        
     end
 end
