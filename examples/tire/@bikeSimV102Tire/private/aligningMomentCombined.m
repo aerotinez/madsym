@@ -1,0 +1,22 @@
+function Mz = aligningMomentCombined(obj,k,a,g,fz,dfz)
+    Kx = lonStiffnessFactor(obj,fz,dfz);
+    Kyag0 = latStiffnessFactorSlip(obj,0.*g,fz);
+    SHr = horizontalShift(obj,g,dfz);
+    lt = sqrt(a.^2 + (Kx.*k./Kyag0).^2).*sign(a);
+    lr = sqrt((a + SHr).^2 + (Kx.*k./Kyag0).^2).*sign(a + SHr);
+    Dy = latPeakFactorSlip(obj,g,fz,dfz);
+    Cy = obj.P_BIKE_PCY1;
+    Kya = latStiffnessFactorSlip(obj,g,fz);
+    By = Kya./(Cy.*Dy);
+    Br = resStiffnessFactor(obj,By);
+    Dr = resPeakFactor(obj,a,g,fz,dfz);
+    Mzr = Dr.*cos(atan(Br.*lr));
+    Byk = latStiffnessFactorCombined(obj,a);
+    Fy0g0 = latForcePureSlip(obj,a,0.*g,fz,dfz);
+    Fyg0 = cos(obj.P_BIKE_RCY1.*atan(Byk.*k)).*Fy0g0;
+    Bt = trailStiffnessFactor(obj,g,dfz);
+    Ct = obj.P_BIKE_QCZ1;
+    Dt = trailPeakFactor(obj,g,fz,dfz);
+    Et = trailCurvatureFactor(obj,a,g,dfz,Bt);
+    Mz = -Dt.*cos(Ct.*atan(Bt.*lt - Et.*(Bt.*lt - atan(Bt.*lt))))./sqrt(1 + a.^2).*Fyg0 + Mzr;
+end

@@ -77,7 +77,7 @@ classdef bikeSimV102Tire < handle
                 obj.(props{k}) = 0;
             end
         end
-        [Fx,Fy,Fz,Mx,My,Mz] = compute(obj,k,a,g,fz)
+        [Fx,Fy,Fz,Mx,My,Mz] = compute(obj,k,a,g,fz,w)
         export(obj)
         import(obj,par,pac)
         plot(obj,options)
@@ -103,6 +103,12 @@ classdef bikeSimV102Tire < handle
         Et = trailCurvatureFactor(obj,a,g,dfz,Bt)
         Br = resStiffnessFactor(obj,By)
         Dr = resPeakFactor(obj,a,g,fz,dfz)
-        
+        Bxa = lonStiffnessFactorCombined(obj,k)
+        Fx = lonForceCombined(obj,k,a,fz,dfz)
+        Byk = latStiffnessFactorCombined(obj,a)
+        Fy = latForceCombined(obj,k,a,g,fz,dfz)
+        Mz = aligningMomentCombined(obj,k,a,g,fz,dfz)
+        My = rollingResistance(obj,w,fz)
+        Mx = overturningMoment(obj,g,Fx,Fy,Fz,My,Mz)
     end
 end

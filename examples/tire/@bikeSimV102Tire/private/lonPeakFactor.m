@@ -1,3 +1,3 @@
 function Dx = lonPeakFactor(obj,fz,dfz)
-    Dx = (obj.P_BIKE_DX1 + obj.P_BIKE_DX2.*dfz).*fz;
+    Dx = (obj.P_BIKE_PDX1 + obj.P_BIKE_PDX2.*dfz).*fz;
 end
