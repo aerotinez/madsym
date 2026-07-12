@@ -5,7 +5,7 @@ function My = rollingResistance(obj,w,fz)
     elseif (w.*obj.RRE < -VlowRR)
         Sr = -1;
     else
-        Sr = -cos((VloRR - w.*obj.RRE).*(pi/2)./VlowRR);
+        Sr = -cos((VlowRR - w.*obj.RRE).*(pi/2)./VlowRR);
     end
     My = fz.*obj.RRE.*(obj.RR_C + obj.RR_V.*abs(w.*obj.RRE)).*Sr;
 end
