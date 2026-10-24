@@ -107,8 +107,8 @@ for k = 1:nV
 end
 
 %% --- FREQUENCIES ---
-f_weave  = arrayfun(@(k) fd(weave(k),k), 1:nV);
-f_wobble = arrayfun(@(k) fd(wobble(k),k),1:nV);
+% f_weave  = arrayfun(@(k) fd(weave(k),k), 1:nV);
+% f_wobble = arrayfun(@(k) fd(wobble(k),k),1:nV);
 
 %% --- PLOT: pole trajectories ---
 fig = figure("Position",[100,100,640,240]); 
